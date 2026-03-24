@@ -1,0 +1,82 @@
+version: 2.1
+
+# Orbs provide pre-packaged chunks of configuration
+orbs:
+  node: circleci/node@5.2.0
+  codecov: codecov/codecov@3.2.4
+
+# Define the jobs to be run
+jobs:
+  build_and_test:
+    docker:
+      - image: cimg/node:20.11.0 # En güncel LTS Node sürümü
+    
+    working_directory: ~/repo
+
+    steps:
+      - checkout
+
+      # 1. Bağımlılıkları Yükle ve Önbelleğe Al
+      - node/install-packages:
+          pkg-manager: npm
+          override-ci-command: npm install
+
+      # 2. Tip Güvenliği Kontrolü (TypeScript)
+      - run:
+          name: TypeScript Type Check
+          command: npx tsc --noEmit || true
+
+      # 3. Kod Standartları Kontrolü (ESLint)
+      - run:
+          name: Lint Check
+          command: npx eslint . --ext .js,.jsx,.ts,.tsx --max-warnings=0 || true
+
+      # 4. Jest Unit Testleri with Coverage
+      - run:
+          name: Run Jest Tests with Coverage
+          command: |
+            mkdir -p coverage
+            npx jest --ci --forceExit --coverage --coverageReporters=text --coverageReporters=lcov --coverageReporters=html
+
+      # 5. Upload Coverage to Codecov (optional)
+      - codecov/upload:
+          file: ./coverage/lcov.info
+          flags: unittests
+
+      # 6. Expo Proje Sağlık Kontrolü
+      - run:
+          name: Expo Doctor Check
+          command: npx expo-doctor
+
+      # 7. Store coverage artifacts
+      - store_artifacts:
+          path: coverage
+          destination: coverage
+
+      # 8. Store test results
+      - store_test_results:
+          path: coverage
+
+# Define workflows
+workflows:
+  quality_gate:
+    jobs:
+      - build_and_test:
+          filters:
+            branches:
+              only:
+                - main
+                - develop
+                - test-.*
+
+  # Scheduled nightly build
+  nightly:
+    triggers:
+      - schedule:
+          cron: "0 2 * * *"
+          filters:
+            branches:
+              only:
+                - main
+    jobs:
+      - build_and_test

@@ -1,0 +1,1040 @@
+import React, { useState, useEffect } from "react";
+import {
+  StyleSheet,
+  View,
+  Text,
+  SafeAreaView,
+  ScrollView,
+  TouchableOpacity,
+  TextInput,
+  Linking,
+  KeyboardAvoidingView,
+  Platform,
+  Alert,
+  Switch,
+} from "react-native";
+import { LinearGradient } from "expo-linear-gradient";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import {
+  BrainCircuit,
+  ChevronLeft,
+  ExternalLink,
+  ShieldCheck,
+  Zap,
+  Sparkles,
+  Save,
+  CheckCircle2,
+  MessagesSquare,
+  RotateCcw,
+  Volume2,
+  VolumeX,
+  Radio,
+  Server,
+} from "lucide-react-native";
+import { useTheme } from "../src/components/ThemeProvider";
+import { useTranslation } from "react-i18next";
+import { useAIStore } from "../src/store/aiStore";
+import { useRouter } from "expo-router";
+import * as Haptics from "expo-haptics";
+import { soundService } from "../src/services/SoundService";
+import { CustomAlert } from "../src/components/CustomAlert";
+
+export default function AISettingsScreen() {
+  const insets = useSafeAreaInsets();
+  const { colors, isDarkMode } = useTheme();
+  const { t } = useTranslation();
+  const router = useRouter();
+  const { 
+    apiKey, 
+    setApiKey, 
+    groqApiKey,
+    setGroqKey,
+    activeProvider,
+    setActiveProvider,
+    groqModel,
+    setGroqModel,
+    isAIEnabled, 
+    toggleAI, 
+    customSystemPrompt, 
+    setCustomSystemPrompt,
+    pollinationsApiKey,
+    setPollinationsApiKey,
+    chatSoundsEnabled,
+    setChatSoundsEnabled,
+    chatSoundType,
+    setChatSoundType,
+    ollamaModel,
+    setOllamaModel,
+    imageProvider,
+    setImageProvider,
+    localSdModel,
+    setLocalSdModel,
+    localSdIp,
+    setLocalSdIp,
+  } = useAIStore();
+  const [inputKey, setInputKey] = useState(apiKey || "");
+  const [inputGroqKey, setInputGroqKey] = useState(groqApiKey || "");
+  const [inputGroqModel, setInputGroqModel] = useState(groqModel || "llama-3.1-8b-instant");
+  const [inputPollinationsKey, setInputPollinationsKey] = useState(pollinationsApiKey || "");
+  const [inputPrompt, setInputPrompt] = useState(customSystemPrompt || "");
+  const [inputOllamaModel, setInputOllamaModel] = useState(ollamaModel || "gpt-oss-20b");
+  const [inputLocalSdModel, setInputLocalSdModel] = useState(localSdModel || "");
+  const [inputLocalSdIp, setInputLocalSdIp] = useState(localSdIp || "192.168.1.203");
+  const [isSaved, setIsSaved] = useState(false);
+  const [isGroqSaved, setIsGroqSaved] = useState(false);
+  const [isOllamaSaved, setIsOllamaSaved] = useState(false);
+  const [isPollinationsSaved, setIsPollinationsSaved] = useState(false);
+  const [isLocalSdSaved, setIsLocalSdSaved] = useState(false);
+  const [isPromptSaved, setIsPromptSaved] = useState(false);
+  const [resetAlertVisible, setResetAlertVisible] = useState(false);
+
+  useEffect(() => {
+    setInputKey(apiKey || "");
+    setInputGroqKey(groqApiKey || "");
+    setInputGroqModel(groqModel || "llama-3.1-8b-instant");
+    setInputPollinationsKey(pollinationsApiKey || "");
+    setInputOllamaModel(ollamaModel || "gpt-oss-20b");
+    setInputLocalSdModel(localSdModel || "");
+    setInputLocalSdIp(localSdIp || "192.168.1.203");
+  }, [apiKey, groqApiKey, groqModel, pollinationsApiKey, ollamaModel, localSdModel, localSdIp]);
+
+  const handleBack = () => {
+    soundService.playClick();
+    router.back();
+  };
+
+  const handleSave = async () => {
+    try {
+      await setApiKey(inputKey.trim() || null);
+      setIsSaved(true);
+      soundService.playComplete();
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      setTimeout(() => setIsSaved(false), 3000);
+    } catch (error) {
+      Alert.alert(t("settings.ai.error"), t("settings.ai.invalidKey"));
+    }
+  };
+
+  const handleSaveGroq = async () => {
+    try {
+      await setGroqKey(inputGroqKey.trim() || null);
+      setGroqModel(inputGroqModel.trim() || "llama-3.1-8b-instant");
+      setIsGroqSaved(true);
+      soundService.playComplete();
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      setTimeout(() => setIsGroqSaved(false), 3000);
+    } catch (error) {
+      Alert.alert(t("settings.ai.error"), t("settings.ai.invalidKey"));
+    }
+  };
+
+  const handleSaveOllama = async () => {
+    try {
+      setOllamaModel(inputOllamaModel.trim() || "gpt-oss-20b");
+      setIsOllamaSaved(true);
+      soundService.playComplete();
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      setTimeout(() => setIsOllamaSaved(false), 3000);
+    } catch (error) {
+      Alert.alert("Hatali", "Ollama Modeli kaydedilemedi");
+    }
+  };
+
+  const handleSavePollinations = async () => {
+    try {
+      await setPollinationsApiKey(inputPollinationsKey.trim() || null);
+      setIsPollinationsSaved(true);
+      soundService.playComplete();
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      setTimeout(() => setIsPollinationsSaved(false), 3000);
+    } catch (error) {
+      Alert.alert(t("settings.ai.error"), t("settings.ai.invalidKey"));
+    }
+  };
+
+  const handleSaveLocalSd = async () => {
+    try {
+      setLocalSdModel(inputLocalSdModel.trim());
+      setLocalSdIp(inputLocalSdIp.trim());
+      setIsLocalSdSaved(true);
+      soundService.playComplete();
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      setTimeout(() => setIsLocalSdSaved(false), 3000);
+    } catch (error) {
+      Alert.alert("Hatali", "Yerel Görüntü Ayarları kaydedilemedi");
+    }
+  };
+
+  const handleSavePrompt = () => {
+    setCustomSystemPrompt(inputPrompt.trim() || null);
+    setIsPromptSaved(true);
+    soundService.playComplete();
+    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    setTimeout(() => setIsPromptSaved(false), 3000);
+  };
+
+  const resetPrompt = () => {
+    soundService.playClick();
+    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
+    setResetAlertVisible(true);
+  };
+
+  const confirmResetPrompt = () => {
+    setResetAlertVisible(false);
+    setInputPrompt("");
+    setCustomSystemPrompt(null);
+    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    soundService.playComplete();
+  };
+
+  const openGeminiDashboard = () => {
+    soundService.playClick();
+    Linking.openURL("https://aistudio.google.com/app/apikey");
+  };
+
+  const openPollinationsDashboard = () => {
+    soundService.playClick();
+    Linking.openURL("https://enter.pollinations.ai");
+  };
+
+  return (
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+      <LinearGradient
+        colors={[colors.primary, colors.secondary || colors.primary]}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={[styles.header, { paddingTop: insets.top + 12 }]}
+      >
+        <View style={styles.headerDecorationCircle1} />
+        <View style={styles.headerDecorationCircle2} />
+
+        <TouchableOpacity style={styles.backButton} onPress={handleBack}>
+          <ChevronLeft size={24} color="#FFFFFF" />
+          <Text style={[styles.backText, { color: "#FFFFFF" }]}>
+            {t("settings.title")}
+          </Text>
+        </TouchableOpacity>
+
+        <View style={styles.headerTitleContainer}>
+          <BrainCircuit size={32} color="#FFFFFF" style={styles.headerIcon} />
+          <Text style={[styles.title, { color: "#FFFFFF" }]}>
+            {t("settings.ai.title")}
+          </Text>
+          <Text style={[styles.subtitle, { color: "rgba(255, 255, 255, 0.85)" }]}>
+            {t("settings.ai.description")}
+          </Text>
+        </View>
+      </LinearGradient>
+
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        style={{ flex: 1 }}
+      >
+        <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
+          {/* AI Status Toggle */}
+          <View style={[styles.card, { backgroundColor: colors.card, borderColor: colors.border }]}>
+            <View style={styles.settingRow}>
+              <View style={styles.settingText}>
+                <Text style={[styles.cardTitle, { color: colors.text }]}>
+                  {t("settings.ai.enableAI")}
+                </Text>
+                <Text style={[styles.cardDesc, { color: colors.subText }]}>
+                  {t("settings.ai.enableAIDesc")}
+                </Text>
+              </View>
+              <Switch
+                value={isAIEnabled && (activeProvider === 'gemini' ? !!apiKey : activeProvider === 'groq' ? !!groqApiKey : true)}
+                disabled={!(activeProvider === 'gemini' ? !!apiKey : activeProvider === 'groq' ? !!groqApiKey : true)}
+                onValueChange={toggleAI}
+                trackColor={{ false: "#767577", true: colors.primary + '80' }}
+                thumbColor={(isAIEnabled && (activeProvider === 'gemini' ? !!apiKey : activeProvider === 'groq' ? !!groqApiKey : true)) ? colors.primary : "#f4f3f4"}
+              />
+            </View>
+          </View>
+
+          {/* Provider Selection */}
+          <View style={[styles.card, { backgroundColor: colors.card, borderColor: colors.border }]}>
+            <View style={styles.cardHeader}>
+              <Zap size={20} color={colors.primary} />
+              <Text style={[styles.cardTitle, { color: colors.text }]}>
+                AI Provider
+              </Text>
+            </View>
+            <View style={styles.providerGrid}>
+              <TouchableOpacity
+                style={[
+                  styles.providerOption,
+                  { 
+                    backgroundColor: activeProvider === 'gemini' ? colors.primary + '15' : 'transparent',
+                    borderColor: activeProvider === 'gemini' ? colors.primary : colors.border,
+                  }
+                ]}
+                onPress={() => {
+                  setActiveProvider('gemini');
+                  soundService.playClick();
+                  Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                }}
+              >
+                <Sparkles size={20} color={activeProvider === 'gemini' ? colors.primary : colors.subText} />
+                <Text style={[styles.providerLabel, { color: activeProvider === 'gemini' ? colors.text : colors.subText }]}>Gemini</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={[
+                  styles.providerOption,
+                  { 
+                    backgroundColor: activeProvider === 'groq' ? colors.primary + '15' : 'transparent',
+                    borderColor: activeProvider === 'groq' ? colors.primary : colors.border,
+                  }
+                ]}
+                onPress={() => {
+                  setActiveProvider('groq');
+                  soundService.playClick();
+                  Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                }}
+              >
+                <Zap size={20} color={activeProvider === 'groq' ? colors.primary : colors.subText} />
+                <Text style={[styles.providerLabel, { color: activeProvider === 'groq' ? colors.text : colors.subText }]}>Groq</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={[
+                  styles.providerOption,
+                  { 
+                    backgroundColor: activeProvider === 'ollama' ? colors.primary + '15' : 'transparent',
+                    borderColor: activeProvider === 'ollama' ? colors.primary : colors.border,
+                  }
+                ]}
+                onPress={() => {
+                  setActiveProvider('ollama');
+                  soundService.playClick();
+                  Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                }}
+              >
+                <BrainCircuit size={20} color={activeProvider === 'ollama' ? colors.primary : colors.subText} />
+                <Text style={[styles.providerLabel, { color: activeProvider === 'ollama' ? colors.text : colors.subText }]}>Yerel</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+
+          {/* Ollama Settings */}
+          {activeProvider === 'ollama' && (
+            <View style={[styles.card, { backgroundColor: colors.card, borderColor: colors.border }]}>
+              <View style={styles.cardHeader}>
+                <BrainCircuit size={20} color={colors.primary} />
+                <Text style={[styles.cardTitle, { color: colors.text }]}>
+                  Yerel Ollama Model
+                </Text>
+              </View>
+              
+              <Text style={[styles.cardDesc, { color: colors.subText, marginBottom: 12 }]}>
+                {isDarkMode ? "İndirdiğiniz Ollama modelinin adını girin (Örn: gpt-oss-20b, llama3.1)." : "Enter the Ollama model name you downloaded."}
+              </Text>
+
+              <Text style={[styles.cardDesc, { color: colors.text, fontWeight: '600', marginBottom: 8, marginTop: 4 }]}>
+                Model Adı
+              </Text>
+              <TextInput
+                style={[
+                  styles.input,
+                  {
+                    color: colors.text,
+                    backgroundColor: isDarkMode ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.02)",
+                    borderColor: colors.border,
+                    marginBottom: 20
+                  },
+                ]}
+                placeholder="gpt-oss-20b"
+                placeholderTextColor={colors.subText}
+                value={inputOllamaModel}
+                onChangeText={setInputOllamaModel}
+                autoCapitalize="none"
+              />
+
+              <TouchableOpacity 
+                style={[styles.saveButton, { backgroundColor: colors.primary }]} 
+                onPress={handleSaveOllama}
+              >
+                {isOllamaSaved ? (
+                  <View style={styles.saveContent}>
+                    <CheckCircle2 size={20} color="#FFFFFF" />
+                    <Text style={styles.saveButtonText}>{t("common.success")}</Text>
+                  </View>
+                ) : (
+                  <View style={styles.saveContent}>
+                    <Save size={20} color="#FFFFFF" />
+                    <Text style={styles.saveButtonText}>Modeli Kaydet</Text>
+                  </View>
+                )}
+              </TouchableOpacity>
+            </View>
+          )}
+
+          {/* Groq Settings */}
+          {activeProvider === 'groq' && (
+            <View style={[styles.card, { backgroundColor: colors.card, borderColor: colors.border }]}>
+              <View style={styles.cardHeader}>
+                <Server size={20} color={colors.primary} />
+                <Text style={[styles.cardTitle, { color: colors.text }]}>
+                  Groq / OpenAI Settings
+                </Text>
+              </View>
+              
+              <Text style={[styles.cardDesc, { color: colors.subText, marginBottom: 12 }]}>
+                {isDarkMode ? "Groq veya OpenAI uyumlu bir API anahtarı girin." : "Enter a Groq or OpenAI compatible API key."}
+              </Text>
+
+              <TextInput
+                style={[
+                  styles.input,
+                  {
+                    color: colors.text,
+                    backgroundColor: isDarkMode ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.02)",
+                    borderColor: colors.border,
+                  },
+                ]}
+                placeholder="gsk_..."
+                placeholderTextColor={colors.subText}
+                value={inputGroqKey}
+                onChangeText={setInputGroqKey}
+                secureTextEntry
+                autoCapitalize="none"
+              />
+
+              <Text style={[styles.cardDesc, { color: colors.text, fontWeight: '600', marginBottom: 8, marginTop: 4 }]}>
+                Model ID
+              </Text>
+              <TextInput
+                style={[
+                  styles.input,
+                  {
+                    color: colors.text,
+                    backgroundColor: isDarkMode ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.02)",
+                    borderColor: colors.border,
+                    marginBottom: 20
+                  },
+                ]}
+                placeholder="llama-3.1-8b-instant"
+                placeholderTextColor={colors.subText}
+                value={inputGroqModel}
+                onChangeText={setInputGroqModel}
+                autoCapitalize="none"
+              />
+
+              <TouchableOpacity 
+                style={[styles.saveButton, { backgroundColor: colors.primary }]} 
+                onPress={handleSaveGroq}
+              >
+                {isGroqSaved ? (
+                  <View style={styles.saveContent}>
+                    <CheckCircle2 size={20} color="#FFFFFF" />
+                    <Text style={styles.saveButtonText}>{t("common.success")}</Text>
+                  </View>
+                ) : (
+                  <View style={styles.saveContent}>
+                    <Save size={20} color="#FFFFFF" />
+                    <Text style={styles.saveButtonText}>{t("settings.ai.saveKey")}</Text>
+                  </View>
+                )}
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={[styles.helpLink, { marginTop: 12 }]}
+                onPress={() => Linking.openURL("https://console.groq.com/keys")}
+              >
+                <Text style={[styles.helpLinkText, { color: colors.primary }]}>
+                  Groq Dashboard
+                </Text>
+                <ExternalLink size={14} color={colors.primary} />
+              </TouchableOpacity>
+            </View>
+          )}
+
+          {/* Gemini API Key */}
+          {activeProvider === 'gemini' && (
+            <View style={[styles.card, { backgroundColor: colors.card, borderColor: colors.border }]}>
+            <View style={styles.cardHeader}>
+              <ShieldCheck size={20} color={colors.primary} />
+              <Text style={[styles.cardTitle, { color: colors.text }]}>
+                Gemini API Key
+              </Text>
+            </View>
+            
+            <Text style={[styles.cardDesc, { color: colors.subText, marginBottom: 16 }]}>
+              {t("settings.ai.secureStorageDesc")}
+            </Text>
+
+            <TextInput
+              style={[
+                styles.input,
+                {
+                  color: colors.text,
+                  backgroundColor: isDarkMode ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.02)",
+                  borderColor: isSaved ? colors.success : colors.border,
+                },
+              ]}
+              placeholder={t("settings.ai.apiKeyPlaceholder")}
+              placeholderTextColor={colors.subText}
+              value={inputKey}
+              onChangeText={setInputKey}
+              secureTextEntry
+              autoCapitalize="none"
+              autoCorrect={false}
+            />
+
+            <TouchableOpacity
+              style={styles.helpLink}
+              onPress={openGeminiDashboard}
+            >
+              <Text style={[styles.helpLinkText, { color: colors.primary }]}>
+                {t("settings.ai.howToGet")}
+              </Text>
+              <ExternalLink size={14} color={colors.primary} />
+            </TouchableOpacity>
+
+            <TouchableOpacity 
+              style={[styles.saveButton, { backgroundColor: colors.primary }]} 
+              onPress={handleSave}
+            >
+              {isSaved ? (
+                <View style={styles.saveContent}>
+                  <CheckCircle2 size={20} color="#FFFFFF" />
+                  <Text style={styles.saveButtonText}>{t("common.success")}</Text>
+                </View>
+              ) : (
+                <View style={styles.saveContent}>
+                  <Save size={20} color="#FFFFFF" />
+                  <Text style={styles.saveButtonText}>{t("settings.ai.saveKey")}</Text>
+                </View>
+              )}
+            </TouchableOpacity>
+          </View>
+          )}
+
+          {/* Görüntü Üretici / Image Provider */}
+          <View style={[styles.card, { backgroundColor: colors.card, borderColor: colors.border }]}>
+            <View style={styles.cardHeader}>
+              <Sparkles size={20} color={colors.info} />
+              <Text style={[styles.cardTitle, { color: colors.text }]}>
+                {isDarkMode ? "Görüntü Üretim Modeli" : "Image Generation Model"}
+              </Text>
+            </View>
+
+            <View style={styles.providerGrid}>
+              <TouchableOpacity
+                style={[
+                  styles.providerOption,
+                  { 
+                    backgroundColor: imageProvider === 'pollinations' ? colors.info + '15' : 'transparent',
+                    borderColor: imageProvider === 'pollinations' ? colors.info : colors.border,
+                  }
+                ]}
+                onPress={() => {
+                  setImageProvider('pollinations');
+                  soundService.playClick();
+                  Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                }}
+              >
+                <Sparkles size={20} color={imageProvider === 'pollinations' ? colors.info : colors.subText} />
+                <Text style={[styles.providerLabel, { color: imageProvider === 'pollinations' ? colors.text : colors.subText }]}>Pollinations</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={[
+                  styles.providerOption,
+                  { 
+                    backgroundColor: imageProvider === 'local' ? colors.info + '15' : 'transparent',
+                    borderColor: imageProvider === 'local' ? colors.info : colors.border,
+                  }
+                ]}
+                onPress={() => {
+                  setImageProvider('local');
+                  soundService.playClick();
+                  Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                }}
+              >
+                <Server size={20} color={imageProvider === 'local' ? colors.info : colors.subText} />
+                <Text style={[styles.providerLabel, { color: imageProvider === 'local' ? colors.text : colors.subText }]}>Local SD</Text>
+              </TouchableOpacity>
+            </View>
+
+            {/* Pollinations Ayarları */}
+            {imageProvider === 'pollinations' && (
+              <View style={{ marginTop: 16 }}>
+                <Text style={[styles.cardDesc, { color: colors.subText, marginBottom: 16 }]}>
+                  {isDarkMode ? "İsteğe bağlı - Hız limitine takılmamak için Pollinations API anahtarı girin." : "Use Pollinations AI key for unlimited image generation."}
+                </Text>
+
+                <TextInput
+                  style={[
+                    styles.input,
+                    {
+                      color: colors.text,
+                      backgroundColor: isDarkMode ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.02)",
+                      borderColor: isPollinationsSaved ? colors.success : colors.border,
+                    },
+                  ]}
+                  placeholder="pk_..."
+                  placeholderTextColor={colors.subText}
+                  value={inputPollinationsKey}
+                  onChangeText={setInputPollinationsKey}
+                  secureTextEntry
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                />
+
+                <TouchableOpacity
+                  style={styles.helpLink}
+                  onPress={openPollinationsDashboard}
+                >
+                  <Text style={[styles.helpLinkText, { color: colors.info }]}>
+                    {isDarkMode ? "Anahtar Al (enter.pollinations.ai)" : "Get Key (enter.pollinations.ai)"}
+                  </Text>
+                  <ExternalLink size={14} color={colors.info} />
+                </TouchableOpacity>
+
+                <TouchableOpacity 
+                  style={[styles.saveButton, { backgroundColor: colors.info }]} 
+                  onPress={handleSavePollinations}
+                >
+                  {isPollinationsSaved ? (
+                    <View style={styles.saveContent}>
+                      <CheckCircle2 size={20} color="#FFFFFF" />
+                      <Text style={styles.saveButtonText}>{t("common.success")}</Text>
+                    </View>
+                  ) : (
+                    <View style={styles.saveContent}>
+                      <Save size={20} color="#FFFFFF" />
+                      <Text style={styles.saveButtonText}>{t("settings.ai.saveKey")}</Text>
+                    </View>
+                  )}
+                </TouchableOpacity>
+              </View>
+            )}
+
+            {/* Yerel SD Ayarları */}
+            {imageProvider === 'local' && (
+              <View style={{ marginTop: 16 }}>
+                <Text style={[styles.cardDesc, { color: colors.subText, marginBottom: 16 }]}>
+                  {isDarkMode ? "Yerel ağınızda HTTP API destekleyen Automatic1111 vb. uygulamanızı bağlayın." : "Connect to a Local SD instance (like A1111 API) on your network."}
+                </Text>
+
+                <Text style={[styles.cardDesc, { color: colors.text, fontWeight: '600', marginBottom: 8 }]}>SD API IP Adresi</Text>
+                <TextInput
+                  style={[
+                    styles.input,
+                    {
+                      color: colors.text,
+                      backgroundColor: isDarkMode ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.02)",
+                      borderColor: colors.border,
+                    },
+                  ]}
+                  placeholder="Örn: 192.168.1.55"
+                  placeholderTextColor={colors.subText}
+                  value={inputLocalSdIp}
+                  onChangeText={setInputLocalSdIp}
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                />
+
+                <Text style={[styles.cardDesc, { color: colors.text, fontWeight: '600', marginBottom: 8, marginTop: 4 }]}>Görüntü Modeli Adı (Checkpoint)</Text>
+                <TextInput
+                  style={[
+                    styles.input,
+                    {
+                      color: colors.text,
+                      backgroundColor: isDarkMode ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.02)",
+                      borderColor: colors.border,
+                      marginBottom: 20
+                    },
+                  ]}
+                  placeholder="Örn: dreamshaper_8.safetensors"
+                  placeholderTextColor={colors.subText}
+                  value={inputLocalSdModel}
+                  onChangeText={setInputLocalSdModel}
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                />
+
+                <TouchableOpacity 
+                  style={[styles.saveButton, { backgroundColor: colors.info }]} 
+                  onPress={handleSaveLocalSd}
+                >
+                  {isLocalSdSaved ? (
+                    <View style={styles.saveContent}>
+                      <CheckCircle2 size={20} color="#FFFFFF" />
+                      <Text style={styles.saveButtonText}>{t("common.success")}</Text>
+                    </View>
+                  ) : (
+                    <View style={styles.saveContent}>
+                      <Save size={20} color="#FFFFFF" />
+                      <Text style={styles.saveButtonText}>Görüntü Ayarlarını Kaydet</Text>
+                    </View>
+                  )}
+                </TouchableOpacity>
+              </View>
+            )}
+          </View>
+
+          {/* Custom Persona Section */}
+          <View style={[styles.card, { backgroundColor: colors.card, borderColor: colors.border }]}>
+            <View style={styles.cardHeader}>
+              <MessagesSquare size={20} color={colors.secondary} />
+              <Text style={[styles.cardTitle, { color: colors.text }]}>
+                {t("settings.ai.customPersona")}
+              </Text>
+            </View>
+            
+            <Text style={[styles.cardDesc, { color: colors.subText, marginBottom: 16 }]}>
+              {t("settings.ai.customPersonaDesc")}
+            </Text>
+
+            <TextInput
+              style={[
+                styles.textArea,
+                {
+                  color: colors.text,
+                  backgroundColor: isDarkMode ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.02)",
+                  borderColor: isPromptSaved ? colors.success : colors.border,
+                },
+              ]}
+              placeholder={t("settings.ai.personaPlaceholder")}
+              placeholderTextColor={colors.subText}
+              value={inputPrompt}
+              onChangeText={setInputPrompt}
+              multiline
+              numberOfLines={4}
+              textAlignVertical="top"
+            />
+
+            <TouchableOpacity 
+              style={[styles.saveButton, { backgroundColor: colors.secondary || colors.primary }]} 
+              onPress={handleSavePrompt}
+            >
+              {isPromptSaved ? (
+                <View style={styles.saveContent}>
+                  <CheckCircle2 size={20} color="#FFFFFF" />
+                  <Text style={styles.saveButtonText}>{t("common.success")}</Text>
+                </View>
+              ) : (
+                <View style={styles.saveContent}>
+                  <Sparkles size={20} color="#FFFFFF" />
+                  <Text style={styles.saveButtonText}>{t("settings.ai.updatePersona")}</Text>
+                </View>
+              )}
+            </TouchableOpacity>
+
+            <TouchableOpacity 
+              style={[styles.resetActionCard, { borderColor: '#EF4444' + '30', marginTop: 12 }]}
+              onPress={resetPrompt}
+              activeOpacity={0.8}
+            >
+              <LinearGradient
+                colors={['#EF4444' + '15', 'transparent']}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={styles.resetActionGradient}
+              >
+                <RotateCcw size={20} color="#EF4444" />
+                <View style={{ flex: 1 }}>
+                  <Text style={[styles.resetActionTitle, { color: "#EF4444" }]}>
+                    {t("settings.ai.resetPromptTitle")}
+                  </Text>
+                  <Text style={[styles.resetActionDesc, { color: colors.subText }]}>
+                    {t("settings.ai.resetPromptConfirm")}
+                  </Text>
+                </View>
+              </LinearGradient>
+            </TouchableOpacity>
+          </View>
+
+          {/* AI Chat Sounds Section */}
+          <View style={[styles.card, { backgroundColor: colors.card, borderColor: colors.border }]}>
+            <View style={styles.cardHeader}>
+              <Volume2 size={20} color={colors.primary} />
+              <Text style={[styles.cardTitle, { color: colors.text }]}>
+                {t("settings.ai.chatSounds")}
+              </Text>
+            </View>
+
+            <View style={[styles.settingRow, { marginBottom: 20 }]}>
+              <View style={styles.settingText}>
+                <Text style={[styles.cardDesc, { color: colors.subText }]}>
+                  {t("settings.ai.chatSoundsDesc")}
+                </Text>
+              </View>
+              <Switch
+                value={chatSoundsEnabled}
+                onValueChange={(val) => {
+                  setChatSoundsEnabled(val);
+                  if (val) Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+                }}
+                trackColor={{ false: "#767577", true: colors.primary + '80' }}
+                thumbColor={chatSoundsEnabled ? colors.primary : "#f4f3f4"}
+              />
+            </View>
+
+            {chatSoundsEnabled && (
+              <View style={styles.soundTypeContainer}>
+                <Text style={[styles.soundTypeTitle, { color: colors.text }]}>
+                  {t("settings.ai.soundType")}
+                </Text>
+                <View style={styles.soundTypeGrid}>
+                  {[
+                    { id: 'pop', label: t("settings.ai.pop"), icon: Radio },
+                    { id: 'digital', label: t("settings.ai.digital"), icon: Zap },
+                    { id: 'minimal', label: t("settings.ai.minimal"), icon: ShieldCheck },
+                  ].map((item) => (
+                    <TouchableOpacity
+                      key={item.id}
+                      style={[
+                        styles.soundOption,
+                        { 
+                          backgroundColor: chatSoundType === item.id ? colors.primary + '15' : 'transparent',
+                          borderColor: chatSoundType === item.id ? colors.primary : colors.border,
+                        }
+                      ]}
+                      onPress={() => {
+                        setChatSoundType(item.id as any);
+                        if (item.id === 'pop') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                        else if (item.id === 'digital') Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+                        else Haptics.selectionAsync();
+                      }}
+                    >
+                      <item.icon size={18} color={chatSoundType === item.id ? colors.primary : colors.subText} />
+                      <Text style={[
+                        styles.soundOptionLabel, 
+                        { color: chatSoundType === item.id ? colors.text : colors.subText }
+                      ]}>
+                        {item.label}
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              </View>
+            )}
+          </View>
+
+          {/* Features Information */}
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>{t("settings.ai.whatYouGet")}</Text>
+          
+          <View style={styles.featuresList}>
+            <View style={[styles.featureCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
+              <LinearGradient
+                colors={[colors.primary + '10', 'transparent']}
+                style={styles.featureGradient}
+              >
+                <Zap size={24} color={colors.warning} />
+                <Text style={[styles.featureTitle, { color: colors.text }]}>{t("settings.ai.smartRefineTitle")}</Text>
+                <Text style={[styles.featureDesc, { color: colors.subText }]}>
+                  {t("settings.ai.smartRefineDesc")}
+                </Text>
+              </LinearGradient>
+            </View>
+
+            <View style={[styles.featureCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
+              <LinearGradient
+                colors={[colors.secondary + '10', 'transparent']}
+                style={styles.featureGradient}
+              >
+                <Sparkles size={24} color={colors.info} />
+                <Text style={[styles.featureTitle, { color: colors.text }]}>{t("settings.ai.aiMotivationTitle")}</Text>
+                <Text style={[styles.featureDesc, { color: colors.subText }]}>
+                  {t("settings.ai.aiMotivationDesc")}
+                </Text>
+              </LinearGradient>
+            </View>
+          </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
+
+      <CustomAlert
+        visible={resetAlertVisible}
+        title={t("settings.ai.resetPromptTitle")}
+        message={t("settings.ai.resetPromptConfirm")}
+        type="danger"
+        confirmText={t("settings.ai.reset")}
+        cancelText={t("common.cancel")}
+        onConfirm={confirmResetPrompt}
+        onCancel={() => setResetAlertVisible(false)}
+      />
+    </SafeAreaView>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: { flex: 1 },
+  header: {
+    paddingHorizontal: 20,
+    paddingBottom: 32,
+    borderBottomLeftRadius: 32,
+    borderBottomRightRadius: 32,
+    overflow: "hidden",
+    position: "relative",
+  },
+  headerDecorationCircle1: {
+    position: "absolute",
+    top: -40,
+    right: -20,
+    width: 140,
+    height: 140,
+    borderRadius: 70,
+    backgroundColor: "rgba(255, 255, 255, 0.1)",
+  },
+  headerDecorationCircle2: {
+    position: "absolute",
+    bottom: -30,
+    left: -40,
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    backgroundColor: "rgba(255, 255, 255, 0.05)",
+  },
+  backButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 20,
+    marginLeft: -4,
+  },
+  backText: { fontSize: 16, fontWeight: "600", marginLeft: 4 },
+  headerTitleContainer: { alignItems: "center" },
+  headerIcon: { marginBottom: 12 },
+  title: { fontSize: 28, fontWeight: "800", marginBottom: 4 },
+  subtitle: { fontSize: 15, fontWeight: "500", textAlign: "center" },
+  scrollView: { flex: 1 },
+  scrollContent: { padding: 20, paddingBottom: 100 },
+  card: {
+    borderRadius: 24,
+    padding: 20,
+    marginBottom: 20,
+    borderWidth: 1,
+    elevation: 2,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+  },
+  cardHeader: { flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 12 },
+  cardTitle: { fontSize: 17, fontWeight: "700" },
+  cardDesc: { fontSize: 14, lineHeight: 20 },
+  settingRow: { flexDirection: 'row', alignItems: 'center', gap: 16 },
+  settingText: { flex: 1 },
+  input: {
+    borderRadius: 16,
+    padding: 16,
+    fontSize: 15,
+    borderWidth: 1,
+    marginBottom: 12,
+  },
+  textArea: {
+    borderRadius: 16,
+    padding: 16,
+    fontSize: 15,
+    borderWidth: 1,
+    marginBottom: 12,
+    minHeight: 100,
+  },
+  resetIcon: {
+    padding: 4,
+    marginLeft: 'auto',
+  },
+  helpLink: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    alignSelf: "flex-start",
+    marginBottom: 20,
+  },
+  helpLinkText: { fontSize: 14, fontWeight: "600" },
+  saveButton: {
+    borderRadius: 16,
+    overflow: "hidden",
+    elevation: 4,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+  },
+  saveContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 16,
+    gap: 10,
+  },
+  saveButtonText: { color: "#FFFFFF", fontSize: 16, fontWeight: "700" },
+  sectionTitle: { fontSize: 18, fontWeight: "700", marginBottom: 16, marginLeft: 4 },
+  featuresList: { gap: 16 },
+  featureCard: { borderRadius: 20, overflow: 'hidden', borderWidth: 1 },
+  featureGradient: { padding: 20, gap: 10 },
+  featureTitle: { fontSize: 16, fontWeight: "700" },
+  featureDesc: { fontSize: 13, lineHeight: 18 },
+  resetActionCard: {
+    borderRadius: 16,
+    overflow: 'hidden',
+    borderWidth: 1,
+  },
+  resetActionGradient: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 16,
+    gap: 16,
+  },
+  resetActionTitle: {
+    fontSize: 15,
+    fontWeight: '700',
+  },
+  resetActionDesc: {
+    fontSize: 12,
+    opacity: 0.8,
+  },
+  soundTypeContainer: {
+    marginTop: 0,
+  },
+  soundTypeTitle: {
+    fontSize: 14,
+    fontWeight: '600',
+    marginBottom: 12,
+  },
+  soundTypeGrid: {
+    flexDirection: 'row',
+    gap: 10,
+    flexWrap: 'wrap',
+  },
+  soundOption: {
+    flex: 1,
+    minWidth: '28%',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    paddingVertical: 12,
+    paddingHorizontal: 4,
+    borderRadius: 12,
+    borderWidth: 1,
+  },
+  soundOptionLabel: {
+    fontSize: 11,
+    fontWeight: "700",
+    textAlign: "center",
+  },
+  providerGrid: {
+    flexDirection: "row",
+    gap: 12,
+    marginTop: 8,
+  },
+  providerOption: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
+    paddingVertical: 14,
+    borderRadius: 16,
+    borderWidth: 1.5,
+  },
+  providerLabel: {
+    fontSize: 14,
+    fontWeight: "700",
+  },
+});

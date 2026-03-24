@@ -1,0 +1,622 @@
+// Uygulama temaları için sabitler
+export interface ThemeColors {
+  primary: string;
+  secondary: string;
+  background: string;
+  card: string;
+  cardBackground: string;
+  cardBorder: string;
+  text: string;
+  subText: string;
+  border: string;
+  success: string;
+  warning: string;
+  error: string;
+  info: string;
+}
+
+export interface ThemeOption {
+  id: string;
+  name: string;
+  colors: ThemeColors;
+  lightColors?: ThemeColors;
+  darkColors?: ThemeColors;
+}
+
+const lightBase = {
+  background: '#F2F2F7',
+  card: '#FFFFFF',
+  cardBackground: '#FFFFFF',
+  cardBorder: 'rgba(0, 0, 0, 0.05)',
+  text: '#1C1C1E',
+  subText: '#8E8E93',
+  border: 'rgba(0, 0, 0, 0.05)',
+  success: '#34C759',
+  warning: '#FFCC00',
+  error: '#FF3B30',
+  info: '#007AFF',
+};
+
+const darkBase = {
+  background: '#0F0F11',
+  card: 'rgba(30, 30, 35, 0.6)',
+  cardBackground: 'rgba(30, 30, 35, 0.6)',
+  cardBorder: 'rgba(255, 255, 255, 0.1)',
+  text: '#FFFFFF',
+  subText: '#8E8E93',
+  border: 'rgba(255, 255, 255, 0.1)',
+  success: '#32D74B',
+  warning: '#FFD60A',
+  error: '#FF453A',
+  info: '#0A84FF',
+};
+
+export const THEMES: ThemeOption[] = [
+  {
+    id: 'default',
+    name: 'Cyberpunk',
+    colors: {
+      ...darkBase,
+      primary: '#5E6AD2',
+      secondary: '#A78BFA',
+    },
+  },
+  {
+    id: 'neon',
+    name: 'Neon',
+    colors: {
+      ...darkBase,
+      primary: '#F700FF',
+      secondary: '#00FFFF',
+    },
+  },
+  {
+    id: 'matrix',
+    name: 'Matrix',
+    colors: {
+      ...darkBase,
+      primary: '#00FF41',
+      secondary: '#008F11',
+    },
+  },
+  {
+    id: 'plasma',
+    name: 'Plasma',
+    colors: {
+      ...darkBase,
+      primary: '#9D00FF',
+      secondary: '#FF0055',
+    },
+  },
+  {
+    id: 'sunset',
+    name: 'Sunset',
+    colors: {
+      ...darkBase,
+      primary: '#FF2D55',
+      secondary: '#FF9F0A',
+    },
+  },
+  {
+    id: 'ocean',
+    name: 'Ocean',
+    colors: {
+      ...darkBase,
+      primary: '#2AC9DE',
+      secondary: '#5856D6',
+    },
+  },
+  {
+    id: 'gold',
+    name: 'Gold',
+    colors: {
+      ...darkBase,
+      primary: '#FFD700',
+      secondary: '#FFA500',
+    },
+  },
+  {
+    id: 'forest',
+    name: 'Forest',
+    colors: {
+      ...darkBase,
+      primary: '#10B981',
+      secondary: '#059669',
+    },
+  },
+  {
+    id: 'nova',
+    name: 'Nova',
+    colors: {
+      ...darkBase,
+      background: '#020617',
+      card: 'rgba(15, 23, 42, 0.8)',
+      primary: '#38BDF8',
+      secondary: '#F8FAFC',
+      border: 'rgba(56, 189, 248, 0.2)',
+    },
+  },
+  {
+    id: 'zenith',
+    name: 'Zenith',
+    colors: {
+      ...darkBase,
+      background: '#0B0E14',
+      card: 'rgba(26, 31, 41, 0.7)',
+      primary: '#00F5D4',
+      secondary: '#7209B7',
+      text: '#F8F9FA',
+      subText: '#ADB5BD',
+      success: '#00FF9D',
+    },
+  },
+  {
+    id: 'cosmos',
+    name: '🌌 Cosmos',
+    colors: {
+      ...darkBase,
+      background: '#000005',
+      card: 'rgba(10, 10, 20, 0.75)',
+      primary: '#7B2CBF',
+      secondary: '#B5179E',
+      text: '#F0E6FF',
+      subText: '#9D8EC2',
+      border: 'rgba(123, 44, 191, 0.3)',
+      success: '#00FFB3',
+      warning: '#FFB347',
+      error: '#FF6B6B',
+      info: '#4CC9F0',
+    },
+  },
+  {
+    id: 'nebula',
+    name: '☄️ Nebula',
+    colors: {
+      ...darkBase,
+      background: '#030014',
+      card: 'rgba(15, 5, 30, 0.8)',
+      primary: '#9D4EDD',
+      secondary: '#FF006E',
+      text: '#FFFFFF',
+      subText: '#C77DFF',
+      border: 'rgba(157, 78, 221, 0.35)',
+      success: '#06D6A0',
+      warning: '#FFD166',
+      error: '#EF476F',
+      info: '#118AB2',
+    },
+  },
+  {
+    id: 'supernova',
+    name: '💫 Supernova',
+    colors: {
+      ...darkBase,
+      background: '#010001',
+      card: 'rgba(20, 2, 10, 0.85)',
+      primary: '#FF2E00',
+      secondary: '#FFD60A',
+      text: '#FFF5E4',
+      subText: '#FFAA80',
+      border: 'rgba(255, 46, 0, 0.4)',
+      success: '#00FFA3',
+      warning: '#FF9F1C',
+      error: '#FF003B',
+      info: '#00BBF9',
+    },
+  },
+  {
+    id: 'galaxy',
+    name: '✨ Galaxy',
+    colors: {
+      ...darkBase,
+      background: '#02020A',
+      card: 'rgba(18, 16, 36, 0.7)',
+      primary: '#9B5DE5',
+      secondary: '#00BBF9',
+      text: '#F8F7FF',
+      subText: '#B19CD9',
+      border: 'rgba(155, 93, 229, 0.25)',
+      success: '#00F5D4',
+      warning: '#FFC300',
+      error: '#FF1B6B',
+      info: '#4361EE',
+    },
+  },
+  {
+    id: 'void',
+    name: '🕳️ Void',
+    colors: {
+      ...darkBase,
+      background: '#000000',
+      card: 'rgba(5, 5, 8, 0.9)',
+      primary: '#1A1A2E',
+      secondary: '#16213E',
+      text: '#E8E8E8',
+      subText: '#6B6B80',
+      border: 'rgba(100, 100, 120, 0.15)',
+      success: '#2D6A4F',
+      warning: '#B08968',
+      error: '#6D214F',
+      info: '#3C40C6',
+    },
+  },
+  {
+    id: 'universe',
+    name: '👑 Universal',
+    colors: {
+      ...darkBase,
+      background: '#0B0014',
+      card: 'rgba(25, 5, 45, 0.8)',
+      primary: '#00E5FF',
+      secondary: '#FF007F',
+      text: '#FDFBFF',
+      subText: '#A18CD1',
+      border: 'rgba(0, 229, 255, 0.3)',
+      success: '#00FA9A',
+      warning: '#FFD700',
+      error: '#FF3366',
+      info: '#00BFFF',
+    },
+  },
+  {
+    id: 'dimension-x',
+    name: '🌀 Dimension X',
+    colors: {
+      ...darkBase,
+      background: '#05000A',
+      card: 'rgba(20, 0, 40, 0.75)',
+      primary: '#00F0FF',
+      secondary: '#FF00AA',
+      text: '#F0F8FF',
+      subText: '#B0A8B9',
+      border: 'rgba(0, 240, 255, 0.25)',
+      success: '#39FF14',
+      warning: '#FF5E00',
+      error: '#FF0033',
+      info: '#0033FF',
+    },
+  },
+  {
+    id: 'atlantis',
+    name: '🌊 Atlantis',
+    colors: {
+      ...darkBase,
+      background: '#001219',
+      card: 'rgba(0, 30, 40, 0.75)',
+      primary: '#007782',
+      secondary: '#00B4D8',
+      text: '#E0FBFC',
+      subText: '#70D6D6',
+      border: 'rgba(0, 189, 158, 0.25)',
+      success: '#00FFB3',
+      warning: '#FFD166',
+      error: '#FF6B6B',
+      info: '#4CC9F0',
+    },
+  },
+  {
+    id: 'sakura',
+    name: '🌸 Sakura Night',
+    colors: {
+      ...darkBase,
+      background: '#1A1025',
+      card: 'rgba(35, 20, 50, 0.7)',
+      primary: '#FFB7C5',
+      secondary: '#FF69B4',
+      text: '#FFF0F5',
+      subText: '#DDA0DD',
+      border: 'rgba(255, 183, 197, 0.2)',
+      success: '#98FB98',
+      warning: '#FFD700',
+      error: '#FF6B9D',
+      info: '#E6E6FA',
+    },
+  },
+  {
+    id: 'vaporwave',
+    name: '🌴 Vaporwave',
+    colors: {
+      ...darkBase,
+      background: '#2B0F54',
+      card: 'rgba(50, 20, 80, 0.7)',
+      primary: '#FF71CE',
+      secondary: '#01CDFE',
+      text: '#FFE5F9',
+      subText: '#D4A5FF',
+      border: 'rgba(255, 113, 206, 0.3)',
+      success: '#05FFA1',
+      warning: '#FFD60A',
+      error: '#FF4D6D',
+      info: '#01CDFE',
+    },
+  },
+  {
+    id: 'enchanted',
+    name: '🍃 Enchanted Forest',
+    colors: {
+      ...darkBase,
+      background: '#0A0F0D',
+      card: 'rgba(15, 30, 25, 0.8)',
+      primary: '#2D5A3D',
+      secondary: '#9D4EDD',
+      text: '#E8F5E9',
+      subText: '#81C784',
+      border: 'rgba(45, 90, 61, 0.3)',
+      success: '#00FF9D',
+      warning: '#FFE135',
+      error: '#FF6B6B',
+      info: '#4ECDC4',
+    },
+  },
+  {
+    id: 'ottoman',
+    name: '🕌 Ottoman Court',
+    colors: {
+      ...darkBase,
+      background: '#0B1426',
+      card: 'rgba(20, 35, 60, 0.8)',
+      primary: '#C41E3A',
+      secondary: '#40C4C4',
+      text: '#FFF8E7',
+      subText: '#D4AF37',
+      border: 'rgba(212, 175, 55, 0.3)',
+      success: '#50C878',
+      warning: '#FFD700',
+      error: '#DC143C',
+      info: '#00CED1',
+    },
+  },
+  {
+    id: 'vampire',
+    name: '🩸 Vampire\'s Kiss',
+    colors: {
+      ...darkBase,
+      background: '#0A0000',
+      card: 'rgba(30, 10, 15, 0.85)',
+      primary: '#8B0000',
+      secondary: '#DC143C',
+      text: '#F5E6E0',
+      subText: '#B89890',
+      border: 'rgba(139, 0, 0, 0.4)',
+      success: '#722F37',
+      warning: '#D4AF37',
+      error: '#C41E3A',
+      info: '#8B003A',
+    },
+  },
+  {
+    id: 'midnight',
+    name: '🌙 Midnight Desire',
+    colors: {
+      ...darkBase,
+      background: '#0D0221',
+      card: 'rgba(25, 5, 40, 0.9)',
+      primary: '#FF006E',
+      secondary: '#7B2CBF',
+      text: '#FFE5EC',
+      subText: '#D48FB8',
+      border: 'rgba(255, 0, 110, 0.35)',
+      success: '#FF4D94',
+      warning: '#FFB3C6',
+      error: '#FF0040',
+      info: '#C77DFF',
+    },
+  },
+  {
+    id: 'dragon',
+    name: '🐉 Dragon\'s Lair',
+    colors: {
+      ...darkBase,
+      background: '#0D0000',
+      card: 'rgba(30, 10, 5, 0.9)',
+      primary: '#FF2400',
+      secondary: '#FFD700',
+      text: '#FFF8E7',
+      subText: '#8B7355',
+      border: 'rgba(255, 36, 0, 0.4)',
+      success: '#FF4500',
+      warning: '#FFA500',
+      error: '#DC143C',
+      info: '#B8860B',
+    },
+  },
+  {
+    id: 'ice',
+    name: '🧊 Ice Palace',
+    colors: {
+      ...darkBase,
+      background: '#000810',
+      card: 'rgba(10, 25, 40, 0.85)',
+      primary: '#A5F2F3',
+      secondary: '#C7A8FF',
+      text: '#F0F8FF',
+      subText: '#B8D4E3',
+      border: 'rgba(165, 242, 243, 0.3)',
+      success: '#7FFFD4',
+      warning: '#E0FFFF',
+      error: '#FF6B9D',
+      info: '#6CA6CD',
+    },
+  },
+  {
+    id: 'dna',
+    name: '🧬 DNA Helix',
+    colors: {
+      ...darkBase,
+      background: '#000C10',
+      card: 'rgba(5, 20, 25, 0.85)',
+      primary: '#00CED1',
+      secondary: '#32CD32',
+      text: '#F0FFFF',
+      subText: '#5F9EA0',
+      border: 'rgba(0, 206, 209, 0.3)',
+      success: '#00FF7F',
+      warning: '#FF8C00',
+      error: '#FF4500',
+      info: '#9370DB',
+    },
+  },
+  {
+    id: 'amber',
+    name: '🍯 Amber Ancient',
+    colors: {
+      ...darkBase,
+      background: '#0C0804',
+      card: 'rgba(25, 18, 10, 0.85)',
+      primary: '#FFBF00',
+      secondary: '#B8860B',
+      text: '#FFF8DC',
+      subText: '#DAA520',
+      border: 'rgba(255, 191, 0, 0.3)',
+      success: '#228B22',
+      warning: '#FFA500',
+      error: '#8B4513',
+      info: '#DAA520',
+    },
+  },
+  {
+    id: 'peacock',
+    name: '🦚 Peacock Throne',
+    colors: {
+      ...darkBase,
+      background: '#0A0E1A',
+      card: 'rgba(15, 25, 45, 0.85)',
+      primary: '#0077BE',
+      secondary: '#50C878',
+      text: '#FFF8F0',
+      subText: '#9370DB',
+      border: 'rgba(0, 119, 190, 0.35)',
+      success: '#00A86B',
+      warning: '#FFD700',
+      error: '#C41E3A',
+      info: '#8B008B',
+    },
+  },
+  {
+    id: 'scorpion',
+    name: '🦂 Scorpion Venom',
+    colors: {
+      ...darkBase,
+      background: '#0A0A05',
+      card: 'rgba(20, 25, 10, 0.85)',
+      primary: '#39FF14',
+      secondary: '#FF5F1F',
+      text: '#F5F5DC',
+      subText: '#9ACD32',
+      border: 'rgba(57, 255, 20, 0.35)',
+      success: '#7FFF00',
+      warning: '#FFA500',
+      error: '#FF4500',
+      info: '#ADFF2F',
+    },
+  },
+  {
+    id: 'phantom',
+    name: '🎭 Phantom Opera',
+    colors: {
+      ...darkBase,
+      background: '#0D0208',
+      card: 'rgba(30, 10, 20, 0.85)',
+      primary: '#800020',
+      secondary: '#D4AF37',
+      text: '#FFF5E1',
+      subText: '#8B7D82',
+      border: 'rgba(128, 0, 32, 0.4)',
+      success: '#C41E3A',
+      warning: '#FFD700',
+      error: '#DC143C',
+      info: '#B8860B',
+    },
+  },
+  {
+    id: 'exquisite',
+    name: '✨ Exquisite',
+    colors: {
+      ...darkBase,
+      background: '#0B0A0C',
+      card: 'rgba(25, 22, 28, 0.85)',
+      primary: '#E2B14B', // Champagne Gold
+      secondary: '#F9E5C9', // Soft Pearl
+      text: '#FBF8F1',
+      subText: '#A89F91',
+      border: 'rgba(226, 177, 75, 0.25)',
+      success: '#4ADE80',
+      warning: '#FBBF24',
+      error: '#F87171',
+      info: '#60A5FA',
+    },
+  },
+  {
+    id: 'bordeaux',
+    name: '🍷 Bordeaux Sovereign',
+    colors: {
+      ...darkBase,
+      background: '#1A0505', // Ultra deep vintage wine
+      card: 'rgba(40, 10, 10, 0.8)',
+      primary: '#D94E4E', // Rich Bordeaux red
+      secondary: '#E2A76F', // Vintage Copper / Tan
+      text: '#FFF1F1',
+      subText: '#A67B7B',
+      border: 'rgba(217, 78, 78, 0.25)',
+      success: '#4ADE80',
+      warning: '#FBBF24',
+      error: '#FF0000',
+      info: '#60A5FA',
+    },
+  },
+  {
+    id: 'emerald',
+    name: '💎 Royal Emerald',
+    colors: {
+      ...darkBase,
+      background: '#021F1A', // Deepest emerald forest
+      card: 'rgba(5, 45, 38, 0.8)',
+      primary: '#10B981', // Vivid Emerald
+      secondary: '#D1FAE5', // Mint Frost
+      text: '#F0FDF4',
+      subText: '#6EE7B7',
+      border: 'rgba(16, 185, 129, 0.3)',
+      success: '#34D399',
+      warning: '#FCD34D',
+      error: '#F87171',
+      info: '#38BDF8',
+    },
+  },
+  {
+    id: 'harmony',
+    name: '🎶 Harmony Glass',
+    colors: {
+      ...darkBase,
+      background: '#0B0B1E', // Deep space navy
+      card: 'rgba(25, 25, 50, 0.7)',
+      primary: '#A855F7', // Vibrant Purple
+      secondary: '#22D3EE', // Bright Cyan
+      text: '#F8FAFC',
+      subText: '#94A3B8',
+      border: 'rgba(168, 85, 247, 0.3)',
+      success: '#10B981',
+      warning: '#F59E0B',
+      error: '#EF4444',
+      info: '#3B82F6',
+    },
+  },
+];
+
+export const getThemeById = (id: string): ThemeOption => {
+  return THEMES.find((theme) => theme.id === id) || THEMES[0];
+};
+
+export const getThemeByIdAndMode = (id: string, isDark: boolean): ThemeOption => {
+  const theme = getThemeById(id);
+  if (isDark) return theme;
+  
+  // Create light version dynamically
+  return {
+    ...theme,
+    colors: {
+      ...lightBase,
+      primary: theme.colors.primary,
+      secondary: theme.colors.secondary,
+    }
+  };
+};
