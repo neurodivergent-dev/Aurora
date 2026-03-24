@@ -16,8 +16,6 @@ interface AIState {
   activeProvider: 'gemini' | 'groq' | 'ollama';
   groqModel: string;
   isAIEnabled: boolean;
-  lastCelebrationMessage: string | null;
-  lastCelebrationDate: string | null;
   chatMessages: ChatMessage[];
   customSystemPrompt: string | null;
   pollinationsApiKey: string | null;
@@ -38,7 +36,6 @@ interface AIState {
   setGroqModel: (model: string) => void;
   loadApiKey: () => Promise<void>;
   toggleAI: (enabled: boolean) => Promise<void>;
-  setCelebrationCache: (message: string) => void;
   addChatMessage: (message: ChatMessage) => void;
   clearChatMessages: () => void;
   deleteChatMessage: (id: string) => void;
@@ -62,8 +59,6 @@ export const useAIStore = create<AIState>()(
       imageProvider: 'pollinations',
       localSdModel: '',
       isAIEnabled: false,
-      lastCelebrationMessage: null,
-      lastCelebrationDate: null,
       chatMessages: [],
       customSystemPrompt: null,
       pollinationsApiKey: null,
@@ -134,12 +129,6 @@ export const useAIStore = create<AIState>()(
         set({ isAIEnabled: enabled });
       },
 
-      setCelebrationCache: (message: string) => {
-        const now = new Date();
-        const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
-        set({ lastCelebrationMessage: message, lastCelebrationDate: today });
-      },
-
       addChatMessage: (message: ChatMessage) => {
         set((state) => ({
           chatMessages: [...state.chatMessages, message].slice(-50), // Son 50 mesajı tut
@@ -177,8 +166,6 @@ export const useAIStore = create<AIState>()(
         groqModel: state.groqModel,
         imageProvider: state.imageProvider,
         localSdModel: state.localSdModel,
-        lastCelebrationMessage: state.lastCelebrationMessage,
-        lastCelebrationDate: state.lastCelebrationDate,
         chatMessages: state.chatMessages,
         customSystemPrompt: state.customSystemPrompt,
         pollinationsApiKey: state.pollinationsApiKey,

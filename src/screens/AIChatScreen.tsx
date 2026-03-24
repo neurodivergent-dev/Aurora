@@ -109,7 +109,7 @@ const AIChatScreen = () => {
   const setAmbientSound = useThemeStore(state => state.setAmbientSound);
   const isZenMode = useThemeStore(state => state.isZenMode);
   const setIsZenMode = useThemeStore(state => state.setIsZenMode);
-  const { play, pause, next, setCurrentTrack, playlist, setIsPlaying, setVolume, volume, createPlaylist, updatePlaylist, deletePlaylist, setTrackLyrics, setTrackArtwork, currentTrack } = useMusicStore();
+  const { play, pause, next, setCurrentTrack, playlist, setIsPlaying, setVolume, volume, createPlaylist, updatePlaylist, deletePlaylist, setTrackLyrics, setTrackArtwork, currentTrack, loadLocalMusic } = useMusicStore();
   const insets = useSafeAreaInsets();
 
 
@@ -689,6 +689,16 @@ const AIChatScreen = () => {
               Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
             }
           } catch (e) { console.error("Update Playlist Action Error:", e); }
+        }
+
+        // Add Song Action (LLM Song Access)
+        const addSongMatch = findAction('ADD_SONG');
+        if (addSongMatch) {
+          try {
+            loadLocalMusic();
+            cleanResponse = cleanResponse.replace(addSongMatch.regex, '').trim();
+            Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+          } catch (e) { console.error("Add Song Action Error:", e); }
         }
 
         // Set Track Lyrics Action

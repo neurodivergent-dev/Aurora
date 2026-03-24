@@ -6,9 +6,8 @@ import { AURORA_SYSTEM_PROMPT } from "../constants/auroraPrompts";
 class AIService {
   private genAI: GoogleGenerativeAI | null = null;
   private lastRequestTime: number = 0;
-  private readonly COOLDOWN_MS = 5000; // 5 saniye bekleme süresi
+  private readonly COOLDOWN_MS = 5000;
 
-  // Önbellek
   private cache: Record<string, { msg: string, time: number }> = {};
 
   private init() {
@@ -88,6 +87,13 @@ class AIService {
       const dayName = now.toLocaleDateString(language === 'tr' ? 'tr-TR' : 'en-US', { weekday: 'long' });
       const localTime = now.toLocaleTimeString(language === 'tr' ? 'tr-TR' : 'en-US', { hour: '2-digit', minute: '2-digit' });
 
+      const msgLower = message.toLowerCase();
+
+      // Soft Routing for Fat Actions (Obez Aksiyonlar için Dinamik Yönlendirme)
+      const allowThemeCreation = /tema (yap|oluştur|yarat)|yeni tema|create theme|make theme|new theme/.test(msgLower);
+      const allowImageGeneration = /resim|çiz|fotoğraf|foto|image|picture|draw|kapak|cover|artwork/.test(msgLower);
+      const allowMusicAddition = /müzik ekle|şarkı ekle|yükle|hafızadan|import|add music|add song|ekle/.test(msgLower);
+
       const systemInstruction = AURORA_SYSTEM_PROMPT({
         language,
         customPrompt,
@@ -96,7 +102,10 @@ class AIService {
         dayName,
         localTime,
         timeZone,
-        userName
+        userName,
+        allowThemeCreation,
+        allowImageGeneration,
+        allowMusicAddition
       });
 
       if (activeProvider === 'ollama') {
@@ -153,23 +162,6 @@ class AIService {
       console.error("AI Chat Error:", e);
       return "";
     }
-  }
-
-  async refineGoal(goal: string, language: string = 'en'): Promise<string> {
-    const prompt = `Refine and improve this productivity goal or task to be more clear, actionable, and professional. 
-    Keep it concise (max 10 words). Respond ONLY with the refined text.
-    Language: ${language}
-    Goal: ${goal}`;
-
-    return this.requestAI(prompt, `refine-${goal}-${language}`);
-  }
-
-  async getCelebrationMessage(goals: string[], language: string = 'en'): Promise<string> {
-    const prompt = `The user has completed following goals: ${goals.join(', ')}. 
-    Write a very short, cool, and super motivating celebration message as an AI Disk Jockey. 
-    Max 15 words. Use emojis. Language: ${language}`;
-
-    return this.requestAI(prompt, `celeb-${goals.join('-')}-${language}`);
   }
 }
 

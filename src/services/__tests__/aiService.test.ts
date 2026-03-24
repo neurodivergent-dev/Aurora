@@ -353,42 +353,7 @@ describe('aiService', () => {
     });
   });
 
-  describe('Celebration Messages', () => {
-    it('should generate celebration message for completed goals', async () => {
-      jest.mocked(GoogleGenerativeAI).mockImplementationOnce(() => ({
-        getGenerativeModel: jest.fn().mockReturnValue({
-          generateContent: jest.fn().mockResolvedValue({
-            response: {
-              text: jest.fn().mockReturnValue('Amazing job completing your goals!'),
-            },
-          }),
-        }),
-      } as any));
 
-      const result = await aiService.getCelebrationMessage(
-        ['Goal 1', 'Goal 2', 'Goal 3'],
-        'en'
-      );
-
-      expect(result).toBe('Amazing job completing your goals!');
-    });
-
-    it('should handle empty goals list', async () => {
-      jest.mocked(GoogleGenerativeAI).mockImplementationOnce(() => ({
-        getGenerativeModel: jest.fn().mockReturnValue({
-          generateContent: jest.fn().mockResolvedValue({
-            response: {
-              text: jest.fn().mockReturnValue('Keep going!'),
-            },
-          }),
-        }),
-      } as any));
-
-      const result = await aiService.getCelebrationMessage([], 'en');
-
-      expect(result).toBe('Keep going!');
-    });
-  });
 
   describe('Chat Functionality', () => {
     it('should send chat message and receive response', async () => {

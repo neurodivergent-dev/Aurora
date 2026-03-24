@@ -16,6 +16,7 @@ import { useOnboardingStore } from "../src/store/onboardingStore";
 import { SoundPlayer } from "../src/components/SoundPlayer";
 import { MiniPlayer } from "../src/components/MiniPlayer";
 import { useAIStore } from "../src/store/aiStore";
+import { GlassAlert } from "../src/components/GlassAlert";
 
 import "../src/i18n/i18n"; // Import i18n initialization
 
@@ -128,7 +129,7 @@ function RootLayoutNav() {
               }} 
             />
           </Stack>
-
+          <GlassAlert />
         </ThemeProvider>
       </CustomThemeProvider>
     </SafeAreaProvider>
