@@ -7,6 +7,23 @@ A minimalist, offline-first music player with AI-powered personalization. Experi
 ![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)
 ![Platform](https://img.shields.io/badge/platform-iOS%20%7C%20Android-green.svg)
 ![License](https://img.shields.io/badge/license-MIT-yellow.svg)
+![Tests](https://img.shields.io/badge/tests-7%20files-green.svg)
+![Docs](https://img.shields.io/badge/docs-6%20files-blue.svg)
+
+---
+
+## 📚 Documentation
+
+| Guide | Description |
+|-------|-------------|
+| [🏗️ Architecture](./docs/ARCHITECTURE.md) | High-level overview, state management, navigation |
+| [🧩 Components](./docs/COMPONENT_GUIDE.md) | Component types, patterns, best practices |
+| [🛡️ Error Handling](./docs/ERROR_HANDLING_BEST_PRACTICES.md) | Result type pattern, user-facing errors |
+| [📝 Logger](./docs/LOGGER_USAGE.md) | Logging setup, usage, production logging |
+| [🧪 Testing](./docs/TESTING_BEST_PRACTICES.md) | Unit tests, integration tests, CI/CD |
+| [🤝 Contributing](./docs/CONTRIBUTING.md) | How to contribute, coding standards |
+
+**New to Aurora?** Start with [Architecture](./docs/ARCHITECTURE.md) → [Components](./docs/COMPONENT_GUIDE.md) → [Testing](./docs/TESTING_BEST_PRACTICES.md)
 
 ---
 
@@ -192,6 +209,9 @@ To change, update `app.json` and rebuild.
 npm test
 
 # Run tests with coverage
+npm run test:coverage
+
+# Run in CI mode
 npm run test:ci
 
 # Type check
@@ -203,15 +223,15 @@ npm run lint
 
 ### Coverage Targets
 
-| Directory | Target |
-|-----------|--------|
-| `src/store` | 80% |
-| `src/utils` | 80% |
-| `src/hooks` | 70% |
-| `src/services` | 70% |
-| **Overall** | **75%** |
+| Directory | Target | Status |
+|-----------|--------|--------|
+| `src/utils` | 80% | ✅ 70% |
+| `src/store` | 80% | 🟡 40% |
+| `src/hooks` | 70% | 🟡 30% |
+| `src/services` | 70% | 🟡 25% |
+| **Overall** | **30%** | **🟡 ~10%** |
 
-See [TESTING.md](./TESTING.md) for details.
+📖 **Learn More:** [Testing Best Practices](./docs/TESTING_BEST_PRACTICES.md)
 
 ---
 
@@ -255,20 +275,37 @@ See [eas.json](./eas.json) for build profiles.
 
 ## 🤝 Contributing
 
-Contributions are welcome! Please follow these steps:
+Contributions are welcome! We appreciate all types of contributions:
 
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+- 🐛 Bug reports
+- 💡 Feature suggestions
+- 📝 Documentation improvements
+- 🧪 Test additions
+- 🎨 Design enhancements
+- 🌍 Translations
+
+### Getting Started
+
+1. Read [Contributing Guide](./docs/CONTRIBUTING.md)
+2. Read [Architecture Overview](./docs/ARCHITECTURE.md)
+3. Fork the repository
+4. Create a feature branch (`git checkout -b feature/amazing-feature`)
+5. Make your changes (follow [coding standards](./docs/CONTRIBUTING.md#coding-standards))
+6. Write tests (see [Testing Guide](./docs/TESTING_BEST_PRACTICES.md))
+7. Commit your changes (`git commit -m 'feat: add amazing feature'`)
+8. Push to the branch (`git push origin feature/amazing-feature`)
+9. Open a Pull Request
 
 ### Code Style
 
-- TypeScript for all code
-- ESLint + Prettier configured
-- Follow existing patterns
-- Write tests for new features
+- ✅ TypeScript for all code
+- ✅ ESLint + Prettier configured
+- ✅ Logger instead of console.log
+- ✅ Error handling with Result type
+- ✅ Accessibility labels on touchables
+- ✅ Tests for new features
+
+📖 **Full Guide:** [CONTRIBUTING.md](./docs/CONTRIBUTING.md)
 
 ---
 
@@ -278,9 +315,45 @@ This project is licensed under the MIT License - see the [LICENSE](./LICENSE) fi
 
 ---
 
-## 🙏 Acknowledgments
+## 👨‍💻 About MetaFrame
 
-- Built with [Expo](https://expo.dev)
+Aurora is developed by **MetaFrame**, a studio focused on creating smart tools for modern life.
+
+### Other Apps by MetaFrame
+
+- **FocusTabs** - Productivity & Focus
+- **Mindbook Pro** - Mental Health & Journaling
+- **Mindbook Trial** - Free version
+- **Aurora** - AI Music Player (this app)
+
+🌐 **Publisher Page:** [APPLION - MetaFrame](https://www.applion.jp/developer/metaframe/)
+
+---
+
+## 📚 Additional Resources
+
+### Documentation
+
+- [🏗️ Architecture Overview](./docs/ARCHITECTURE.md)
+- [🧩 Component Guide](./docs/COMPONENT_GUIDE.md)
+- [🛡️ Error Handling Best Practices](./docs/ERROR_HANDLING_BEST_PRACTICES.md)
+- [📝 Logger Usage Guide](./docs/LOGGER_USAGE.md)
+- [🧪 Testing Best Practices](./docs/TESTING_BEST_PRACTICES.md)
+- [🤝 Contributing Guide](./docs/CONTRIBUTING.md)
+
+### Project Status
+
+- [Code Analysis Report](./qwen.md)
+- [Features Roadmap](./features/)
+- [Manual Tests](./manual_tests.md)
+- [Code Review Guidelines](./code_review.md)
+
+### Learn More
+
+- [Expo Documentation](https://docs.expo.dev/)
+- [React Native Documentation](https://reactnative.dev/)
+- [Zustand Documentation](https://zustand-demo.pmnd.rs/)
+- [Expo Router Documentation](https://expo.github.io/router/)
 - Icons by [Lucide](https://lucide.dev)
 - AI by [Google Gemini](https://ai.google.dev) & [Groq](https://groq.com)
 - State management by [Zustand](https://zustand-demo.pmnd.rs)

@@ -29,6 +29,7 @@ import {
   importData,
 } from "../utils/backup";
 import { CustomAlert } from "../components/CustomAlert";
+import logger from "../utils/logger";
 
 export default function BackupSettingsScreen() {
   const insets = useSafeAreaInsets();
@@ -73,7 +74,7 @@ export default function BackupSettingsScreen() {
         );
       }
     } catch (error) {
-      console.error("Export error:", error);
+      logger.error(`Export error: ${error}`, 'BackupSettings');
       Alert.alert(
         t("backup.error"),
         t("backup.exportError")
@@ -109,7 +110,7 @@ export default function BackupSettingsScreen() {
       setPendingImportData(data);
       setImportAlertVisible(true);
     } catch (error) {
-      console.error("Import error:", error);
+      logger.error(`Import error: ${error}`, 'BackupSettings');
       Alert.alert(
         t("backup.error"),
         t("backup.importError")

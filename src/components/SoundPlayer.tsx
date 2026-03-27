@@ -3,6 +3,7 @@ import { View } from 'react-native';
 import { createAudioPlayer, AudioPlayer, setAudioModeAsync, requestNotificationPermissionsAsync } from 'expo-audio';
 import { useThemeStore } from '../store/themeStore';
 import { useMusicStore } from '../store/musicStore';
+import logger from '../utils/logger';
 
 const SOUND_ASSETS: Record<string, number> = {
   complete: require('../../assets/sounds/complete.mp3'),
@@ -46,7 +47,7 @@ export const SoundPlayer: React.FC = () => {
           playsInSilentMode: true,
         });
       } catch (e) {
-        console.log('[SOUND PLAYER] Audio Setup Error:', e);
+        logger.error(`Audio Setup Error: ${e}`, 'SoundPlayer');
       }
     };
     setup();
@@ -75,7 +76,7 @@ export const SoundPlayer: React.FC = () => {
 
         player.play();
       } catch (error) {
-        console.log('[SOUND PLAYER] Native Lock Error:', error);
+        logger.error(`Native Lock Error: ${error}`, 'SoundPlayer');
       }
     };
 
@@ -115,7 +116,7 @@ export const SoundPlayer: React.FC = () => {
         player.play();
         ambientPlayerRef.current = player;
       } catch (error) {
-        console.log('[AMBIENT PLAYER] Linkage Error:', error);
+        logger.error(`Linkage Error: ${error}`, 'AmbientPlayer');
       }
     };
 
@@ -177,7 +178,7 @@ export const SoundPlayer: React.FC = () => {
         player.volume = volume;
         player.loop = isRepeating;
 
-        console.log(`[SOUND PLAYER] Source configured for: ${currentTrack.title}. URL: ${currentTrack.url}`);
+        logger.info(`Source configured for: ${currentTrack.title}. URL: ${currentTrack.url}`, 'SoundPlayer');
 
         player.setActiveForLockScreen(true, {
           title: currentTrack.title,
@@ -185,7 +186,7 @@ export const SoundPlayer: React.FC = () => {
         });
 
         musicListenerRef.current = player.addListener('playbackStatusUpdate', (status: any) => {
-          if (status.error) console.log('[SOUND PLAYER] Status Error:', status.error);
+          if (status.error) logger.error(`Status Error: ${status.error}`, 'SoundPlayer');
 
           if (status.currentTime !== undefined) {
             setPlaybackPosition(status.currentTime);
@@ -208,19 +209,19 @@ export const SoundPlayer: React.FC = () => {
 
         // If it should be playing, start it as soon as possible
         if (isPlaying) {
-          console.log(`[SOUND PLAYER] Starting playback for: ${currentTrack.title}`);
+          logger.info(`Starting playback for: ${currentTrack.title}`, 'SoundPlayer');
           player.play();
         }
       } catch (error) {
-        console.error('[SOUND PLAYER] Loading/Playback Error:', error);
+        logger.error(`Loading/Playback Error: ${error}`, 'SoundPlayer');
       }
     }
 
     // Cleanup when component unmounts (crucial for React Strict Mode & Hot Reloading)
     return () => {
-      // We don't release here because we want the player to persist across state changes
-      // NO WAIT, returning cleanup here implies whenever currentTrack changes, it runs.
-      // That's actually wrong, we only want to clean up on unmount.
+      if (musicListenerRef.current) {
+        musicListenerRef.current.remove();
+      }
     };
   }, [currentTrack]); // Only load when currentTrack changes
 

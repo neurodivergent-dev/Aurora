@@ -1,4 +1,5 @@
 import * as Speech from 'expo-speech';
+import logger from '../utils/logger';
 
 // ─── Interface ───
 export interface ISpeechService {
@@ -37,7 +38,7 @@ class SpeechServiceImpl implements ISpeechService {
 
   async speak(text: string, language: string = 'en'): Promise<void> {
     const cleanText = cleanForSpeech(text);
-    console.log('[TTS] Speaking:', cleanText.substring(0, 60), '...');
+    logger.info(`Speaking: ${cleanText.substring(0, 60)}...`, 'TTS');
     
     if (!cleanText || cleanText.length < 2) return;
 
@@ -56,23 +57,23 @@ class SpeechServiceImpl implements ISpeechService {
     await new Promise(r => setTimeout(r, 500));
 
     return new Promise((resolve) => {
-      console.log('[TTS] Calling Speech.speak now...');
+      logger.info('Calling Speech.speak now...', 'TTS');
       Speech.speak(cleanText, {
         language: lang,
         pitch: 1.0,
         rate: 0.85,
         onDone: () => {
-          console.log('[TTS] Done');
+          logger.info('Done', 'TTS');
           this._isSpeaking = false;
           resolve();
         },
         onError: (err) => {
-          console.error('[TTS] Error:', JSON.stringify(err));
+          logger.error(`Error: ${JSON.stringify(err)}`, 'TTS');
           this._isSpeaking = false;
           resolve();
         },
         onStopped: () => {
-          console.log('[TTS] Stopped by external call');
+          logger.info('Stopped by external call', 'TTS');
           this._isSpeaking = false;
           resolve();
         },

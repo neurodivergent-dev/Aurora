@@ -1,6 +1,7 @@
 import { useThemeStore } from "../store/themeStore";
 import { useLanguageStore } from "../store/languageStore";
 import { useMusicStore, UserPlaylist, Track } from "../store/musicStore";
+import logger from "./logger";
 
 export interface BackupData {
   version: string;
@@ -56,7 +57,7 @@ export const jsonToData = (jsonString: string): BackupData | null => {
     }
     return data as BackupData;
   } catch (error) {
-    console.error("Failed to parse backup JSON:", error);
+    logger.error(`Failed to parse backup JSON: ${error}`, 'BackupUtils');
     return null;
   }
 };
@@ -86,7 +87,7 @@ export const importData = (data: BackupData): boolean => {
 
     return true;
   } catch (error) {
-    console.error("Failed to import data:", error);
+    logger.error(`Failed to import data: ${error}`, 'BackupUtils');
     return false;
   }
 };

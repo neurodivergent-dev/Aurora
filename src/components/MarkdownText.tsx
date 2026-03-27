@@ -5,6 +5,7 @@ import { useMusicStore } from '../store/musicStore';
 import { X, ZoomIn, ImagePlus } from 'lucide-react-native';
 import * as Haptics from 'expo-haptics';
 import * as FileSystem from 'expo-file-system/legacy';
+import logger from '../utils/logger';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
@@ -25,6 +26,60 @@ export const MarkdownText: React.FC<MarkdownTextProps> = ({ content, style, base
   const [previewPrompt, setPreviewPrompt] = useState<string | null>(null);
   const [isLocalGenerating, setIsLocalGenerating] = useState<Record<number, boolean>>({});
   const [generatedLocalImages, setGeneratedLocalImages] = useState<Record<number, string>>({});
+  const [lastProcessedIndex, setLastProcessedIndex] = useState<number | null>(null);
+
+  // --- OTOMATİK ÜRETİM MANTIĞI ---
+  // Hook, bileşen seviyesinde olmalı (koşul dışında)
+  React.useEffect(() => {
+    // İçerikteki [IMAGE:prompt] yapılarını bul
+    lines.forEach((line, index) => {
+      const imageMatch = line.match(/\[IMAGE:(.*?)\]/);
+      if (imageMatch && localSdIp && !generatedLocalImages[index] && !isLocalGenerating[index]) {
+        const rawPrompt = imageMatch[1].trim();
+        handleLocalGenerate(rawPrompt, index);
+      }
+    });
+  }, [lines, localSdIp]); // İçerik veya IP değiştiğinde tetikle
+
+  const handleLocalGenerate = async (rawPrompt: string, index: number) => {
+    if (!localSdIp) return;
+    try {
+      const finalPort = localSdPort || '7860';
+      setIsLocalGenerating(prev => ({ ...prev, [index]: true }));
+      const response = await fetch(`http://${localSdIp}:${finalPort}/sdapi/v1/txt2img`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          prompt: rawPrompt,
+          steps: 20,
+          width: 512,
+          height: 512,
+          cfg_scale: 7,
+          sampler_name: "Euler a"
+        })
+      });
+      const data = await response.json();
+      if (data.images && data.images.length > 0) {
+        const base64Str = data.images[0];
+
+        // Öngörülebilir dosya adı (Prompt bazlı hash kullanarak)
+        const promptHash = rawPrompt.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0).toString();
+        const fileName = `local_sd_${promptHash}.png`;
+        const fileUri = `${FileSystem.documentDirectory}${fileName}`;
+
+        await FileSystem.writeAsStringAsync(fileUri, base64Str, {
+          encoding: FileSystem.EncodingType.Base64,
+        });
+
+        setGeneratedLocalImages(prev => ({ ...prev, [index]: fileUri }));
+        logger.info(`Resim gizli klasöre kaydedildi: ${fileUri}`, 'MarkdownText');
+      }
+    } catch (err) {
+      logger.error(`Local SD Error: ${err}`, 'MarkdownText');
+    } finally {
+      setIsLocalGenerating(prev => ({ ...prev, [index]: false }));
+    }
+  };
 
   const renderStyledText = (text: string, key: string | number) => {
     // Bold ve Italic için regex (önce bold, sonra italic)
@@ -96,55 +151,6 @@ export const MarkdownText: React.FC<MarkdownTextProps> = ({ content, style, base
             imageUrl = `https://gen.pollinations.ai/image/${encodedPrompt}?width=800&height=800&seed=${seed}&model=flux&nologo=true${authParam}`;
           }
 
-          // --- OTOMATİK ÜRETİM MANTIĞI ---
-          React.useEffect(() => {
-            if (localSdIp && !generatedLocalImages[index] && !isLocalGenerating[index]) {
-              console.log("[LOCAL SD] Bileşen bağlandı, otomatik üretim başlatılıyor:", rawPrompt);
-              handleLocalGenerate();
-            }
-          }, [localSdIp, rawPrompt]);
-
-          const handleLocalGenerate = async () => {
-            if (!localSdIp) return;
-            try {
-              const finalPort = localSdPort || '7860';
-              setIsLocalGenerating(prev => ({ ...prev, [index]: true }));
-              const response = await fetch(`http://${localSdIp}:${finalPort}/sdapi/v1/txt2img`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                  prompt: rawPrompt,
-                  steps: 20,
-                  width: 512,
-                  height: 512,
-                  cfg_scale: 7,
-                  sampler_name: "Euler a"
-                })
-              });
-              const data = await response.json();
-              if (data.images && data.images.length > 0) {
-                const base64Str = data.images[0];
-
-                // Öngörülebilir dosya adı (Prompt bazlı hash kullanarak)
-                const promptHash = rawPrompt.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0).toString();
-                const fileName = `local_sd_${promptHash}.png`;
-                const fileUri = `${FileSystem.documentDirectory}${fileName}`;
-
-                await FileSystem.writeAsStringAsync(fileUri, base64Str, {
-                  encoding: FileSystem.EncodingType.Base64,
-                });
-
-                setGeneratedLocalImages(prev => ({ ...prev, [index]: fileUri }));
-                // Otomatik önizleme kapatıldı - artık Modal kendiliğinden açılmaz
-                console.log("[LOCAL SD] Resim gizli klasöre kaydedildi ve sohbete basıldı:", fileUri);
-              }
-            } catch (err) {
-              console.error("[LOCAL SD] Error:", err);
-              alert("Local SD Sunucusuna bağlanılamadı. --api ve --listen modunun açık olduğundan emin ol.");
-            } finally {
-              setIsLocalGenerating(prev => ({ ...prev, [index]: false }));
-            }
-          };
 
           const isLocal = !!localSdIp;
           const localStoredImage = generatedLocalImages[index];
@@ -156,7 +162,7 @@ export const MarkdownText: React.FC<MarkdownTextProps> = ({ content, style, base
                 style={styles.imageContainer}
                 onPress={() => {
                   if (isLocal && !localStoredImage) {
-                    handleLocalGenerate();
+                    handleLocalGenerate(rawPrompt, index);
                   } else {
                     setPreviewImage(localStoredImage || imageUrl);
                     setPreviewPrompt(rawPrompt);
@@ -207,7 +213,7 @@ export const MarkdownText: React.FC<MarkdownTextProps> = ({ content, style, base
                   <TouchableOpacity
                     style={styles.actionButton}
                     onPress={() => {
-                      if (isLocal && !localStoredImage) handleLocalGenerate();
+                      if (isLocal && !localStoredImage) handleLocalGenerate(rawPrompt, index);
                       else {
                         setPreviewImage(localStoredImage || imageUrl);
                         setPreviewPrompt(rawPrompt);

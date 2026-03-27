@@ -1,6 +1,7 @@
 import { useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { speechService } from '../../../services/SpeechService';
+import logger from '../../../utils/logger';
 
 export const useSpeechOutput = () => {
   const { i18n } = useTranslation();
@@ -23,7 +24,7 @@ export const useSpeechOutput = () => {
       setIsSpeaking(false);
       setSpeakingMessageId(null);
     } catch (error) {
-      console.error('[useSpeechOutput] Speak error:', error);
+      logger.error(`Speak error: ${error}`, 'useSpeechOutput');
       setIsSpeaking(false);
       setSpeakingMessageId(null);
     }

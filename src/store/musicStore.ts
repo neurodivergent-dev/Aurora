@@ -3,6 +3,7 @@ import { persist, createJSONStorage } from 'zustand/middleware';
 import { createMMKV } from 'react-native-mmkv';
 import * as DocumentPicker from 'expo-document-picker';
 import { createAudioPlayer } from 'expo-audio';
+import logger from '../utils/logger';
 
 const mmkv = createMMKV({ id: 'music-store' });
 
@@ -238,7 +239,7 @@ export const useMusicStore = create<MusicState>()(
 
       loadLocalMusic: async () => {
         try {
-          console.log("[loadLocalMusic] Açılıyor: Document Picker...");
+          logger.info("Açılıyor: Document Picker...", "MusicStore");
 
           const result = await DocumentPicker.getDocumentAsync({
             type: ['audio/*'],
@@ -247,7 +248,6 @@ export const useMusicStore = create<MusicState>()(
           });
 
           if (result.canceled || !result.assets || result.assets.length === 0) {
-            console.log("[loadLocalMusic] Kullanıcı iptal etti veya dosya seçmedi.");
             return;
           }
 
@@ -260,7 +260,7 @@ export const useMusicStore = create<MusicState>()(
               duration = tempPlayer.duration || 0;
               tempPlayer.release();
             } catch (e) {
-              console.log("[loadLocalMusic] Duration fetch error:", e);
+              logger.error(`Duration fetch error: ${e}`, 'MusicStore');
             }
 
             return {
@@ -297,7 +297,6 @@ export const useMusicStore = create<MusicState>()(
             );
           }
         } catch (error) {
-          console.error("Lokal müzikler yüklenemedi:", error);
           get().showAlert(
             "Hata",
             "Lokal müzikleri eklerken bir hata oluştu.",

@@ -3,6 +3,7 @@ import { useMusicStore } from '../../../store/musicStore';
 import { useAIStore } from '../../../store/aiStore';
 import { findAction, parseActionData } from './actionParser';
 import * as FileSystem from 'expo-file-system/legacy';
+import logger from '../../../utils/logger';
 
 const cleanCommand = (text: string, match: any) => {
   return text.replace(match.regex as any, '').split('\n').filter(line => line.trim() !== '').join('\n').trim();
@@ -149,21 +150,21 @@ export const handleMusicActions = (response: string): { cleanResponse: string; c
                 const promptHash = rawPrompt.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0).toString();
                 const fileName = `local_sd_${promptHash}.png`;
                 finalImageUrl = `${FileSystem.documentDirectory}${fileName}`;
-                console.log("[MUSIC HANDLER] Resolved Local SD file path:", finalImageUrl);
+                logger.info(`Resolved Local SD file path: ${finalImageUrl}`, 'MusicHandler');
               } else {
                 // POLLINATIONS CASE (Fallback)
                 const encodedPrompt = encodeURIComponent(rawPrompt);
                 const seed = rawPrompt.split('').reduce((acc, char) => acc + (char.charCodeAt(0) * 31), 0) % 100000;
                 const authParam = pollinationsApiKey ? `&key=${pollinationsApiKey}` : '';
                 finalImageUrl = `https://gen.pollinations.ai/image/${encodedPrompt}?width=800&height=800&seed=${seed}&model=flux&nologo=true${authParam}`;
-                console.log("[MUSIC HANDLER] Extracted Pollinations URL:", finalImageUrl);
+                logger.info(`Extracted Pollinations URL: ${finalImageUrl}`, 'MusicHandler');
               }
             }
           }
 
           // Local SD support logic (avoid re-hashing if already localized)
           if (imageProvider === 'local' && localSdIp && !finalImageUrl.startsWith('file://')) {
-            console.log("[LOCAL SD] Artwork generation requested...");
+            logger.info("Artwork generation requested...", 'LocalSD');
             // For now, use the URL directly - local SD handling can be added here
           } else if (pollinationsApiKey && finalImageUrl.includes('pollinations.ai') && !finalImageUrl.includes('key=')) {
             const separator = finalImageUrl.includes('?') ? '&' : '?';
@@ -218,7 +219,7 @@ export const handleMusicActions = (response: string): { cleanResponse: string; c
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     }
   } catch (error) { 
-    console.error('[MUSIC HANDLER] Error:', error);
+    logger.error(`Error: ${error}`, 'MusicHandler');
   }
 
   return { cleanResponse, changed };

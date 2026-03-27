@@ -17,6 +17,7 @@ import { handleThemeActions } from '../handlers/themeHandler';
 import { handleMusicActions } from '../handlers/musicHandler';
 import { handleSettingsActions } from '../handlers/settingsHandler';
 import { handleBackupActions } from '../handlers/backupHandler';
+import logger from '../../../utils/logger';
 
 export const useAIChat = () => {
   const { t, i18n } = useTranslation();
@@ -142,7 +143,7 @@ export const useAIChat = () => {
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
       }
     } catch (error) {
-      console.error("Chat Error:", error);
+      logger.error(`Chat Error: ${error}`, 'useAIChat');
       const errorMessage: ChatMessage = {
         id: (Date.now() + 1).toString(),
         text: t('settings.ai.chat.error'),

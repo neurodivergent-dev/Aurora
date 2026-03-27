@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as SecureStore from 'expo-secure-store';
+import logger from '../utils/logger';
 
 export interface ChatMessage {
   id: string;
@@ -123,7 +124,7 @@ export const useAIStore = create<AIState>()(
             return { apiKey: key, groqApiKey: gKey, pollinationsApiKey: pKey, isAIEnabled: isEnabled };
           });
         } catch (e) {
-          console.error('AI ayarları yüklenemedi:', e);
+          logger.error(`AI ayarları yüklenemedi: ${e}`, 'AIStore');
         }
       },
 
@@ -171,12 +172,10 @@ export const useAIStore = create<AIState>()(
         localSdModel: state.localSdModel,
         chatMessages: state.chatMessages,
         customSystemPrompt: state.customSystemPrompt,
-        pollinationsApiKey: state.pollinationsApiKey,
         chatSoundsEnabled: state.chatSoundsEnabled,
         chatSoundType: state.chatSoundType,
         localSdIp: state.localSdIp,
         localSdPort: state.localSdPort,
-
       }),
     }
   )

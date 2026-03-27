@@ -40,7 +40,6 @@ class AIService {
 
     if (activeProvider === 'groq') {
       try {
-        console.log(`[AI SERVICE] Groq'a istek gönderiliyor (${groqModel})...`);
         const systemMsg = "You are a helpful productivity assistant. Respond ONLY with the requested text. NEVER use JSON tool calls.";
         const text = await groqService.chat(prompt, [], systemMsg, groqModel);
 
@@ -50,7 +49,6 @@ class AIService {
         }
         return text;
       } catch (e) {
-        console.error("Groq Request Error:", e);
         return "";
       }
     }
@@ -60,7 +58,6 @@ class AIService {
     if (!this.genAI) return "";
 
     try {
-      console.log(`[AI SERVICE] Gemini'ye istek gönderiliyor (${useFallback ? this.FALLBACK_MODEL : this.MODEL_NAME})...`);
       this.lastRequestTime = now;
       const model = this.genAI.getGenerativeModel({ model: useFallback ? this.FALLBACK_MODEL : this.MODEL_NAME });
 
@@ -215,7 +212,6 @@ Example: [IMAGE:cyberpunk city, neon lights, 8k, cinematic] (AURORA_COMMAND:SET_
         return text;
       }
     } catch (e) {
-      console.error("AI Chat Error:", e);
       return "";
     }
   }

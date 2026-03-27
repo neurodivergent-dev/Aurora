@@ -11,6 +11,7 @@ import { handleThemeActions } from '../screens/AIChatScreen/handlers/themeHandle
 import { handleMusicActions } from '../screens/AIChatScreen/handlers/musicHandler';
 import { handleSettingsActions } from '../screens/AIChatScreen/handlers/settingsHandler';
 import { handleBackupActions } from '../screens/AIChatScreen/handlers/backupHandler';
+import logger from '../utils/logger';
 
 export const useAIChat = () => {
   const { t, i18n } = useTranslation();
@@ -62,7 +63,7 @@ export const useAIChat = () => {
   }, [chatMessages, t]);
 
   const handleSend = useCallback(async () => {
-    console.log("[useAIChat] handleSend called. Input:", inputText.trim());
+    logger.info(`handleSend called. Input: ${inputText.trim()}`, 'useAIChat');
     if (!inputText.trim() || isLoading) return;
 
     const hasValidKey = apiKey || groqApiKey || activeProvider === 'ollama';
@@ -116,7 +117,7 @@ export const useAIChat = () => {
 
       return response;
     } catch (error) {
-      console.error("[useAIChat] Error in handleSend:", error);
+      logger.error(`Error in handleSend: ${error}`, 'useAIChat');
       const errorMessage: ChatMessage = {
         id: (Date.now() + 1).toString(),
         text: t('settings.ai.chat.error'),

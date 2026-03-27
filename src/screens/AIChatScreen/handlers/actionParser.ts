@@ -1,4 +1,5 @@
 import { AIAction } from '../../../types/chat';
+import logger from '../../../utils/logger';
 
 export const findAction = (response: string, type: string): AIAction | null => {
   try {
@@ -21,7 +22,7 @@ export const findAction = (response: string, type: string): AIAction | null => {
       const startIndex = uResponse.indexOf(uPrefix);
 
       if (startIndex !== -1) {
-        console.log(`[ACTION PARSER] Match found for prefix: ${prefix} at index: ${startIndex}`);
+        logger.debug(`Match found for prefix: ${prefix} at index: ${startIndex}`, 'ActionParser');
         const closer = prefix.startsWith('(') ? ')' : ']';
         const lastIndex = response.indexOf(closer, startIndex);
 
@@ -40,7 +41,7 @@ export const findAction = (response: string, type: string): AIAction | null => {
 
           // Extract data part (preserving case)
           const dataPart = response.substring(startIndex + prefix.length, lastIndex).trim();
-          console.log(`[ACTION PARSER] Data part extracted: "${dataPart}"`);
+          logger.debug(`Data part extracted: "${dataPart}"`, 'ActionParser');
 
           return {
             fullMatch,
@@ -50,12 +51,12 @@ export const findAction = (response: string, type: string): AIAction | null => {
           };
         } else {
           // If no closer found, but we have a match for the prefix, check for missing closing parenthesis
-          console.warn(`[ACTION PARSER] Found prefix ${prefix} but no closing ${closer}`);
+          logger.warn(`Found prefix ${prefix} but no closing ${closer}`, 'ActionParser');
         }
       }
     }
   } catch (error) {
-    console.error("[ACTION PARSER] Error:", error);
+    logger.error(`Error: ${error}`, 'ActionParser');
     return null;
   }
   return null;
@@ -72,7 +73,7 @@ export const parseActionData = (jsonStr: string | null): any => {
     const escaped = escapeNewlines(rawClean.replace(/```json|```|`/g, '').trim());
     return JSON.parse(escaped);
   } catch (e) {
-    console.log(`[ACTION PARSER] Strategy 1 failed, trying manual extraction...`);
+    logger.debug('Strategy 1 failed, trying manual extraction...', 'ActionParser');
     // Strategy 2: Manual Key-Value Extraction (Best for lyrics or broken JSON)
     try {
       const data: any = {};

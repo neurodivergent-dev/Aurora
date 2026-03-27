@@ -1,4 +1,5 @@
 import { useOllamaStore } from '../store/ollamaStore';
+import logger from '../utils/logger';
 
 const OLLAMA_CLOUD_HOST = 'https://ollama.com';
 
@@ -37,24 +38,24 @@ class OllamaService {
     if (ollamaCloudMode) {
       // Cloud Mode: https://ollama.com/api/chat + Bearer token
       if (!ollamaApiKey) {
-        console.error('[OLLAMA CLOUD] API key eksik!');
+        logger.error('API key eksik!', 'OLLAMA CLOUD');
         return 'Ollama Cloud API anahtarı eksik. Lütfen ayarlardan girin.';
       }
       url = `${OLLAMA_CLOUD_HOST}/api/chat`;
       headers['Authorization'] = `Bearer ${ollamaApiKey}`;
-      console.log(`[OLLAMA CLOUD] İstek: ${url} | Model: ${finalModel}`);
+      logger.info(`İstek: ${url} | Model: ${finalModel}`, 'OLLAMA CLOUD');
     } else {
       // Local Mode: http://<ip>:<port>/api/chat
       const ip = localIp?.trim();
       const port = (ollamaPort?.trim() || '11434');
 
       if (!ip) {
-        console.error('[OLLAMA LOCAL] IP adresi eksik!');
+        logger.error('IP adresi eksik!', 'OLLAMA LOCAL');
         return 'Yerel IP adresi eksik. Lütfen ayarlardan kontrol edin.';
       }
 
       url = `http://${ip}:${port}/api/chat`;
-      console.log(`[OLLAMA LOCAL] İstek: ${url} | Model: ${finalModel}`);
+      logger.info(`İstek: ${url} | Model: ${finalModel}`, 'OLLAMA LOCAL');
     }
 
     const body = JSON.stringify({
@@ -73,17 +74,17 @@ class OllamaService {
 
       if (!response.ok) {
         const errorText = await response.text().catch(() => '');
-        console.error(`[OLLAMA] API Hatası ${response.status}:`, errorText);
+        logger.error(`API Hatası ${response.status}: ${errorText}`, 'OLLAMA');
         throw new Error(`Ollama API Hatası: ${response.status}`);
       }
 
       const data = await response.json();
       const content = data.message?.content?.trim() || '';
 
-      console.log(`[OLLAMA] Yanıt alındı (${content.length} karakter)`);
+      logger.info(`Yanıt alındı (${content.length} karakter)`, 'OLLAMA');
       return content;
     } catch (e) {
-      console.error('[OLLAMA FATAL]:', e);
+      logger.error(`OLLAMA FATAL: ${e}`, 'OLLAMA');
 
       if (ollamaCloudMode) {
         return `Ollama Cloud hatası: ${e instanceof Error ? e.message : 'Bilinmeyen hata'}. API anahtarınızı ve internet bağlantınızı kontrol edin.`;

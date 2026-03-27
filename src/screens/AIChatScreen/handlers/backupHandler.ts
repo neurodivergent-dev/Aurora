@@ -7,6 +7,7 @@ import { useLanguageStore } from '../../../store/languageStore';
 import { useThemeStore } from '../../../store/themeStore';
 import { useAIStore } from '../../../store/aiStore';
 import { findAction } from './actionParser';
+import logger from '../../../utils/logger';
 
 export const handleBackupActions = (response: string, t?: (key: string) => string): { cleanResponse: string; changed: boolean } => {
   let cleanResponse = response;
@@ -39,7 +40,7 @@ export const handleBackupActions = (response: string, t?: (key: string) => strin
       changed = true;
     }
   } catch (error) { 
-    console.error('[BACKUP HANDLER] Error:', error);
+    logger.error(`Error: ${error}`, 'BackupHandler');
   }
 
   return { cleanResponse, changed };

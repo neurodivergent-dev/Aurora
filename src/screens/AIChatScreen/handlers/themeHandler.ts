@@ -2,6 +2,7 @@ import * as Haptics from 'expo-haptics';
 import { useThemeStore } from '../../../store/themeStore';
 import { findAction, parseActionData } from './actionParser';
 import { CustomTheme } from '../../../types/chat';
+import logger from '../../../utils/logger';
 
 // Helper: Check if a color is light (returns true for light colors like #FFFFFF, false for dark like #000000)
 const isLightColor = (hex: string): boolean => {
@@ -55,7 +56,7 @@ export const handleThemeActions = (response: string): { cleanResponse: string; c
     // 1. SET_DARK_MODE
     const darkMatch = findAction(cleanResponse, 'SET_DARK_MODE');
     if (darkMatch) {
-      console.log(`[THEME HANDLER] SET_DARK_MODE match found: "${darkMatch.data}"`);
+      logger.info(`SET_DARK_MODE match found: "${darkMatch.data}"`, 'ThemeHandler');
       const data = parseActionData(darkMatch.data);
       if (data && typeof data.isDark === 'boolean') {
         setIsDarkMode(data.isDark);
@@ -63,14 +64,14 @@ export const handleThemeActions = (response: string): { cleanResponse: string; c
         changed = true;
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       } else {
-        console.warn(`[THEME HANDLER] SET_DARK_MODE failed: data invalid`, data);
+        logger.warn(`SET_DARK_MODE failed: data invalid ${JSON.stringify(data)}`, 'ThemeHandler');
       }
     }
 
     // 2. SET_APP_THEME
     const themeMatch = findAction(cleanResponse, 'SET_APP_THEME');
     if (themeMatch) {
-      console.log(`[THEME HANDLER] SET_APP_THEME match found: "${themeMatch.data}"`);
+      logger.info(`SET_APP_THEME match found: "${themeMatch.data}"`, 'ThemeHandler');
       const data = parseActionData(themeMatch.data);
       if (data && data.themeId) {
         setThemeId(data.themeId.toLowerCase());
@@ -78,7 +79,7 @@ export const handleThemeActions = (response: string): { cleanResponse: string; c
         changed = true;
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       } else {
-        console.warn(`[THEME HANDLER] SET_APP_THEME failed: data invalid`, data);
+        logger.warn(`SET_APP_THEME failed: data invalid ${JSON.stringify(data)}`, 'ThemeHandler');
       }
     }
 
@@ -86,11 +87,11 @@ export const handleThemeActions = (response: string): { cleanResponse: string; c
     const createThemeMatch = findAction(cleanResponse, 'CREATE_THEME');
     if (createThemeMatch) {
       const data = parseActionData(createThemeMatch.data);
-      console.log(`[THEME HANDLER] CREATE_THEME match found, raw data:`, data);
+      logger.info(`CREATE_THEME match found, raw data: ${JSON.stringify(data)}`, 'ThemeHandler');
       if (data && (data.colors || data.darkColors || data.lightColors)) {
         // If only "colors" is provided, use it for both lightColors and darkColors
         if (data.colors && !data.lightColors && !data.darkColors) {
-          console.log(`[THEME HANDLER] Only "colors" provided, using for both modes`);
+          logger.info('Only "colors" provided, using for both modes', 'ThemeHandler');
           data.lightColors = { ...data.colors };
           data.darkColors = { ...data.colors };
         }
@@ -105,7 +106,7 @@ export const handleThemeActions = (response: string): { cleanResponse: string; c
 
         // AUTO-FIX: If LLM only provides one mode, copy to the other with adjustments
         if (data.lightColors && !data.darkColors) {
-          console.log(`[THEME HANDLER] Only lightColors provided, creating darkColors`);
+          logger.info('Only lightColors provided, creating darkColors', 'ThemeHandler');
           data.darkColors = {
             ...data.lightColors,
             background: '#0F0F11',
@@ -115,7 +116,7 @@ export const handleThemeActions = (response: string): { cleanResponse: string; c
           };
         }
         if (data.darkColors && !data.lightColors) {
-          console.log(`[THEME HANDLER] Only darkColors provided, creating lightColors`);
+          logger.info('Only darkColors provided, creating lightColors', 'ThemeHandler');
           data.lightColors = {
             ...data.darkColors,
             background: '#FFFFFF',
@@ -130,7 +131,7 @@ export const handleThemeActions = (response: string): { cleanResponse: string; c
         if (data.lightColors && data.lightColors.primary) {
           const p = data.lightColors.primary.toUpperCase();
           if (p === '#FFFFFF' || p.startsWith('#F') || p.startsWith('#EEEE') || p.startsWith('#DDD')) {
-            console.log(`[THEME HANDLER] lightColors.primary looks like background (${p}), fixing...`);
+            logger.info(`lightColors.primary looks like background (${p}), fixing...`, 'ThemeHandler');
             data.lightColors.background = data.lightColors.primary;
             data.lightColors.primary = '#6366F1'; // Default primary
           }
@@ -140,7 +141,7 @@ export const handleThemeActions = (response: string): { cleanResponse: string; c
           const p = data.darkColors.primary.toUpperCase();
           // Only fix if it's BLACK or very dark gray (#000, #111, #222, etc.)
           if (p === '#000000' || p === '#1A1A1A' || p === '#212121' || p === '#121212' || p === '#0A0A0A') {
-            console.log(`[THEME HANDLER] darkColors.primary looks like background (${p}), fixing...`);
+            logger.info(`darkColors.primary looks like background (${p}), fixing...`, 'ThemeHandler');
             data.darkColors.background = data.darkColors.primary;
             data.darkColors.primary = '#818CF8'; // Default primary
           }
@@ -155,7 +156,7 @@ export const handleThemeActions = (response: string): { cleanResponse: string; c
             // LIGHT MODE: white/light bg, dark text
             const bg = colors.background || colors.bg;
             if (!bg || !isLightColor(bg)) {
-              console.log(`[THEME HANDLER] LIGHT MODE: Invalid bg (${bg}), fixing`);
+              logger.info(`LIGHT MODE: Invalid bg (${bg}), fixing`, 'ThemeHandler');
               colors.background = '#FFFFFF';
             }
             const text = colors.text;
@@ -167,7 +168,7 @@ export const handleThemeActions = (response: string): { cleanResponse: string; c
             // DARK MODE: dark bg, light text
             const bg = colors.background || colors.bg;
             if (!bg || isLightColor(bg)) {
-              console.log(`[THEME HANDLER] DARK MODE: Invalid bg (${bg}), fixing`);
+              logger.info(`DARK MODE: Invalid bg (${bg}), fixing`, 'ThemeHandler');
               colors.background = '#0F0F11';
             }
             const text = colors.text;
@@ -205,14 +206,14 @@ export const handleThemeActions = (response: string): { cleanResponse: string; c
                   '#7E22CE', // Deep Purple
                 ];
             colors.primary = vibrantPrimaries[Math.floor(Math.random() * vibrantPrimaries.length)];
-            console.log(`[THEME HANDLER] Invalid primary, using random vibrant: ${colors.primary}`);
+            logger.info(`Invalid primary, using random vibrant: ${colors.primary}`, 'ThemeHandler');
           }
 
           // Secondary: Use complementary color of primary for vibrant combinations
           if (!colors.secondary || colors.secondary === '#A5B4FC' || colors.secondary === '#818CF8') {
             // Only generate complementary if secondary looks like default
             colors.secondary = getComplementaryColor(colors.primary);
-            console.log(`[THEME HANDLER] Generated complementary secondary: ${colors.secondary} from primary: ${colors.primary}`);
+            logger.info(`Generated complementary secondary: ${colors.secondary} from primary: ${colors.primary}`, 'ThemeHandler');
           }
 
           // Other defaults
@@ -243,10 +244,10 @@ export const handleThemeActions = (response: string): { cleanResponse: string; c
           lightColors: data.lightColors ? { ...data.lightColors, secondary: data.lightColors.secondary || data.lightColors.primary } : undefined,
           darkColors: data.darkColors ? { ...data.darkColors, secondary: data.darkColors.secondary || data.darkColors.primary } : undefined
         };
-        console.log(`[THEME HANDLER] Adding custom theme:`, newTheme);
+        logger.info(`Adding custom theme: ${JSON.stringify(newTheme)}`, 'ThemeHandler');
         addCustomTheme(newTheme as any);
         // AUTO-APPLY: Set the newly created theme as active
-        console.log(`[THEME HANDLER] Auto-applying theme: ${themeId}`);
+        logger.info(`Auto-applying theme: ${themeId}`, 'ThemeHandler');
         setThemeId(themeId);
         cleanResponse = cleanCommand(cleanResponse, createThemeMatch);
         changed = true;
@@ -254,7 +255,7 @@ export const handleThemeActions = (response: string): { cleanResponse: string; c
       }
     }
   } catch (error) {
-    console.error(`[THEME HANDLER] Critical Error:`, error);
+    logger.error(`Critical Error: ${error}`, 'ThemeHandler');
   }
 
   return { cleanResponse: cleanResponse.trim(), changed };

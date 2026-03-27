@@ -50,6 +50,7 @@ import * as ImagePicker from 'expo-image-picker';
 
 // Logo komponentini içe aktarıyoruz
 import AuroraLogo from "../../components/LogoComponent";
+import logger from "../utils/logger";
 
 export const SettingsScreen: React.FC = () => {
   const insets = useSafeAreaInsets();
@@ -187,7 +188,7 @@ export const SettingsScreen: React.FC = () => {
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       router.replace("/onboarding");
     } catch (error) {
-      console.error("Reset data error:", error);
+      logger.error(`Reset data error: ${error}`, 'SettingsScreen');
     }
   };
 

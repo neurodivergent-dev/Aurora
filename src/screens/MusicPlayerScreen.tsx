@@ -46,6 +46,7 @@ import { BackgroundEffects } from "../components/BackgroundEffects";
 import TextTicker from 'react-native-text-ticker';
 
 import { CustomAlert } from "../components/CustomAlert";
+import logger from "../utils/logger";
 
 const { width, height } = Dimensions.get("window");
 
@@ -136,9 +137,9 @@ export const MusicPlayerScreen: React.FC = () => {
                   source={{ uri: currentTrack.artwork }}
                   style={styles.artworkImage}
                   resizeMode="cover"
-                  onLoadStart={() => console.log("[DEBUG] Image Load Start:", currentTrack.artwork)}
-                  onLoad={() => console.log("[DEBUG] Image Load Success")}
-                  onError={(e) => console.error("[DEBUG] Image Load Error:", e.nativeEvent.error)}
+                  onLoadStart={() => logger.debug(`Image Load Start: ${currentTrack.artwork}`, 'MusicPlayer')}
+                  onLoad={() => logger.debug("Image Load Success", 'MusicPlayer')}
+                  onError={(e) => logger.error(`Image Load Error: ${e.nativeEvent.error}`, 'MusicPlayer')}
                 />
               ) : (
                 <LinearGradient

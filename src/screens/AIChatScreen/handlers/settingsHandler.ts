@@ -4,6 +4,7 @@ import { useLanguageStore } from '../../../store/languageStore';
 import { useThemeStore } from '../../../store/themeStore';
 import { useAIStore } from '../../../store/aiStore';
 import { findAction, parseActionData } from './actionParser';
+import logger from '../../../utils/logger';
 
 const cleanCommand = (text: string, match: any) => {
   return text.replace(match.regex as any, '').split('\n').filter(line => line.trim() !== '').join('\n').trim();
@@ -105,7 +106,7 @@ export const handleSettingsActions = (response: string): { cleanResponse: string
     if (customBgMatch) {
       const data = parseActionData(customBgMatch.data);
       if (data) {
-        console.log("[SETTINGS HANDLER] Setting Custom Background:", data);
+        logger.info(`Setting Custom Background: ${JSON.stringify(data)}`, 'SettingsHandler');
         cleanResponse = cleanCommand(cleanResponse, customBgMatch);
         changed = true;
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
@@ -121,7 +122,7 @@ export const handleSettingsActions = (response: string): { cleanResponse: string
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     }
   } catch (error) {
-    console.error(`[SETTINGS HANDLER] Critical Error:`, error);
+    logger.error(`Critical Error: ${error}`, 'SettingsHandler');
   }
 
   return { cleanResponse, changed };

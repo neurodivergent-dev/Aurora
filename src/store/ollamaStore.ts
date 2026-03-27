@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as SecureStore from 'expo-secure-store';
+import logger from '../utils/logger';
 
 interface OllamaState {
   // Cloud vs Local
@@ -54,7 +55,7 @@ export const useOllamaStore = create<OllamaState>()(
             set({ ollamaApiKey: key });
           }
         } catch (e) {
-          console.error('[OllamaStore] API key yüklenemedi:', e);
+          logger.error(`API key yüklenemedi: ${e}`, 'OllamaStore');
         }
       },
 

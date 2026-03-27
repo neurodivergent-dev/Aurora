@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import logger from '../utils/logger';
 
 interface OnboardingState {
   hasCompletedOnboarding: boolean;
@@ -16,13 +17,13 @@ export const useOnboardingStore = create<OnboardingState>()(
       
       // Onboarding durumunu güncelleme işlevi
       setOnboardingComplete: (completed: boolean) => {
-        console.log('Onboarding completion status set to:', completed);
+        logger.info(`Onboarding completion status set to: ${completed}`, 'OnboardingStore');
         set({ hasCompletedOnboarding: completed });
       },
       
       // Store'u sıfırlama işlevi
       resetState: () => {
-        console.log('Resetting onboarding store state to default (not completed)');
+        logger.info('Resetting onboarding store state to default (not completed)', 'OnboardingStore');
         set({ hasCompletedOnboarding: false });
       }
     }),

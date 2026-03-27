@@ -3,6 +3,7 @@ import { persist, createJSONStorage } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import i18n from '../i18n/i18n';
 import { LANGUAGES } from '../i18n/i18n';
+import logger from '../utils/logger';
 
 interface LanguageState {
   currentLanguage: string;
@@ -18,15 +19,15 @@ export const useLanguageStore = create<LanguageState>()(
       
       setLanguage: (lang: string) => {
         // Ensure the language is supported
-        if (lang !== LANGUAGES.EN && lang !== LANGUAGES.TR) {
-          console.warn(`Unsupported language: ${lang}, falling back to English`);
+        if (lang !== LANGUAGES.EN && lang !== LANGUAGES.TR && lang !== LANGUAGES.JA) {
+          logger.warn(`Unsupported language: ${lang}, falling back to English`, 'LanguageStore');
           lang = LANGUAGES.EN;
         }
         
         // Change language in i18n
         i18n.changeLanguage(lang);
         
-        console.log('Language changed to:', lang);
+        logger.info(`Language changed to: ${lang}`, 'LanguageStore');
         
         // Update store
         set({ 
@@ -36,7 +37,7 @@ export const useLanguageStore = create<LanguageState>()(
       
       // Add a reset function to handle complete reset
       resetState: () => {
-        console.log('Resetting language store state to default (English)');
+        logger.info('Resetting language store state to default (English)', 'LanguageStore');
         
         // Set to English
         i18n.changeLanguage(LANGUAGES.EN);
@@ -54,7 +55,7 @@ export const useLanguageStore = create<LanguageState>()(
       onRehydrateStorage: () => (state) => {
         if (state && state.currentLanguage) {
           // Ensure i18n language matches the stored language after rehydration
-          console.log('Rehydrating language:', state.currentLanguage);
+          logger.info(`Rehydrating language: ${state.currentLanguage}`, 'LanguageStore');
           i18n.changeLanguage(state.currentLanguage);
         }
       },

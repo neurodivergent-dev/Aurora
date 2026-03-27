@@ -1,5 +1,6 @@
 import { requestRecordingPermissionsAsync, setAudioModeAsync } from 'expo-audio';
 import * as FileSystem from 'expo-file-system/legacy';
+import logger from '../utils/logger';
 
 // ─── Permission Helper (SRP) ───
 export async function requestMicrophonePermission(): Promise<boolean> {
@@ -7,7 +8,7 @@ export async function requestMicrophonePermission(): Promise<boolean> {
     const { granted } = await requestRecordingPermissionsAsync();
     return granted;
   } catch (error) {
-    console.error('[VoiceInput] Permission error:', error);
+    logger.error(`Permission error: ${error}`, 'VoiceInput');
     return false;
   }
 }
@@ -70,15 +71,15 @@ class GroqWhisperSTTService implements ISpeechToTextService {
 
       if (!response.ok) {
         const errorText = await response.text();
-        console.error('[STT] Groq API Error:', response.status, errorText);
+        logger.error(`Groq API Error: ${response.status} ${errorText}`, 'STT');
         throw new Error(`API_ERROR_${response.status}`);
       }
 
       const transcription = await response.text();
-      console.log('[STT] Transcription:', transcription.trim());
+      logger.info(`Transcription: ${transcription.trim()}`, 'STT');
       return transcription.trim();
     } catch (error) {
-      console.error('[STT] Transcription error:', error);
+      logger.error(`Transcription error: ${error}`, 'STT');
       throw error;
     }
   }

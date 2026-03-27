@@ -1,4 +1,5 @@
 import { useAIStore } from "../store/aiStore";
+import logger from "../utils/logger";
 
 class GroqService {
   private readonly baseUrl = "https://api.groq.com/openai/v1";
@@ -55,13 +56,13 @@ NEVER violate these rules.`
       const data = await response.json();
       
       if (data.error) {
-        console.error("Groq API Error:", data.error);
+        logger.error(`Groq API Error: ${JSON.stringify(data.error)}`, 'GroqService');
         return "";
       }
 
       return data.choices[0]?.message?.content || "";
     } catch (e) {
-      console.error("Groq Service Error:", e);
+      logger.error(`Groq Service Error: ${e}`, 'GroqService');
       return "";
     }
   }

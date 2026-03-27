@@ -2,6 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import i18n from '../i18n/i18n';
 import { LANGUAGES } from '../i18n/i18n';
 import { useLanguageStore } from '../store/languageStore';
+import logger from './logger';
 
 /**
  * Reset language settings completely to default (English)
@@ -12,11 +13,11 @@ import { useLanguageStore } from '../store/languageStore';
  */
 export const resetLanguageSettings = async () => {
   try {
-    console.log('Starting complete language reset...');
+    logger.info('Starting complete language reset...', 'LanguageUtils');
     
     // 1. Clear all language-related storage
     await AsyncStorage.removeItem('language-storage');
-    console.log('Language storage cleared from AsyncStorage');
+    logger.info('Language storage cleared from AsyncStorage', 'LanguageUtils');
     
     // 2. Get a reference to the store
     const languageStore = useLanguageStore.getState();
@@ -24,10 +25,10 @@ export const resetLanguageSettings = async () => {
     // 3. Reset state using the store's own reset method (which will also update i18n)
     if (languageStore && languageStore.resetState) {
       languageStore.resetState();
-      console.log('Language store reset completed');
+      logger.info('Language store reset completed', 'LanguageUtils');
     } else {
       // Fallback in case resetState is not available
-      console.log('Using fallback reset method');
+      logger.info('Using fallback reset method', 'LanguageUtils');
       i18n.changeLanguage(LANGUAGES.EN);
       
       if (languageStore) {
@@ -40,11 +41,11 @@ export const resetLanguageSettings = async () => {
     
     // 4. Verify the reset worked
     const afterResetLanguage = i18n.language;
-    console.log('After reset - i18n language:', afterResetLanguage);
+    logger.info(`After reset - i18n language: ${afterResetLanguage}`, 'LanguageUtils');
     
     return true;
   } catch (error) {
-    console.error('Failed to reset language settings:', error);
+    logger.error(`Failed to reset language settings: ${error}`, 'LanguageUtils');
     return false;
   }
 };
@@ -57,7 +58,7 @@ export const getLanguageStorageData = async () => {
     const data = await AsyncStorage.getItem('language-storage');
     return data ? JSON.parse(data) : null;
   } catch (error) {
-    console.error('Failed to get language storage data:', error);
+    logger.error(`Failed to get language storage data: ${error}`, 'LanguageUtils');
     return null;
   }
 }; 
