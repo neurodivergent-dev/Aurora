@@ -54,6 +54,18 @@ const darkBase = {
 export const THEMES: ThemeOption[] = [
   {
     id: 'default',
+    name: 'Aurora',
+    colors: {
+      ...darkBase,
+      primary: '#6366F1', // Indigo (Main)
+      secondary: '#A855F7', // Purple (Secondary)
+      info: '#3B82F6', // Blue (Accent)
+      background: '#0B0B1E',
+      card: 'rgba(20, 20, 45, 0.7)',
+    },
+  },
+  {
+    id: 'cyberpunk',
     name: 'Cyberpunk',
     colors: {
       ...darkBase,

@@ -49,6 +49,7 @@ export const HomeScreen: React.FC = () => {
           <View style={styles.headerContent}>
             <Text style={styles.headerTitle}>{t("home.library")}</Text>
             <View style={styles.headerActions}>
+
               <TouchableOpacity
                 style={[styles.iconBtn, isSearchVisible && { backgroundColor: 'rgba(255, 255, 255, 0.2)' }]}
                 onPress={() => {

@@ -1,5 +1,5 @@
 /**
- * Test Utilities for FocusTabs
+ * Test Utilities for Aurora
  * Common helper functions for testing
  */
 

@@ -1,11 +1,11 @@
-# 🧪 FocusTabs - Testing Documentation
+# 🧪 Aurora - Testing Documentation
 
 ## 📋 Overview
 
-This document describes the testing infrastructure for FocusTabs, a minimalist goal management app built with React Native, Expo SDK 55, and TypeScript.
+This document describes the testing infrastructure for Aurora, an AI-powered music player app built with React Native, Expo SDK 55, and TypeScript.
 
-**Testing Framework:** Jest + jest-expo  
-**Coverage Target:** 80% minimum for `src/store` and `src/utils`  
+**Testing Framework:** Jest + jest-expo
+**Coverage Target:** 80% minimum for `src/store` and `src/utils`
 **CI/CD:** CircleCI
 
 ---
@@ -15,7 +15,7 @@ This document describes the testing infrastructure for FocusTabs, a minimalist g
 ### Directory Structure
 
 ```
-FocusTabs/
+Aurora/
 ├── src/
 │   ├── __mocks__/              # Mock implementations
 │   │   ├── database.mock.ts
@@ -488,7 +488,7 @@ open coverage/index.html
 
 ### LCOV Report
 
-View in Codecov dashboard: `https://app.codecov.io/gh/neurodivergent-dev/focustabs`
+View in Codecov dashboard: `https://app.codecov.io/gh/neurodivergent-dev/aurora`
 
 ---
 
@@ -540,5 +540,5 @@ import { useDailyGoalsStore } from '../../dailyGoalsStore';
 
 ---
 
-**Last Updated:** March 2026  
-**Author:** FocusTabs Development Team
+**Last Updated:** March 2026
+**Author:** Aurora Development Team

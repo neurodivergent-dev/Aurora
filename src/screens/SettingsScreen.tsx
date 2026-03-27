@@ -117,7 +117,7 @@ export const SettingsScreen: React.FC = () => {
   const handleRateApp = () => {
     soundService.playClick();
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    const playStoreUrl = "https://play.google.com/store/apps/details?id=com.melihcandemir.playerai";
+    const playStoreUrl = "https://play.google.com/store/apps/details?id=com.metaframe.aurora";
     Linking.canOpenURL(playStoreUrl).then((supported) => {
       if (supported) Linking.openURL(playStoreUrl);
     });

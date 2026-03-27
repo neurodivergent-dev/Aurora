@@ -53,7 +53,7 @@ export default function BackupSettingsScreen() {
       const jsonString = dataToJSON(data);
 
       // Create a temporary file
-      const fileName = `playerai-backup-${new Date().toISOString().split("T")[0]}.json`;
+      const fileName = `aurora-backup-${new Date().toISOString().split("T")[0]}.json`;
       const filePath = `${FileSystem.documentDirectory}${fileName}`;
 
       await FileSystem.writeAsStringAsync(filePath, jsonString);

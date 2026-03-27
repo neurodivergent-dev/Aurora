@@ -1,7 +1,7 @@
-# FocusTabs - Clean Reinstall Script
+# Aurora - Clean Reinstall Script
 # Purpose: Deep clean of dependencies and fresh installation
 
-Write-Host "--- [FocusTabs] Starting Clean Reinstall ---" -ForegroundColor Cyan
+Write-Host "--- [Aurora] Starting Clean Reinstall ---" -ForegroundColor Cyan
 
 # 1. Stop any running Node/Metro processes
 Write-Host "[1/5] Stopping any active Node processes..." -ForegroundColor DarkGray

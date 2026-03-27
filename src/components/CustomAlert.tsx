@@ -76,55 +76,55 @@ export const CustomAlert: React.FC<CustomAlertProps> = ({
       onRequestClose={onCancel}
     >
       <View style={styles.overlay}>
-        <Pressable 
-          style={StyleSheet.absoluteFill} 
+        <Pressable
+          style={StyleSheet.absoluteFill}
           onPress={onCancel}
         >
-          <Animated.View 
-            entering={FadeIn.duration(200)} 
+          <Animated.View
+            entering={FadeIn.duration(200)}
             exiting={FadeOut.duration(200)}
-            style={[styles.backdrop, { backgroundColor: isDarkMode ? 'rgba(0,0,0,0.8)' : 'rgba(0,0,0,0.4)' }]} 
+            style={[styles.backdrop, { backgroundColor: isDarkMode ? 'rgba(0,0,0,0.8)' : 'rgba(0,0,0,0.4)' }]}
           />
         </Pressable>
 
-        <Animated.View 
-          entering={ZoomIn.springify().damping(15)} 
+        <Animated.View
+          entering={ZoomIn.springify().damping(15)}
           exiting={ZoomOut.duration(150)}
           style={styles.container}
         >
           <View style={[
-            styles.alertCard, 
-            { 
-              backgroundColor: colors.card, 
+            styles.alertCard,
+            {
+              backgroundColor: colors.card,
               borderColor: isDarkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)',
-              borderWidth: 1 
+              borderWidth: 1
             }
           ]}>
             <LinearGradient
               colors={[typeColor + '15', 'transparent']}
               style={styles.gradientHeader}
             />
-            
+
             <View style={styles.content}>
               <View style={[styles.iconContainer, { backgroundColor: typeColor + '15' }]}>
                 {getIcon()}
               </View>
-              
+
               <Text style={[styles.title, { color: colors.text }]}>{title}</Text>
               <Text style={[styles.message, { color: colors.subText }]}>{message}</Text>
-              
+
               <View style={styles.buttonContainer}>
                 {cancelText && (
-                  <TouchableOpacity 
-                    style={[styles.button, styles.cancelButton, { backgroundColor: isDarkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)' }]} 
+                  <TouchableOpacity
+                    style={[styles.button, styles.cancelButton, { backgroundColor: isDarkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)' }]}
                     onPress={onCancel}
                   >
                     <Text style={[styles.buttonText, { color: colors.text }]}>{cancelText}</Text>
                   </TouchableOpacity>
                 )}
-                
-                <TouchableOpacity 
-                  style={[styles.button, { backgroundColor: typeColor }]} 
+
+                <TouchableOpacity
+                  style={[styles.button, { backgroundColor: typeColor }]}
                   onPress={onConfirm}
                 >
                   <Text style={[styles.buttonText, { color: '#FFFFFF' }]}>{confirmText}</Text>

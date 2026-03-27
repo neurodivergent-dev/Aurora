@@ -1,4 +1,4 @@
-// Jest Setup File for FocusTabs
+// Jest Setup File for Aurora
 import '@testing-library/jest-native/extend-expect';
 
 // Mock expo-secure-store

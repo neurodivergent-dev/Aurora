@@ -1,7 +1,7 @@
 import { openDatabaseSync } from 'expo-sqlite';
 import { Goal, GoalInput, DailyCompletion, GoalCategory } from '../types/goal';
 
-const db = openDatabaseSync('focustabs.db');
+const db = openDatabaseSync('aurora.db');
 
 // Promise-based initialization lock to prevent race conditions
 let initPromise: Promise<void> | null = null;

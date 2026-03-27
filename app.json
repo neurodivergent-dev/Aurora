@@ -17,14 +17,15 @@
     ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.melihcandemir.playerai"
+      "bundleIdentifier": "com.metaframe.aurora"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.melihcandemir.playerai",
+      "package": "com.metaframe.aurora",
+      "usesCleartextTraffic": true,
       "permissions": [
         "WAKE_LOCK",
         "FOREGROUND_SERVICE",
@@ -69,8 +70,8 @@
     "experiments": {
       "typedRoutes": true
     },
-    "description": "A minimalist goal management app. Focus on what matters most with up to 3 daily goals. Completely offline and ad-free.",
-    "githubUrl": "https://github.com/neurodivergent-dev/focustabs",
+    "description": "AI DJ for Your Mind & Music. A minimalist, offline-first music player with AI-powered personalization. Completely offline and ad-free.",
+    "githubUrl": "https://github.com/neurodivergent-dev/aurora",
     "extra": {
       "router": {
         "origin": false

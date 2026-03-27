@@ -1,7 +1,8 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { useAIStore } from "../store/aiStore";
 import { groqService } from "./groqService";
-import { AURORA_SYSTEM_PROMPT } from "../constants/auroraPrompts";
+import { ollamaService } from "./ollamaService";
+import { AURORA_SYSTEM_PROMPT, OLLAMA_SYSTEM_PROMPT } from "../constants/auroraPrompts";
 
 class AIService {
   private genAI: GoogleGenerativeAI | null = null;
@@ -40,7 +41,8 @@ class AIService {
     if (activeProvider === 'groq') {
       try {
         console.log(`[AI SERVICE] Groq'a istek gönderiliyor (${groqModel})...`);
-        const text = await groqService.chat(prompt, [], "You are a helpful productivity assistant. Respond ONLY with the requested text, no chatter.", groqModel);
+        const systemMsg = "You are a helpful productivity assistant. Respond ONLY with the requested text. NEVER use JSON tool calls.";
+        const text = await groqService.chat(prompt, [], systemMsg, groqModel);
 
         if (text) {
           this.cache[cacheKey] = { msg: text, time: now };
@@ -90,58 +92,84 @@ class AIService {
       const msgLower = message.toLowerCase();
 
       // Soft Routing for Fat Actions (Obez Aksiyonlar için Dinamik Yönlendirme)
-      const allowThemeCreation = /tema (yap|oluştur|yarat)|yeni tema|create theme|make theme|new theme/.test(msgLower);
-      const allowImageGeneration = /resim|çiz|fotoğraf|foto|image|picture|draw|kapak|cover|artwork/.test(msgLower);
-      const allowMusicAddition = /müzik ekle|şarkı ekle|yükle|hafızadan|import|add music|add song|ekle/.test(msgLower);
+      // Visuals [IMAGE:...] check to prevent accidental triggers
+      const isGeneratingImage = /\[IMAGE:.*?\]/i.test(message);
 
-      const systemInstruction = AURORA_SYSTEM_PROMPT({
-        language,
-        customPrompt,
-        context,
-        isoDate,
-        dayName,
-        localTime,
-        timeZone,
-        userName,
-        allowThemeCreation,
-        allowImageGeneration,
-        allowMusicAddition
-      });
+      const allowThemeCreation = !isGeneratingImage && /tema (yap|oluştur|yarat|değiştir)|yeni tema|create theme|make theme|new theme|theme creator|tema oluştur|tema yap|tema değiştir|change theme|design theme|tema tasarla/.test(msgLower) && !/(kapak|artwork|resim)/.test(msgLower);
+      const allowImageGeneration = /resim|çiz|fotoğraf|foto|image|picture|draw|kapak|cover|artwork/.test(msgLower) || isGeneratingImage;
+      const allowMusicAddition = !isGeneratingImage && /müzik ekle|şarkı ekle|yükle|hafızadan|import|add music|add song|ekle/.test(msgLower);
+
+      // Ollama için kısa prompt, diğerleri için tam prompt
+      const systemInstruction = activeProvider === 'ollama'
+        ? OLLAMA_SYSTEM_PROMPT({
+          language,
+          customPrompt,
+          context,
+          isoDate,
+          dayName,
+          localTime,
+          timeZone,
+          userName,
+          allowThemeCreation,
+          allowImageGeneration,
+          allowMusicAddition
+        })
+        : AURORA_SYSTEM_PROMPT({
+          language,
+          customPrompt,
+          context,
+          isoDate,
+          dayName,
+          localTime,
+          timeZone,
+          userName,
+          allowThemeCreation,
+          allowImageGeneration,
+          allowMusicAddition
+        });
 
       if (activeProvider === 'ollama') {
-        const { localSdIp, ollamaModel } = useAIStore.getState();
-        if (!localSdIp) return "Yerel IP (localSdIp) eksik. Lütfen ayarlardan kontrol edin.";
-
         const ollamaHistory = [
-          { role: 'system', content: systemInstruction },
+          {
+            role: 'system' as const, content: `PROMPT RULE (CRITICAL):
+For [IMAGE:description] tags, ALWAYS use ENGLISH keywords ONLY. Add artistic technical terms like "8k, cinematic, ultra realistic, masterpiece".
+Even if the user speaks Turkish, the description inside [IMAGE:] MUST be in ENGLISH.
+IMPORTANT: When you create an image with [IMAGE:description], you MUST also add the command to apply it to the cover!
+Format: (AURORA_COMMAND:SET_TRACK_ARTWORK:{"imageUrl": "IMAGE_TAG"})  <-- Use "IMAGE_TAG" as the value.
+
+COMMANDS (USE THESE EXACTLY):
+- SET_VOLUME: (AURORA_COMMAND:SET_VOLUME:{"level": 0.0-1.0}) -> USE THIS for volume requests!
+- TOGGLE_FAVORITE: (AURORA_COMMAND:TOGGLE_FAVORITE:{"trackId": "ID"}) -> Adds/Removes song from favorites.
+- TOGGLE_SHUFFLE: (AURORA_COMMAND:TOGGLE_SHUFFLE) -> Toggles shuffle mode.
+- TOGGLE_REPEAT: (AURORA_COMMAND:TOGGLE_REPEAT) -> Toggles repeat mode.
+- NEXT_TRACK: (AURORA_COMMAND:NEXT_TRACK)
+- PREV_TRACK: (AURORA_COMMAND:PREV_TRACK)
+- CREATE_PLAYLIST: (AURORA_COMMAND:CREATE_PLAYLIST:{"name": "Playlist Name", "trackIds": ["ID1", "ID2"]})
+- UPDATE_PLAYLIST: (AURORA_COMMAND:UPDATE_PLAYLIST:{"playlistId": "ID", "name": "New Name", "trackIds": ["ID1"]})
+- DELETE_PLAYLIST: (AURORA_COMMAND:DELETE_PLAYLIST:{"playlistId": "ID"})
+- PLAY_MUSIC: (AURORA_COMMAND:PLAY_MUSIC:{"trackId": "..."})
+- PAUSE_MUSIC: (AURORA_COMMAND:PAUSE_MUSIC)
+- SET_BACKGROUND_EFFECT: (AURORA_COMMAND:SET_BACKGROUND_EFFECT:{"effect": "..."})
+
+Example: [IMAGE:cyberpunk city, neon lights, 8k, cinematic] (AURORA_COMMAND:SET_TRACK_ARTWORK:{"imageUrl": "IMAGE_TAG"})
+
+${systemInstruction}`
+          },
           ...history.map(h => ({
-            role: h.role === 'model' ? 'assistant' : 'user',
+            role: (h.role === 'model' ? 'assistant' : 'user') as 'user' | 'assistant',
             content: h.parts[0].text
           })),
-          { role: 'user', content: message }
+          { role: 'user' as const, content: message }
         ];
 
-        try {
-          console.log(`[OLLAMA] İstek gönderiliyor: ${ollamaModel} @ ${localSdIp}`);
-          const response = await fetch(`http://${localSdIp}:11434/api/chat`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              model: ollamaModel,
-              messages: ollamaHistory,
-              stream: false,
-              options: { temperature: 0.7, num_predict: 1000 }
-            })
-          });
+        let content = await ollamaService.chat(ollamaHistory);
 
-          if (!response.ok) throw new Error(`Ollama API Hatası: ${response.status}`);
-
-          const data = await response.json();
-          return data.message.content;
-        } catch (e) {
-          console.error("Ollama Chat Error:", e);
-          return "Yerel modele (Ollama) bağlanılamadı. Lütfen Ollama'nın (ollama serve) çalıştığından ve Windows'ta OLLAMA_HOST=0.0.0.0 ayarının yapıldığından emin olun.";
+        // If image was requested, suppress unintended music/theme triggers
+        if (isGeneratingImage) {
+          content = content.replace(/\(AURORA_COMMAND:(PLAY_MUSIC|PAUSE_MUSIC|SET_APP_THEME|SET_DARK_MODE):.*?\)/gi, '').trim();
         }
+
+        return content;
       }
 
       if (activeProvider === 'groq') {
@@ -149,14 +177,42 @@ class AIService {
           role: h.role === 'model' ? 'assistant' : 'user',
           content: h.parts[0].text
         }));
-        return groqService.chat(message, groqHistory, systemInstruction, groqModel);
+        const groqSystemMsg = `PROMPT RULE: For [IMAGE:...] tags, ALWAYS use ENGLISH keywords only (8k, cinematic, etc). 
+        You MUST also add: (AURORA_COMMAND:SET_TRACK_ARTWORK:{"imageUrl": "IMAGE_TAG"}) after the tag.
+        
+${systemInstruction}`;
+
+        let content = await groqService.chat(message, groqHistory, groqSystemMsg, groqModel);
+
+        if (isGeneratingImage) {
+          content = content.replace(/\(AURORA_COMMAND:(PLAY_MUSIC|PAUSE_MUSIC|SET_APP_THEME|SET_DARK_MODE):.*?\)/gi, '').trim();
+        }
+        return content;
       } else {
         this.init();
         if (!this.genAI) return "";
-        const model = this.genAI.getGenerativeModel({ model: this.MODEL_NAME, systemInstruction });
+
+        const geminiSystemPrompt = `${systemInstruction}
+        
+PROMPT RULE (CRITICAL):
+For [IMAGE:description] tags, ALWAYS use ENGLISH keywords ONLY. Add artistic technical terms like "8k, cinematic, ultra realistic, masterpiece".
+Even if the user speaks Turkish, the description inside [IMAGE:] MUST be in ENGLISH.
+IMPORTANT: When you create an image with [IMAGE:description], you MUST also add the command to apply it to the cover!
+Format: (AURORA_COMMAND:SET_TRACK_ARTWORK:{"imageUrl": "IMAGE_TAG"})  <-- Use "IMAGE_TAG" as the value.
+
+Example: [IMAGE:cyberpunk city, neon lights, 8k, cinematic] (AURORA_COMMAND:SET_TRACK_ARTWORK:{"imageUrl": "IMAGE_TAG"})`;
+
+        const model = this.genAI.getGenerativeModel({ model: this.MODEL_NAME, systemInstruction: geminiSystemPrompt });
         const chat = model.startChat({ history });
         const result = await chat.sendMessage(message);
-        return (await result.response).text().trim();
+        let text = (await result.response).text().trim();
+
+        // If image was requested, suppress unintended triggers
+        if (isGeneratingImage) {
+          text = text.replace(/\(AURORA_COMMAND:(PLAY_MUSIC|PAUSE_MUSIC|SET_APP_THEME|SET_DARK_MODE):.*?\)/gi, '').trim();
+        }
+
+        return text;
       }
     } catch (e) {
       console.error("AI Chat Error:", e);

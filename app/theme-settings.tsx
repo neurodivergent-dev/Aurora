@@ -13,8 +13,9 @@ import { Stack, useRouter } from "expo-router";
 import { useThemeStore } from "../src/store/themeStore";
 import { THEMES } from "../src/constants/themes";
 import { useTheme } from "../src/components/ThemeProvider";
+import { CustomAlert } from "../src/components/CustomAlert";
 import ThemedButton from "../src/components/ThemedButton";
-import { ChevronLeft, Palette, Box, Sparkles, Waves, CircleOff, Atom, Hexagon, Star, ChevronDown, Activity, Wind, Grid3X3, Music, Volume2, Trees, CloudRain, Moon, Bell, Zap, Circle } from "lucide-react-native";
+import { ChevronLeft, Palette, Box, Sparkles, Waves, CircleOff, Atom, Hexagon, Star, ChevronDown, Activity, Wind, Grid3X3, Music, Volume2, Trees, CloudRain, Moon, Bell, Zap, Circle, Trash2 } from "lucide-react-native";
 import Animated, { FadeIn, FadeOut, Layout, FadeInDown } from "react-native-reanimated";
 import { useTranslation } from "react-i18next";
 import { BackgroundEffectType } from "../src/store/themeStore";
@@ -22,14 +23,13 @@ import { BackgroundEffectType } from "../src/store/themeStore";
 export default function ThemeSettingsScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
-  const { colors, isDarkMode, themeId } = useTheme(); // Added isDarkMode, kept themeId
-  const { setBackgroundEffect, backgroundEffect, setThemeId, customThemes, ambientSound, setAmbientSound } = useThemeStore((state) => ({ // Kept original structure for useThemeStore
+  const { colors, isDarkMode, themeId } = useTheme();
+  const { setBackgroundEffect, backgroundEffect, setThemeId, customThemes, removeCustomTheme } = useThemeStore((state) => ({
     setThemeId: state.setThemeId,
+    removeCustomTheme: state.removeCustomTheme,
     setBackgroundEffect: state.setBackgroundEffect,
     backgroundEffect: state.backgroundEffect,
     customThemes: state.customThemes,
-    ambientSound: state.ambientSound,
-    setAmbientSound: state.setAmbientSound,
   }));
   const { t } = useTranslation();
 
@@ -46,12 +46,40 @@ export default function ThemeSettingsScreen() {
     setThemeId(id);
   };
 
+  // Custom theme silme işleyicisi
+  const handleDeleteTheme = (id: string, name: string) => {
+    if (customThemes.length === 1) {
+      // Son tema, direkt sil
+      removeCustomTheme(id);
+    } else {
+      // Custom alert göster
+      setThemeToDelete({ id, name });
+      setDeleteAlertVisible(true);
+    }
+  };
+
+  const confirmDelete = () => {
+    if (themeToDelete) {
+      removeCustomTheme(themeToDelete.id);
+      setDeleteAlertVisible(false);
+      setThemeToDelete(null);
+    }
+  };
+
+  const cancelDelete = () => {
+    setDeleteAlertVisible(false);
+    setThemeToDelete(null);
+  };
+
   const [openSections, setOpenSections] = React.useState<Record<string, boolean>>({
     themes: false,
     effects: false,
-    sounds: false,
     preview: false
   });
+
+  // Delete alert state
+  const [deleteAlertVisible, setDeleteAlertVisible] = React.useState(false);
+  const [themeToDelete, setThemeToDelete] = React.useState<{ id: string; name: string } | null>(null);
 
   const toggleSection = (id: string) => {
     setOpenSections(prev => ({
@@ -107,6 +135,17 @@ export default function ThemeSettingsScreen() {
         options={{
           headerShown: false,
         }}
+      />
+
+      <CustomAlert
+        visible={deleteAlertVisible}
+        title={t('themeSettings.deleteTheme', 'Temayı Sil')}
+        message={`"${themeToDelete?.name}" temasını silmek istediğine emin misin? Bu işlem geri alınamaz.`}
+        type="danger"
+        confirmText={t('common.delete', 'Sil')}
+        cancelText={t('common.cancel', 'İptal')}
+        onConfirm={confirmDelete}
+        onCancel={cancelDelete}
       />
 
       <SafeAreaView
@@ -174,60 +213,80 @@ export default function ThemeSettingsScreen() {
             isOpen={openSections.themes}
           >
             <View style={styles.themesGrid}>
-              {allThemes.map((theme) => (
-                <TouchableOpacity
-                  key={theme.id}
-                  style={[
-                    styles.themeCard,
-                    {
-                      backgroundColor: isDarkMode ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.02)',
-                      borderColor: themeId === theme.id ? theme.colors.primary : 'transparent',
-                      borderWidth: themeId === theme.id ? 2 : 1,
-                    },
-                  ]}
-                  onPress={() => handleThemeSelect(theme.id)}
-                  activeOpacity={0.7}
-                >
-                  <LinearGradient
-                    colors={[theme.colors.primary + '10', theme.colors.secondary + '10']}
-                    style={styles.themeCardGradient}
+              {allThemes.map((theme) => {
+                const isCustom = customThemes.some(t => t.id === theme.id);
+                return (
+                  <TouchableOpacity
+                    key={theme.id}
+                    style={[
+                      styles.themeCard,
+                      {
+                        backgroundColor: isDarkMode ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.02)',
+                        borderColor: themeId === theme.id ? theme.colors.primary : 'transparent',
+                        borderWidth: themeId === theme.id ? 2 : 1,
+                      },
+                    ]}
+                    onPress={() => handleThemeSelect(theme.id)}
+                    activeOpacity={0.7}
                   >
-                    <View style={styles.themeColorRing}>
-                      <View
+                    <LinearGradient
+                      colors={[theme.colors.primary + '10', theme.colors.secondary + '10']}
+                      style={styles.themeCardGradient}
+                    >
+                      {/* Delete button - only for custom themes */}
+                      {isCustom && (
+                        <TouchableOpacity
+                          style={[
+                            styles.deleteButton,
+                            { backgroundColor: isDarkMode ? 'rgba(255,50,50,0.2)' : 'rgba(255,50,50,0.1)' }
+                          ]}
+                          onPress={(e) => {
+                            e.stopPropagation();
+                            handleDeleteTheme(theme.id, theme.name);
+                          }}
+                          activeOpacity={0.7}
+                        >
+                          <Trash2 size={14} color="#FF4444" />
+                        </TouchableOpacity>
+                      )}
+                      
+                      <View style={styles.themeColorRing}>
+                        <View
+                          style={[
+                            styles.themePreview,
+                            {
+                              backgroundColor: theme.colors.primary,
+                              shadowColor: theme.colors.primary,
+                              shadowOffset: { width: 0, height: 4 },
+                              shadowOpacity: 0.4,
+                              shadowRadius: 8,
+                              elevation: 6,
+                            },
+                          ]}
+                        />
+                      </View>
+                      {/* Badge Handling */}
+                      <Text
                         style={[
-                          styles.themePreview,
-                          {
-                            backgroundColor: theme.colors.primary,
-                            shadowColor: theme.colors.primary,
-                            shadowOffset: { width: 0, height: 4 },
-                            shadowOpacity: 0.4,
-                            shadowRadius: 8,
-                            elevation: 6,
+                          styles.themeCardTitle,
+                          { color: colors.text },
+                          themeId === theme.id && {
+                            fontWeight: "700",
+                            color: theme.colors.primary,
                           },
                         ]}
-                      />
-                    </View>
-                    {/* Badge Handling */}
-                    <Text
-                      style={[
-                        styles.themeCardTitle,
-                        { color: colors.text },
-                        themeId === theme.id && {
-                          fontWeight: "700",
-                          color: theme.colors.primary,
-                        },
-                      ]}
-                      numberOfLines={1}
-                    >
-                      {t(`themeNames.${theme.id}`, theme.name)}
-                    </Text>
-                    <View style={styles.colorDotsContainer}>
-                      <View style={[styles.colorDot, { backgroundColor: theme.colors.primary }]} />
-                      <View style={[styles.colorDot, { backgroundColor: theme.colors.secondary }]} />
-                    </View>
-                  </LinearGradient>
-                </TouchableOpacity>
-              ))}
+                        numberOfLines={1}
+                      >
+                        {t(`themeNames.${theme.id}`, theme.name)}
+                      </Text>
+                      <View style={styles.colorDotsContainer}>
+                        <View style={[styles.colorDot, { backgroundColor: theme.colors.primary }]} />
+                        <View style={[styles.colorDot, { backgroundColor: theme.colors.secondary }]} />
+                      </View>
+                    </LinearGradient>
+                  </TouchableOpacity>
+                );
+              })}
             </View>
           </CollapsibleSection>
 
@@ -241,7 +300,6 @@ export default function ThemeSettingsScreen() {
               {[
                 { id: 'bokeh', name: t("themeSettings.effectBokeh", "Rüya Odaklaması"), icon: Circle },
                 { id: 'quantum', name: t("themeSettings.effectQuantum", "Kuantum Tozu"), icon: Sparkles },
-                { id: 'waves', name: t("themeSettings.effectWaves", "Aura"), icon: Waves },
                 { id: 'crystals', name: t("themeSettings.effectCrystals", "Atom Modeli"), icon: Atom },
                 { id: 'tesseract', name: t("themeSettings.effectTesseract", "Tesseract"), icon: Hexagon },
                 { id: 'aurora', name: t("themeSettings.effectAurora", "Aurora Işıkları"), icon: Star },
@@ -250,6 +308,13 @@ export default function ThemeSettingsScreen() {
                 { id: 'grid', name: t("themeSettings.effectGrid", "Siber Izgara"), icon: Grid3X3 },
                 { id: 'silk', name: t("themeSettings.effectSilk", "Sıvı İpek"), icon: Wind },
                 { id: 'prism', name: t("themeSettings.effectPrism", "Prizma Işığı"), icon: Zap },
+                { id: 'nebula', name: t("themeSettings.effectNebula", "Sıvı Nebula"), icon: CloudRain },
+                { id: 'flow', name: t("themeSettings.effectFlow", "Siber Akış"), icon: Activity },
+                { id: 'blackhole', name: t("themeSettings.effectBlackhole"), icon: Circle },
+                { id: 'stardust', name: t("themeSettings.effectStardust"), icon: Sparkles },
+                { id: 'neural', name: t("themeSettings.effectNeural"), icon: Zap },
+                { id: 'dna', name: t("themeSettings.effectDna"), icon: Atom },
+                { id: 'winamp', name: t("themeSettings.effectWinamp", "Winamp Viz"), icon: Music },
                 { id: 'none', name: t("themeSettings.effectNone", "Yok"), icon: CircleOff },
               ].map((effect) => (
                 <TouchableOpacity
@@ -275,50 +340,6 @@ export default function ThemeSettingsScreen() {
                     { color: backgroundEffect === effect.id ? colors.text : colors.subText }
                   ]}>
                     {effect.name}
-                  </Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-          </CollapsibleSection>
-
-          <CollapsibleSection
-            id="sounds"
-            title={t("themeSettings.ambientSounds", "Atmosfer Sesleri")}
-            icon={Music}
-            isOpen={openSections.sounds}
-          >
-            <View style={styles.effectsContainer}>
-              {[
-                { id: 'river', name: t("themeSettings.soundRiver", "Akarsu"), icon: Waves },
-                { id: 'forest', name: t("themeSettings.soundForest", "Derin Orman"), icon: Trees },
-                { id: 'lofi', name: t("themeSettings.soundLofi", "Lo-Fi Beats"), icon: Music },
-                { id: 'rain', name: t("themeSettings.soundRain", "Yağmurlu Gece"), icon: CloudRain },
-                { id: 'zen', name: t("themeSettings.soundZen", "Tibetan Zen"), icon: Bell },
-                { id: 'none', name: t("themeSettings.soundNone", "Sessiz"), icon: CircleOff },
-              ].map((sound) => (
-                <TouchableOpacity
-                  key={sound.id}
-                  style={[
-                    styles.effectCard,
-                    {
-                      backgroundColor: isDarkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.02)',
-                      borderColor: ambientSound === sound.id ? colors.primary : 'transparent',
-                      borderWidth: ambientSound === sound.id ? 2 : 1,
-                    }
-                  ]}
-                  onPress={() => setAmbientSound(sound.id as any)}
-                >
-                  <View style={[
-                    styles.effectIconContainer,
-                    { backgroundColor: ambientSound === sound.id ? colors.primary + '20' : colors.subText + '10' }
-                  ]}>
-                    <sound.icon size={20} color={ambientSound === sound.id ? colors.primary : colors.subText} />
-                  </View>
-                  <Text style={[
-                    styles.effectName,
-                    { color: ambientSound === sound.id ? colors.text : colors.subText }
-                  ]}>
-                    {sound.name}
                   </Text>
                 </TouchableOpacity>
               ))}
@@ -357,20 +378,18 @@ export default function ThemeSettingsScreen() {
                     onPress={() => { }}
                     style={styles.previewButton}
                   />
-                  <View style={styles.buttonRow}>
-                    <ThemedButton
-                      title={t("themeSettings.secondaryButton", "İkincil")}
-                      onPress={() => { }}
-                      variant="secondary"
-                      style={[styles.previewButton, { flex: 1, marginRight: 8 }]}
-                    />
-                    <ThemedButton
-                      title={t("themeSettings.dangerButton", "Sil")}
-                      onPress={() => { }}
-                      variant="danger"
-                      style={[styles.previewButton, { flex: 1 }]}
-                    />
-                  </View>
+                  <ThemedButton
+                    title={t("themeSettings.secondaryButton", "İkincil Buton")}
+                    onPress={() => { }}
+                    variant="secondary"
+                    style={styles.previewButton}
+                  />
+                  <ThemedButton
+                    title={t("themeSettings.dangerButton", "Sil")}
+                    onPress={() => { }}
+                    variant="danger"
+                    style={styles.previewButton}
+                  />
                 </View>
               </LinearGradient>
             </View>
@@ -515,6 +534,18 @@ const styles = StyleSheet.create({
     padding: 20,
     alignItems: 'center',
     width: '100%',
+    position: 'relative',
+  },
+  deleteButton: {
+    position: 'absolute',
+    top: 8,
+    right: 8,
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 10,
   },
   themeColorRing: {
     padding: 4,
@@ -617,13 +648,11 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   buttonPreviewContainer: {
-    gap: 12,
-  },
-  buttonRow: {
-    flexDirection: 'row',
+    gap: 16,
   },
   previewButton: {
     marginBottom: 0,
+    width: '100%',
   },
   sectionWrapper: {
     borderRadius: 24,

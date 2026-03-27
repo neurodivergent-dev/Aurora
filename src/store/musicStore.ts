@@ -170,7 +170,7 @@ export const useMusicStore = create<MusicState>()(
 
         const newLocal = updateInList(state.localTracks);
         const newPlaylist = updateInList(state.playlist);
-        
+
         let newCurrent = state.currentTrack;
         if (state.currentTrack) {
           const isCurrentMatch = state.currentTrack.id === id ||
@@ -191,16 +191,16 @@ export const useMusicStore = create<MusicState>()(
       setTrackArtwork: (id, imageUrl) => set((state) => {
         const lowerId = id.toLowerCase();
         const updateInList = (list: Track[]) => list.map(t => {
-          const isMatch = t.id === id || 
-            t.title.toLowerCase() === lowerId || 
-            t.title.toLowerCase().includes(lowerId) || 
+          const isMatch = t.id === id ||
+            t.title.toLowerCase() === lowerId ||
+            t.title.toLowerCase().includes(lowerId) ||
             id.toLowerCase().includes(t.title.toLowerCase());
           return isMatch ? { ...t, artwork: imageUrl } : t;
         });
 
         const newLocal = updateInList(state.localTracks);
         const newPlaylist = updateInList(state.playlist);
-        
+
         let newCurrent = state.currentTrack;
         if (state.currentTrack) {
           const isCurrentMatch = state.currentTrack.id === id ||
@@ -218,7 +218,7 @@ export const useMusicStore = create<MusicState>()(
           currentTrack: newCurrent
         };
       }),
-      
+
       clearAllLyrics: () => set((state) => {
         const clear = (list: Track[]) => list.map(t => ({ ...t, lyrics: "" }));
         return {
@@ -285,22 +285,22 @@ export const useMusicStore = create<MusicState>()(
               playlist: [...DEFAULT_TRACKS, ...updatedLocal],
             });
             get().showAlert(
-              "Müzikler Eklendi", 
-              `${newTracks.length} adet yeni lokal şarkı kütüphanene eklendi! 🎉`, 
+              "Müzikler Eklendi",
+              `${newTracks.length} adet yeni lokal şarkı kütüphanene eklendi! 🎉`,
               'music'
             );
           } else {
             get().showAlert(
-              "Zaten Mevcut", 
-              "Seçtiğin şarkılar zaten kütüphanende mevcut.", 
+              "Zaten Mevcut",
+              "Seçtiğin şarkılar zaten kütüphanende mevcut.",
               'info'
             );
           }
         } catch (error) {
           console.error("Lokal müzikler yüklenemedi:", error);
           get().showAlert(
-            "Hata", 
-            "Lokal müzikleri eklerken bir hata oluştu.", 
+            "Hata",
+            "Lokal müzikleri eklerken bir hata oluştu.",
             'error'
           );
         }

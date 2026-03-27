@@ -1,6 +1,6 @@
 import React from "react";
 import { Tabs } from "expo-router";
-import { Music, ListMusic, Settings, Sparkles } from "lucide-react-native";
+import { Music, ListMusic, Settings, Sparkles, Monitor } from "lucide-react-native";
 import { useTheme } from "../../src/components/ThemeProvider";
 import { soundService } from "../../src/services/SoundService";
 import * as Haptics from "expo-haptics";
@@ -12,7 +12,6 @@ export default function TabLayout() {
   const { colors } = useTheme();
   const { t } = useTranslation();
   const { isAIEnabled, apiKey, groqApiKey, activeProvider } = useAIStore();
-  const { isZenMode } = useThemeStore();
 
   const tabListeners = {
     tabPress: () => {
@@ -27,8 +26,8 @@ export default function TabLayout() {
         tabBarActiveTintColor: colors.primary,
         tabBarInactiveTintColor: colors.subText,
         headerShown: false,
+        freezeOnBlur: true,
         tabBarStyle: {
-          display: isZenMode ? 'none' : 'flex',
           backgroundColor: colors.card,
           borderTopColor: colors.border,
         },

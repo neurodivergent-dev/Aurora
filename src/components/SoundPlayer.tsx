@@ -27,8 +27,7 @@ const AMBIENT_ASSETS: Record<string, any> = {
  */
 export const SoundPlayer: React.FC = () => {
   const { soundTrigger, soundsEnabled, ambientSound } = useThemeStore();
-  const { isPlaying, currentTrack, volume, setPlaybackPosition, setPlaybackDuration, next, seekPosition, clearSeek, isRepeating } = useMusicStore();
-
+  const { isPlaying, currentTrack, volume, setPlaybackPosition, setPlaybackDuration, next, seekPosition, clearSeek, isRepeating, playbackDuration } = useMusicStore();
   const playerRef = useRef<AudioPlayer | null>(null);
   const ambientPlayerRef = useRef<AudioPlayer | null>(null);
   const musicPlayerRef = useRef<AudioPlayer | null>(null);
@@ -131,6 +130,7 @@ export const SoundPlayer: React.FC = () => {
   }, [ambientSound, soundsEnabled]);
 
   const currentTrackUrlRef = useRef<string | number | null>(null);
+  const lastAccumulatedSecRef = useRef<number>(0);
 
   // Handle Music Track Loading
   useEffect(() => {
@@ -148,7 +148,8 @@ export const SoundPlayer: React.FC = () => {
     if (currentTrackUrlRef.current !== currentTrack.url) {
       setPlaybackPosition(0);
       setPlaybackDuration(0);
-      
+      lastAccumulatedSecRef.current = 0;
+
       if (musicPlayerRef.current) {
         if (musicListenerRef.current) musicListenerRef.current.remove();
         musicPlayerRef.current.pause();
@@ -180,29 +181,29 @@ export const SoundPlayer: React.FC = () => {
 
         player.setActiveForLockScreen(true, {
           title: currentTrack.title,
-          artist: currentTrack.artist || 'PlayerAI',
+          artist: currentTrack.artist || 'Aurora',
         });
 
         musicListenerRef.current = player.addListener('playbackStatusUpdate', (status: any) => {
           if (status.error) console.log('[SOUND PLAYER] Status Error:', status.error);
 
-          if (status.currentTime !== undefined) setPlaybackPosition(status.currentTime);
-          
-          if (status.duration !== undefined && status.duration > 0) {
-            const currentDuration = useMusicStore.getState().playbackDuration;
-            // Update duration if it's new, larger, or if currentTime has exceeded it
-            if (status.duration > currentDuration || (status.currentTime !== undefined && status.currentTime > currentDuration)) {
-              setPlaybackDuration(Math.max(status.duration, status.currentTime || 0));
-            }
-          } else if (status.currentTime !== undefined) {
-             // Fallback: If duration is not reported, use currentTime as the duration for now
-             const currentDuration = useMusicStore.getState().playbackDuration;
-             if (status.currentTime > currentDuration) {
-               setPlaybackDuration(status.currentTime);
-             }
-          }
+          if (status.currentTime !== undefined) {
+            setPlaybackPosition(status.currentTime);
 
-          if (status.isLoaded && status.didJustFinish) next();
+            if (status.duration !== undefined && status.duration > 0) {
+              const currentDuration = useMusicStore.getState().playbackDuration;
+              // Update duration if it's new, larger, or if currentTime has exceeded it
+              if (status.duration > currentDuration || (status.currentTime !== undefined && status.currentTime > currentDuration)) {
+                setPlaybackDuration(Math.max(status.duration, status.currentTime || 0));
+              }
+            } else if (status.currentTime !== undefined) {
+              // Fallback: If duration is not reported, use currentTime as the duration for now
+              const currentDuration = useMusicStore.getState().playbackDuration;
+              if (status.currentTime > currentDuration) {
+                setPlaybackDuration(status.currentTime);
+              }
+            }
+          }
         });
 
         // If it should be playing, start it as soon as possible

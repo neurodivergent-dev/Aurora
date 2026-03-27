@@ -16,6 +16,8 @@ import { useOnboardingStore } from "../src/store/onboardingStore";
 import { SoundPlayer } from "../src/components/SoundPlayer";
 import { MiniPlayer } from "../src/components/MiniPlayer";
 import { useAIStore } from "../src/store/aiStore";
+import { useOllamaStore } from "../src/store/ollamaStore";
+import { useThemeStore } from "../src/store/themeStore";
 import { GlassAlert } from "../src/components/GlassAlert";
 
 import "../src/i18n/i18n"; // Import i18n initialization
@@ -54,6 +56,7 @@ export default function RootLayout() {
       setI18nInitialized(true);
       // Load AI settings
       useAIStore.getState().loadApiKey();
+      useOllamaStore.getState().loadOllamaApiKey();
     }
   }, [currentLanguage]);
 
@@ -71,6 +74,7 @@ function RootLayoutNav() {
   const theme = colorScheme === "dark" ? DarkTheme : DefaultTheme;
   const segments = useSegments();
   const { hasCompletedOnboarding } = useOnboardingStore();
+  const colors = useThemeStore((state) => state.colors);
 
   // Handle routing based on onboarding status
   useEffect(() => {
@@ -94,15 +98,15 @@ function RootLayoutNav() {
   return (
     <SafeAreaProvider>
       <CustomThemeProvider>
-        <ThemeProvider value={safeTheme}>
-          <SoundPlayer />
-          <MiniPlayer />
-          <Stack
-
-            screenOptions={{
+        <SoundPlayer />
+        <MiniPlayer />
+        <Stack
+          screenOptions={{
+              freezeOnBlur: true,
               contentStyle: {
-                backgroundColor: colorScheme === "dark" ? "#121212" : "#FFFFFF",
+                backgroundColor: colors.background,
               },
+              animation: 'fade',
             }}
           >
             <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
@@ -128,9 +132,8 @@ function RootLayoutNav() {
                 animation: "slide_from_right"
               }} 
             />
-          </Stack>
-          <GlassAlert />
-        </ThemeProvider>
+        </Stack>
+        <GlassAlert />
       </CustomThemeProvider>
     </SafeAreaProvider>
   );

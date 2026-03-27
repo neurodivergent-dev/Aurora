@@ -54,7 +54,7 @@ const _PlaceholderImage = ({
           <>
             <View style={[styles.circle, { backgroundColor: color }]} />
             <Text style={[styles.iconText, { color: colors.text }]}>
-              PlayerAI
+              Aurora
             </Text>
           </>
         );

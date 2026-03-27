@@ -88,7 +88,7 @@ const svgIcon = `
 </svg>
 `;
 
-const outputDir = 'c:/Users/Melih/Documents/WhiteLabelProjects/FocusTabs/assets/images/';
+const outputDir = 'c:/Users/Melih/Documents/WhiteLabelProjects/Aurora/assets/images/';
 
 async function generateIcons() {
   try {
@@ -135,7 +135,7 @@ async function generateIcons() {
     console.log('notification-icon.png generated.');
 
     // --- ANDROID NATIVE ICONS ---
-    const androidResDir = 'c:/Users/Melih/Documents/WhiteLabelProjects/FocusTabs/android/app/src/main/res/';
+    const androidResDir = 'c:/Users/Melih/Documents/WhiteLabelProjects/Aurora/android/app/src/main/res/';
     const densities = {
       'mdpi': 48,
       'hdpi': 72,

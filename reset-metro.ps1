@@ -1,7 +1,7 @@
-# FocusTabs - Reset Metro Script
+# Aurora - Reset Metro Script
 # Purpose: Clear Metro cache and restart the bundler
 
-Write-Host "--- [FocusTabs] Resetting Metro Cache ---" -ForegroundColor Cyan
+Write-Host "--- [Aurora] Resetting Metro Cache ---" -ForegroundColor Cyan
 
 # 1. Cleaning Metro/Expo artifacts
 Write-Host "[1/2] Clearing .expo folder and temporary files..." -ForegroundColor Yellow

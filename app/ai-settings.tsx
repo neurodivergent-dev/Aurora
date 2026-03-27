@@ -20,8 +20,8 @@ import {
   ChevronLeft,
   ExternalLink,
   ShieldCheck,
-  Zap,
   Sparkles,
+  Zap,
   Save,
   CheckCircle2,
   MessagesSquare,
@@ -30,10 +30,12 @@ import {
   VolumeX,
   Radio,
   Server,
+  Cloud,
 } from "lucide-react-native";
 import { useTheme } from "../src/components/ThemeProvider";
 import { useTranslation } from "react-i18next";
 import { useAIStore } from "../src/store/aiStore";
+import { useOllamaStore } from "../src/store/ollamaStore";
 import { useRouter } from "expo-router";
 import * as Haptics from "expo-haptics";
 import { soundService } from "../src/services/SoundService";
@@ -44,18 +46,18 @@ export default function AISettingsScreen() {
   const { colors, isDarkMode } = useTheme();
   const { t } = useTranslation();
   const router = useRouter();
-  const { 
-    apiKey, 
-    setApiKey, 
+  const {
+    apiKey,
+    setApiKey,
     groqApiKey,
     setGroqKey,
     activeProvider,
     setActiveProvider,
     groqModel,
     setGroqModel,
-    isAIEnabled, 
-    toggleAI, 
-    customSystemPrompt, 
+    isAIEnabled,
+    toggleAI,
+    customSystemPrompt,
     setCustomSystemPrompt,
     pollinationsApiKey,
     setPollinationsApiKey,
@@ -63,23 +65,39 @@ export default function AISettingsScreen() {
     setChatSoundsEnabled,
     chatSoundType,
     setChatSoundType,
-    ollamaModel,
-    setOllamaModel,
     imageProvider,
     setImageProvider,
     localSdModel,
     setLocalSdModel,
     localSdIp,
     setLocalSdIp,
+    localSdPort,
+    setLocalSdPort,
   } = useAIStore();
+  const {
+    ollamaCloudMode,
+    setOllamaCloudMode,
+    ollamaApiKey,
+    setOllamaApiKey,
+    ollamaModel,
+    setOllamaModel,
+    ollamaPort,
+    setOllamaPort,
+    localIp: ollamaLocalIp,
+    setLocalIp: setOllamaLocalIp,
+  } = useOllamaStore();
   const [inputKey, setInputKey] = useState(apiKey || "");
   const [inputGroqKey, setInputGroqKey] = useState(groqApiKey || "");
   const [inputGroqModel, setInputGroqModel] = useState(groqModel || "llama-3.1-8b-instant");
   const [inputPollinationsKey, setInputPollinationsKey] = useState(pollinationsApiKey || "");
   const [inputPrompt, setInputPrompt] = useState(customSystemPrompt || "");
-  const [inputOllamaModel, setInputOllamaModel] = useState(ollamaModel || "gpt-oss-20b");
-  const [inputLocalSdModel, setInputLocalSdModel] = useState(localSdModel || "");
+  const [inputOllamaModel, setInputOllamaModel] = useState(ollamaModel || "gpt-oss:20b");
+  const [inputOllamaPort, setInputOllamaPort] = useState(ollamaPort || "11434");
+  const [inputOllamaIp, setInputOllamaIp] = useState(ollamaLocalIp || "192.168.1.203");
+  const [inputOllamaApiKey, setInputOllamaApiKey] = useState(ollamaApiKey || "");
+  const [inputLocalSdModel, setInputLocalSdModel] = useState(localSdModel || "jaggernautxl.safetensors");
   const [inputLocalSdIp, setInputLocalSdIp] = useState(localSdIp || "192.168.1.203");
+  const [inputLocalSdPort, setInputLocalSdPort] = useState(localSdPort || "7860");
   const [isSaved, setIsSaved] = useState(false);
   const [isGroqSaved, setIsGroqSaved] = useState(false);
   const [isOllamaSaved, setIsOllamaSaved] = useState(false);
@@ -93,10 +111,14 @@ export default function AISettingsScreen() {
     setInputGroqKey(groqApiKey || "");
     setInputGroqModel(groqModel || "llama-3.1-8b-instant");
     setInputPollinationsKey(pollinationsApiKey || "");
-    setInputOllamaModel(ollamaModel || "gpt-oss-20b");
+    setInputOllamaModel(ollamaModel || "gpt-oss:20b");
+    setInputOllamaPort(ollamaPort || "11434");
+    setInputOllamaIp(ollamaLocalIp || "192.168.1.203");
+    setInputOllamaApiKey(ollamaApiKey || "");
     setInputLocalSdModel(localSdModel || "");
     setInputLocalSdIp(localSdIp || "192.168.1.203");
-  }, [apiKey, groqApiKey, groqModel, pollinationsApiKey, ollamaModel, localSdModel, localSdIp]);
+    setInputLocalSdPort(localSdPort || "7860");
+  }, [apiKey, groqApiKey, groqModel, pollinationsApiKey, ollamaModel, ollamaPort, ollamaLocalIp, ollamaApiKey, localSdModel, localSdIp, localSdPort]);
 
   const handleBack = () => {
     soundService.playClick();
@@ -130,13 +152,20 @@ export default function AISettingsScreen() {
 
   const handleSaveOllama = async () => {
     try {
-      setOllamaModel(inputOllamaModel.trim() || "gpt-oss-20b");
+      setOllamaModel(inputOllamaModel.trim() || "gpt-oss:20b");
+      setOllamaPort(inputOllamaPort.trim() || "11434");
+      setOllamaLocalIp(inputOllamaIp.trim() || "192.168.1.203");
+      if (ollamaCloudMode && inputOllamaApiKey.trim()) {
+        await setOllamaApiKey(inputOllamaApiKey.trim());
+      } else if (ollamaCloudMode && !inputOllamaApiKey.trim()) {
+        await setOllamaApiKey(null);
+      }
       setIsOllamaSaved(true);
       soundService.playComplete();
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       setTimeout(() => setIsOllamaSaved(false), 3000);
     } catch (error) {
-      Alert.alert("Hatali", "Ollama Modeli kaydedilemedi");
+      Alert.alert("Hata", "Ollama ayarları kaydedilemedi");
     }
   };
 
@@ -154,8 +183,15 @@ export default function AISettingsScreen() {
 
   const handleSaveLocalSd = async () => {
     try {
-      setLocalSdModel(inputLocalSdModel.trim());
-      setLocalSdIp(inputLocalSdIp.trim());
+      const trimmedModel = inputLocalSdModel.trim() || "jaggernautxl.safetensors";
+      const trimmedIp = inputLocalSdIp.trim() || "192.168.1.203";
+      const trimmedPort = inputLocalSdPort.trim() || "7860";
+      setLocalSdModel(trimmedModel);
+      setLocalSdIp(trimmedIp);
+      setLocalSdPort(trimmedPort);
+      setInputLocalSdModel(trimmedModel);
+      setInputLocalSdIp(trimmedIp);
+      setInputLocalSdPort(trimmedPort);
       setIsLocalSdSaved(true);
       soundService.playComplete();
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
@@ -252,6 +288,46 @@ export default function AISettingsScreen() {
             </View>
           </View>
 
+          {/* Active Model Badge - Hangi model kullanılıyor? */}
+          <View style={[styles.card, { backgroundColor: colors.card, borderColor: colors.border, marginBottom: 16 }]}>
+            <View style={styles.cardHeader}>
+              <Sparkles size={20} color={colors.primary} />
+              <Text style={[styles.cardTitle, { color: colors.text }]}>
+                {isDarkMode ? "Aktif Model" : "Active Model"}
+              </Text>
+            </View>
+
+            <View style={styles.activeModelContainer}>
+              <View style={[
+                styles.activeModelBadge,
+                {
+                  backgroundColor: activeProvider === 'gemini' ? colors.primary + '15' : activeProvider === 'groq' ? colors.success + '15' : colors.info + '15',
+                  borderColor: activeProvider === 'gemini' ? colors.primary : activeProvider === 'groq' ? colors.success : colors.info,
+                }
+              ]}>
+                {activeProvider === 'gemini' ? (
+                  <Sparkles size={18} color={colors.primary} />
+                ) : activeProvider === 'groq' ? (
+                  <Zap size={18} color={colors.success} />
+                ) : (
+                  <BrainCircuit size={18} color={colors.info} />
+                )}
+                <View style={styles.activeModelTextContainer}>
+                  <Text style={[styles.activeModelProvider, { color: colors.text }]}>
+                    {activeProvider === 'gemini' ? 'Gemini' : activeProvider === 'groq' ? 'Groq' : ollamaCloudMode ? 'Ollama Cloud' : 'Ollama'}
+                  </Text>
+                  <Text style={[styles.activeModelName, { color: colors.subText }]}>
+                    {activeProvider === 'gemini' ? 'gemini-2.5-flash' : activeProvider === 'groq' ? groqModel : ollamaModel}
+                  </Text>
+                </View>
+              </View>
+
+              <Text style={[styles.activeModelHint, { color: colors.subText }]}>
+                {isDarkMode ? "AI sohbetlerde bu model kullanılıyor" : "This model is used in AI chats"}
+              </Text>
+            </View>
+          </View>
+
           {/* Provider Selection */}
           <View style={[styles.card, { backgroundColor: colors.card, borderColor: colors.border }]}>
             <View style={styles.cardHeader}>
@@ -264,7 +340,7 @@ export default function AISettingsScreen() {
               <TouchableOpacity
                 style={[
                   styles.providerOption,
-                  { 
+                  {
                     backgroundColor: activeProvider === 'gemini' ? colors.primary + '15' : 'transparent',
                     borderColor: activeProvider === 'gemini' ? colors.primary : colors.border,
                   }
@@ -282,7 +358,7 @@ export default function AISettingsScreen() {
               <TouchableOpacity
                 style={[
                   styles.providerOption,
-                  { 
+                  {
                     backgroundColor: activeProvider === 'groq' ? colors.primary + '15' : 'transparent',
                     borderColor: activeProvider === 'groq' ? colors.primary : colors.border,
                   }
@@ -300,7 +376,7 @@ export default function AISettingsScreen() {
               <TouchableOpacity
                 style={[
                   styles.providerOption,
-                  { 
+                  {
                     backgroundColor: activeProvider === 'ollama' ? colors.primary + '15' : 'transparent',
                     borderColor: activeProvider === 'ollama' ? colors.primary : colors.border,
                   }
@@ -312,7 +388,7 @@ export default function AISettingsScreen() {
                 }}
               >
                 <BrainCircuit size={20} color={activeProvider === 'ollama' ? colors.primary : colors.subText} />
-                <Text style={[styles.providerLabel, { color: activeProvider === 'ollama' ? colors.text : colors.subText }]}>Yerel</Text>
+                <Text style={[styles.providerLabel, { color: activeProvider === 'ollama' ? colors.text : colors.subText }]}>Ollama</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -323,15 +399,130 @@ export default function AISettingsScreen() {
               <View style={styles.cardHeader}>
                 <BrainCircuit size={20} color={colors.primary} />
                 <Text style={[styles.cardTitle, { color: colors.text }]}>
-                  Yerel Ollama Model
+                  Ollama Ayarları
                 </Text>
               </View>
-              
-              <Text style={[styles.cardDesc, { color: colors.subText, marginBottom: 12 }]}>
-                {isDarkMode ? "İndirdiğiniz Ollama modelinin adını girin (Örn: gpt-oss-20b, llama3.1)." : "Enter the Ollama model name you downloaded."}
-              </Text>
 
-              <Text style={[styles.cardDesc, { color: colors.text, fontWeight: '600', marginBottom: 8, marginTop: 4 }]}>
+              {/* Cloud/Local Toggle */}
+              <View style={[styles.settingRow, { marginBottom: 16 }]}>
+                <View style={styles.settingText}>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                    <Cloud size={16} color={ollamaCloudMode ? colors.primary : colors.subText} />
+                    <Text style={[styles.cardTitle, { color: colors.text, fontSize: 14 }]}>
+                      {isDarkMode ? "Cloud Modu" : "Cloud Mode"}
+                    </Text>
+                  </View>
+                  <Text style={[styles.cardDesc, { color: colors.subText }]}>
+                    {isDarkMode ? "Ollama Cloud API kullanarak bulut modelleri çalıştırın" : "Run cloud models via Ollama Cloud API"}
+                  </Text>
+                </View>
+                <Switch
+                  value={ollamaCloudMode}
+                  onValueChange={(val) => {
+                    setOllamaCloudMode(val);
+                    soundService.playClick();
+                    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                  }}
+                  trackColor={{ false: "#767577", true: colors.primary + '80' }}
+                  thumbColor={ollamaCloudMode ? colors.primary : "#f4f3f4"}
+                />
+              </View>
+
+              {/* Cloud Mode: API Key */}
+              {ollamaCloudMode && (
+                <View style={{ marginBottom: 16 }}>
+                  <Text style={[styles.cardDesc, { color: colors.subText, marginBottom: 12 }]}>
+                    {isDarkMode ? "Ollama Cloud API anahtarınızı girin. ollama.com/settings/keys adresinden alabilirsiniz." : "Enter your Ollama Cloud API key from ollama.com/settings/keys."}
+                  </Text>
+
+                  <Text style={[styles.cardDesc, { color: colors.text, fontWeight: '600', marginBottom: 8 }]}>
+                    API Key
+                  </Text>
+                  <TextInput
+                    style={[
+                      styles.input,
+                      {
+                        color: colors.text,
+                        backgroundColor: isDarkMode ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.02)",
+                        borderColor: colors.border,
+                        marginBottom: 12
+                      },
+                    ]}
+                    placeholder="sk-..."
+                    placeholderTextColor={colors.subText}
+                    value={inputOllamaApiKey}
+                    onChangeText={setInputOllamaApiKey}
+                    secureTextEntry
+                    autoCapitalize="none"
+                  />
+
+                  <TouchableOpacity
+                    style={styles.helpLink}
+                    onPress={() => {
+                      soundService.playClick();
+                      Linking.openURL("https://ollama.com/settings/keys");
+                    }}
+                  >
+                    <Text style={[styles.helpLinkText, { color: colors.primary }]}>
+                      Ollama Dashboard
+                    </Text>
+                    <ExternalLink size={14} color={colors.primary} />
+                  </TouchableOpacity>
+                </View>
+              )}
+
+              {/* Local Mode: IP + Port */}
+              {!ollamaCloudMode && (
+                <View>
+                  <Text style={[styles.cardDesc, { color: colors.subText, marginBottom: 12 }]}>
+                    {isDarkMode ? "Yerel ağdaki Ollama sunucunuzun bilgilerini girin." : "Enter your local Ollama server details."}
+                  </Text>
+
+                  <Text style={[styles.cardDesc, { color: colors.text, fontWeight: '600', marginBottom: 8 }]}>
+                    Ollama API IP Adresi
+                  </Text>
+                  <TextInput
+                    style={[
+                      styles.input,
+                      {
+                        color: colors.text,
+                        backgroundColor: isDarkMode ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.02)",
+                        borderColor: colors.border,
+                        marginBottom: 12
+                      },
+                    ]}
+                    placeholder="Örn: 192.168.1.55"
+                    placeholderTextColor={colors.subText}
+                    value={inputOllamaIp}
+                    onChangeText={setInputOllamaIp}
+                    autoCapitalize="none"
+                  />
+
+                  <Text style={[styles.cardDesc, { color: colors.text, fontWeight: '600', marginBottom: 8 }]}>
+                    Port
+                  </Text>
+                  <TextInput
+                    style={[
+                      styles.input,
+                      {
+                        color: colors.text,
+                        backgroundColor: isDarkMode ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.02)",
+                        borderColor: colors.border,
+                        marginBottom: 12
+                      },
+                    ]}
+                    placeholder="Örn: 11434"
+                    keyboardType="numeric"
+                    placeholderTextColor={colors.subText}
+                    value={inputOllamaPort}
+                    onChangeText={setInputOllamaPort}
+                    autoCapitalize="none"
+                  />
+                </View>
+              )}
+
+              {/* Model Name (shared) */}
+              <Text style={[styles.cardDesc, { color: colors.text, fontWeight: '600', marginBottom: 8 }]}>
                 Model Adı
               </Text>
               <TextInput
@@ -344,15 +535,15 @@ export default function AISettingsScreen() {
                     marginBottom: 20
                   },
                 ]}
-                placeholder="gpt-oss-20b"
+                placeholder={ollamaCloudMode ? "gpt-oss:120b" : "gpt-oss:20b"}
                 placeholderTextColor={colors.subText}
                 value={inputOllamaModel}
                 onChangeText={setInputOllamaModel}
                 autoCapitalize="none"
               />
 
-              <TouchableOpacity 
-                style={[styles.saveButton, { backgroundColor: colors.primary }]} 
+              <TouchableOpacity
+                style={[styles.saveButton, { backgroundColor: colors.primary }]}
                 onPress={handleSaveOllama}
               >
                 {isOllamaSaved ? (
@@ -363,7 +554,7 @@ export default function AISettingsScreen() {
                 ) : (
                   <View style={styles.saveContent}>
                     <Save size={20} color="#FFFFFF" />
-                    <Text style={styles.saveButtonText}>Modeli Kaydet</Text>
+                    <Text style={styles.saveButtonText}>Ollama Ayarlarını Kaydet</Text>
                   </View>
                 )}
               </TouchableOpacity>
@@ -379,7 +570,7 @@ export default function AISettingsScreen() {
                   Groq / OpenAI Settings
                 </Text>
               </View>
-              
+
               <Text style={[styles.cardDesc, { color: colors.subText, marginBottom: 12 }]}>
                 {isDarkMode ? "Groq veya OpenAI uyumlu bir API anahtarı girin." : "Enter a Groq or OpenAI compatible API key."}
               </Text>
@@ -421,8 +612,8 @@ export default function AISettingsScreen() {
                 autoCapitalize="none"
               />
 
-              <TouchableOpacity 
-                style={[styles.saveButton, { backgroundColor: colors.primary }]} 
+              <TouchableOpacity
+                style={[styles.saveButton, { backgroundColor: colors.primary }]}
                 onPress={handleSaveGroq}
               >
                 {isGroqSaved ? (
@@ -453,62 +644,62 @@ export default function AISettingsScreen() {
           {/* Gemini API Key */}
           {activeProvider === 'gemini' && (
             <View style={[styles.card, { backgroundColor: colors.card, borderColor: colors.border }]}>
-            <View style={styles.cardHeader}>
-              <ShieldCheck size={20} color={colors.primary} />
-              <Text style={[styles.cardTitle, { color: colors.text }]}>
-                Gemini API Key
+              <View style={styles.cardHeader}>
+                <ShieldCheck size={20} color={colors.primary} />
+                <Text style={[styles.cardTitle, { color: colors.text }]}>
+                  Gemini API Key
+                </Text>
+              </View>
+
+              <Text style={[styles.cardDesc, { color: colors.subText, marginBottom: 16 }]}>
+                {t("settings.ai.secureStorageDesc")}
               </Text>
+
+              <TextInput
+                style={[
+                  styles.input,
+                  {
+                    color: colors.text,
+                    backgroundColor: isDarkMode ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.02)",
+                    borderColor: isSaved ? colors.success : colors.border,
+                  },
+                ]}
+                placeholder={t("settings.ai.apiKeyPlaceholder")}
+                placeholderTextColor={colors.subText}
+                value={inputKey}
+                onChangeText={setInputKey}
+                secureTextEntry
+                autoCapitalize="none"
+                autoCorrect={false}
+              />
+
+              <TouchableOpacity
+                style={styles.helpLink}
+                onPress={openGeminiDashboard}
+              >
+                <Text style={[styles.helpLinkText, { color: colors.primary }]}>
+                  {t("settings.ai.howToGet")}
+                </Text>
+                <ExternalLink size={14} color={colors.primary} />
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={[styles.saveButton, { backgroundColor: colors.primary }]}
+                onPress={handleSave}
+              >
+                {isSaved ? (
+                  <View style={styles.saveContent}>
+                    <CheckCircle2 size={20} color="#FFFFFF" />
+                    <Text style={styles.saveButtonText}>{t("common.success")}</Text>
+                  </View>
+                ) : (
+                  <View style={styles.saveContent}>
+                    <Save size={20} color="#FFFFFF" />
+                    <Text style={styles.saveButtonText}>{t("settings.ai.saveKey")}</Text>
+                  </View>
+                )}
+              </TouchableOpacity>
             </View>
-            
-            <Text style={[styles.cardDesc, { color: colors.subText, marginBottom: 16 }]}>
-              {t("settings.ai.secureStorageDesc")}
-            </Text>
-
-            <TextInput
-              style={[
-                styles.input,
-                {
-                  color: colors.text,
-                  backgroundColor: isDarkMode ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.02)",
-                  borderColor: isSaved ? colors.success : colors.border,
-                },
-              ]}
-              placeholder={t("settings.ai.apiKeyPlaceholder")}
-              placeholderTextColor={colors.subText}
-              value={inputKey}
-              onChangeText={setInputKey}
-              secureTextEntry
-              autoCapitalize="none"
-              autoCorrect={false}
-            />
-
-            <TouchableOpacity
-              style={styles.helpLink}
-              onPress={openGeminiDashboard}
-            >
-              <Text style={[styles.helpLinkText, { color: colors.primary }]}>
-                {t("settings.ai.howToGet")}
-              </Text>
-              <ExternalLink size={14} color={colors.primary} />
-            </TouchableOpacity>
-
-            <TouchableOpacity 
-              style={[styles.saveButton, { backgroundColor: colors.primary }]} 
-              onPress={handleSave}
-            >
-              {isSaved ? (
-                <View style={styles.saveContent}>
-                  <CheckCircle2 size={20} color="#FFFFFF" />
-                  <Text style={styles.saveButtonText}>{t("common.success")}</Text>
-                </View>
-              ) : (
-                <View style={styles.saveContent}>
-                  <Save size={20} color="#FFFFFF" />
-                  <Text style={styles.saveButtonText}>{t("settings.ai.saveKey")}</Text>
-                </View>
-              )}
-            </TouchableOpacity>
-          </View>
           )}
 
           {/* Görüntü Üretici / Image Provider */}
@@ -524,7 +715,7 @@ export default function AISettingsScreen() {
               <TouchableOpacity
                 style={[
                   styles.providerOption,
-                  { 
+                  {
                     backgroundColor: imageProvider === 'pollinations' ? colors.info + '15' : 'transparent',
                     borderColor: imageProvider === 'pollinations' ? colors.info : colors.border,
                   }
@@ -542,7 +733,7 @@ export default function AISettingsScreen() {
               <TouchableOpacity
                 style={[
                   styles.providerOption,
-                  { 
+                  {
                     backgroundColor: imageProvider === 'local' ? colors.info + '15' : 'transparent',
                     borderColor: imageProvider === 'local' ? colors.info : colors.border,
                   }
@@ -593,8 +784,8 @@ export default function AISettingsScreen() {
                   <ExternalLink size={14} color={colors.info} />
                 </TouchableOpacity>
 
-                <TouchableOpacity 
-                  style={[styles.saveButton, { backgroundColor: colors.info }]} 
+                <TouchableOpacity
+                  style={[styles.saveButton, { backgroundColor: colors.info }]}
                   onPress={handleSavePollinations}
                 >
                   {isPollinationsSaved ? (
@@ -619,6 +810,32 @@ export default function AISettingsScreen() {
                   {isDarkMode ? "Yerel ağınızda HTTP API destekleyen Automatic1111 vb. uygulamanızı bağlayın." : "Connect to a Local SD instance (like A1111 API) on your network."}
                 </Text>
 
+                {/* GitHub Link & Setup Info */}
+                <TouchableOpacity
+                  style={[styles.helpLink, { marginBottom: 16 }]}
+                  onPress={() => Linking.openURL("https://github.com/AUTOMATIC1111/stable-diffusion-webui")}
+                >
+                  <Text style={[styles.helpLinkText, { color: colors.info }]}>
+                    {isDarkMode ? "Stable Diffusion WebUI GitHub" : "Stable Diffusion WebUI GitHub"}
+                  </Text>
+                  <ExternalLink size={14} color={colors.info} />
+                </TouchableOpacity>
+
+                <View style={[styles.setupInfoBox, { backgroundColor: colors.warning + '15', borderColor: colors.warning }]}>
+                  <View style={styles.setupInfoHeader}>
+                    <BrainCircuit size={18} color={colors.warning} />
+                    <Text style={[styles.setupInfoTitle, { color: colors.text }]}>
+                      {isDarkMode ? "Kurulum Adımları" : "Setup Steps"}
+                    </Text>
+                  </View>
+                  <Text style={[styles.setupInfoText, { color: colors.subText }]}>
+                    {isDarkMode
+                      ? "1. webui-user.bat dosyasını açın\n2. COMMANDLINE_ARGS satırını bulun\n3. Şu flag'leri ekleyin: --listen --api\n4. Örnek: set COMMANDLINE_ARGS=--listen --api\n5. WebUI'yi yeniden başlatın"
+                      : "1. Open webui-user.bat\n2. Find COMMANDLINE_ARGS line\n3. Add flags: --listen --api\n4. Example: set COMMANDLINE_ARGS=--listen --api\n5. Restart WebUI"
+                    }
+                  </Text>
+                </View>
+
                 <Text style={[styles.cardDesc, { color: colors.text, fontWeight: '600', marginBottom: 8 }]}>SD API IP Adresi</Text>
                 <TextInput
                   style={[
@@ -637,6 +854,25 @@ export default function AISettingsScreen() {
                   autoCorrect={false}
                 />
 
+                <Text style={[styles.cardDesc, { color: colors.text, fontWeight: '600', marginBottom: 8, marginTop: 4 }]}>SD API Port</Text>
+                <TextInput
+                  style={[
+                    styles.input,
+                    {
+                      color: colors.text,
+                      backgroundColor: isDarkMode ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.02)",
+                      borderColor: colors.border,
+                    },
+                  ]}
+                  placeholder="Örn: 7860"
+                  keyboardType="numeric"
+                  placeholderTextColor={colors.subText}
+                  value={inputLocalSdPort}
+                  onChangeText={setInputLocalSdPort}
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                />
+
                 <Text style={[styles.cardDesc, { color: colors.text, fontWeight: '600', marginBottom: 8, marginTop: 4 }]}>Görüntü Modeli Adı (Checkpoint)</Text>
                 <TextInput
                   style={[
@@ -648,7 +884,7 @@ export default function AISettingsScreen() {
                       marginBottom: 20
                     },
                   ]}
-                  placeholder="Örn: dreamshaper_8.safetensors"
+                  placeholder="Örn: jaggernautxl.safetensors"
                   placeholderTextColor={colors.subText}
                   value={inputLocalSdModel}
                   onChangeText={setInputLocalSdModel}
@@ -656,8 +892,8 @@ export default function AISettingsScreen() {
                   autoCorrect={false}
                 />
 
-                <TouchableOpacity 
-                  style={[styles.saveButton, { backgroundColor: colors.info }]} 
+                <TouchableOpacity
+                  style={[styles.saveButton, { backgroundColor: colors.info }]}
                   onPress={handleSaveLocalSd}
                 >
                   {isLocalSdSaved ? (
@@ -684,7 +920,7 @@ export default function AISettingsScreen() {
                 {t("settings.ai.customPersona")}
               </Text>
             </View>
-            
+
             <Text style={[styles.cardDesc, { color: colors.subText, marginBottom: 16 }]}>
               {t("settings.ai.customPersonaDesc")}
             </Text>
@@ -707,8 +943,8 @@ export default function AISettingsScreen() {
               textAlignVertical="top"
             />
 
-            <TouchableOpacity 
-              style={[styles.saveButton, { backgroundColor: colors.secondary || colors.primary }]} 
+            <TouchableOpacity
+              style={[styles.saveButton, { backgroundColor: colors.secondary || colors.primary }]}
               onPress={handleSavePrompt}
             >
               {isPromptSaved ? (
@@ -724,7 +960,7 @@ export default function AISettingsScreen() {
               )}
             </TouchableOpacity>
 
-            <TouchableOpacity 
+            <TouchableOpacity
               style={[styles.resetActionCard, { borderColor: '#EF4444' + '30', marginTop: 12 }]}
               onPress={resetPrompt}
               activeOpacity={0.8}
@@ -789,7 +1025,7 @@ export default function AISettingsScreen() {
                       key={item.id}
                       style={[
                         styles.soundOption,
-                        { 
+                        {
                           backgroundColor: chatSoundType === item.id ? colors.primary + '15' : 'transparent',
                           borderColor: chatSoundType === item.id ? colors.primary : colors.border,
                         }
@@ -803,7 +1039,7 @@ export default function AISettingsScreen() {
                     >
                       <item.icon size={18} color={chatSoundType === item.id ? colors.primary : colors.subText} />
                       <Text style={[
-                        styles.soundOptionLabel, 
+                        styles.soundOptionLabel,
                         { color: chatSoundType === item.id ? colors.text : colors.subText }
                       ]}>
                         {item.label}
@@ -817,7 +1053,7 @@ export default function AISettingsScreen() {
 
           {/* Features Information */}
           <Text style={[styles.sectionTitle, { color: colors.text }]}>{t("settings.ai.whatYouGet")}</Text>
-          
+
           <View style={styles.featuresList}>
             <View style={[styles.featureCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
               <LinearGradient
@@ -1036,5 +1272,53 @@ const styles = StyleSheet.create({
   providerLabel: {
     fontSize: 14,
     fontWeight: "700",
+  },
+  activeModelContainer: {
+    padding: 16,
+    gap: 12,
+  },
+  activeModelBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    padding: 16,
+    borderRadius: 16,
+    borderWidth: 2,
+  },
+  activeModelTextContainer: {
+    flex: 1,
+    gap: 4,
+  },
+  activeModelProvider: {
+    fontSize: 16,
+    fontWeight: '700',
+  },
+  activeModelName: {
+    fontSize: 13,
+    fontWeight: '500',
+  },
+  activeModelHint: {
+    fontSize: 12,
+    fontStyle: 'italic',
+  },
+  setupInfoBox: {
+    borderRadius: 12,
+    padding: 14,
+    borderWidth: 1,
+    marginBottom: 16,
+  },
+  setupInfoHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 10,
+  },
+  setupInfoTitle: {
+    fontSize: 14,
+    fontWeight: '700',
+  },
+  setupInfoText: {
+    fontSize: 12,
+    lineHeight: 20,
   },
 });

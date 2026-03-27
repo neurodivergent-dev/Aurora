@@ -383,7 +383,7 @@ export const MusicPlayerScreen: React.FC = () => {
             >
               {currentTrack?.lyrics ? (
                 <Text style={[styles.lyricsText, { color: colors.text }]}>
-                  {currentTrack.lyrics}
+                  {currentTrack.lyrics.replace(/\\n/g, '\n')}
                 </Text>
               ) : (
                 <View style={styles.noLyricsContainer}>
@@ -667,11 +667,12 @@ const styles = StyleSheet.create({
     padding: 40,
   },
   lyricsText: {
-    fontSize: 18,
-    lineHeight: 28,
+    fontSize: 20,
+    lineHeight: 32,
     textAlign: 'center',
-    fontWeight: '500',
-    paddingHorizontal: 10,
+    fontWeight: '600',
+    paddingHorizontal: 20,
+    letterSpacing: 0.3,
   },
   noLyricsContainer: {
     alignItems: 'center',

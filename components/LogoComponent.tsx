@@ -18,7 +18,7 @@ interface LogoProps {
   secondaryColor?: string;
 }
 
-export const PlayerAILogo: React.FC<LogoProps> = ({
+export const AuroraLogo: React.FC<LogoProps> = ({
   size = 120,
   color,
   secondaryColor,
@@ -129,7 +129,7 @@ export const PlayerAILogo: React.FC<LogoProps> = ({
   );
 };
 
-export const PlayerAILogoSmall: React.FC<LogoProps> = ({
+export const AuroraLogoSmall: React.FC<LogoProps> = ({
   size = 32,
   color,
   secondaryColor,
@@ -191,4 +191,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default PlayerAILogo;
+export default AuroraLogo;

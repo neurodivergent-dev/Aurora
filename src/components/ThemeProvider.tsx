@@ -51,10 +51,10 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
       // 1. İçeriği anında görünmez yap (Hızla)
       contentOpacity.value = 0;
       
-      // 2. Çok kısa bir süre sonra yumuşakça geri getir
+      // 2. Çok kısa bir süre sonra yumuşakça geri getir - SÜRE KISALTILDI (1200 -> 300)
       contentOpacity.value = withTiming(1, { 
-        duration: 500, 
-        easing: Easing.out(Easing.quad) 
+        duration: 300, 
+        easing: Easing.out(Easing.quad)
       });
 
       // Ref'leri güncelle

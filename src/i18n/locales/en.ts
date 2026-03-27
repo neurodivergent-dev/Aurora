@@ -80,6 +80,8 @@ export default {
     },
     uiSounds: 'Sound Effects',
     uiSoundsDescription: 'Manage in-app interaction sounds',
+    themeEruptions: 'Theme Eruptions',
+    themeEruptionsDescription: 'Dynamic theme changes based on music rhythm',
     currentLanguage: 'Current Language',
     resetAllData: 'Reset All Data',
     resetAllDataDescription: 'Reset all personalization, theme, and language settings',
@@ -112,7 +114,7 @@ export default {
       chat: {
         title: 'AI DJ',
         placeholder: 'Talk to AI DJ...',
-        welcome: 'Hi! I am your AI DJ. What kind of atmosphere would you like to listen to music in? Want me to change the theme or background?',
+        welcome: 'Hi! I am your Aurora AI DJ. What kind of atmosphere would you like to listen to music in? Want me to change the theme or background?',
         noApiKey: 'Please enter your AI DJ API key in settings.',
         error: 'An error occurred. Please try again.',
         typing: 'AI DJ is typing...',
@@ -177,6 +179,12 @@ export default {
     effectGrid: 'Cyber Grid',
     effectSilk: 'Liquid Silk',
     effectPrism: 'Prism Ray',
+    effectNebula: 'Liquid Nebula',
+    effectFlow: 'Cyber Flow',
+    effectBlackhole: 'Cosmic Black Hole',
+    effectStardust: 'Stardust Velocity',
+    effectNeural: 'Neural Interface',
+    effectDna: 'DNA Structure',
     effectNone: 'None',
     preview: 'Preview',
     sampleCard: 'Sample Card',
@@ -195,7 +203,8 @@ export default {
     soundNone: 'Silent',
   },
   themeNames: {
-    default: 'Cyberpunk',
+    default: 'Aurora',
+    cyberpunk: 'Cyberpunk',
     neon: 'Neon',
     matrix: 'Matrix',
     plasma: 'Plasma',
@@ -214,6 +223,7 @@ export default {
     library: 'Library',
     playlists: 'Playlists',
     ai: 'AI DJ',
+    zen: 'CORE',
     settings: 'Settings',
   },
   playlist_screen: {
@@ -271,5 +281,12 @@ export default {
     policyUpdates: "We may update this policy periodically.",
     lastUpdated: "Last Updated: March 2026",
     copyright: "© 2026 Melih Can Demir. All rights reserved."
+  },
+  zen: {
+    title: 'SYSTEM CORE',
+    subtitle: 'Immersive Mode Active',
+    tapForQuote: 'Tap AI DJ for inspiration',
+    quotePlaceholder: 'INITIALIZING SYSTEM OBSERVATION...',
+    loadingQuote: 'AI DJ is thinking...',
   }
 };

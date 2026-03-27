@@ -19,7 +19,7 @@ interface MarkdownTextProps {
  */
 export const MarkdownText: React.FC<MarkdownTextProps> = ({ content, style, baseColor }) => {
   const lines = content.split('\n');
-  const { pollinationsApiKey, localSdIp } = useAIStore();
+  const { pollinationsApiKey, localSdIp, localSdPort } = useAIStore();
   const { currentTrack, setTrackArtwork } = useMusicStore();
   const [previewImage, setPreviewImage] = useState<string | null>(null);
   const [previewPrompt, setPreviewPrompt] = useState<string | null>(null);
@@ -57,7 +57,7 @@ export const MarkdownText: React.FC<MarkdownTextProps> = ({ content, style, base
     <View style={styles.container}>
       {lines.map((line, index) => {
         const trimmedLine = line.trim();
-        
+
         // Liste elemanı kontrolü (* veya -)
         if (trimmedLine.startsWith('* ') || trimmedLine.startsWith('- ')) {
           return (
@@ -78,23 +78,24 @@ export const MarkdownText: React.FC<MarkdownTextProps> = ({ content, style, base
         // Görüntü (Image) kontrolü: [IMAGE:prompt]
         const imageRegex = /\[IMAGE:(.*?)\]/;
         const imageMatch = line.match(imageRegex);
-        
+
         if (imageMatch) {
           const rawPrompt = imageMatch[1].trim();
           const cleanLine = line.replace(imageRegex, '').trim();
           const encodedPrompt = encodeURIComponent(rawPrompt);
-          
+
           // Stable seed
           const seed = rawPrompt.split('').reduce((acc, char) => acc + (char.charCodeAt(0) * 31), 0) % 100000;
-          
+
           let imageUrl = '';
           if (localSdIp) {
-            imageUrl = `http://${localSdIp}:7860/sdapi/v1/txt2img`;
+            const finalPort = localSdPort || '7860';
+            imageUrl = `http://${localSdIp}:${finalPort}/sdapi/v1/txt2img`;
           } else {
             const authParam = pollinationsApiKey ? `&key=${pollinationsApiKey}` : '';
             imageUrl = `https://gen.pollinations.ai/image/${encodedPrompt}?width=800&height=800&seed=${seed}&model=flux&nologo=true${authParam}`;
           }
-          
+
           // --- OTOMATİK ÜRETİM MANTIĞI ---
           React.useEffect(() => {
             if (localSdIp && !generatedLocalImages[index] && !isLocalGenerating[index]) {
@@ -106,27 +107,29 @@ export const MarkdownText: React.FC<MarkdownTextProps> = ({ content, style, base
           const handleLocalGenerate = async () => {
             if (!localSdIp) return;
             try {
-              setIsLocalGenerating(prev => ({ ...prev, index: true }));
-              const response = await fetch(`http://${localSdIp}:7860/sdapi/v1/txt2img`, {
+              const finalPort = localSdPort || '7860';
+              setIsLocalGenerating(prev => ({ ...prev, [index]: true }));
+              const response = await fetch(`http://${localSdIp}:${finalPort}/sdapi/v1/txt2img`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    prompt: rawPrompt,
-                    steps: 20,
-                    width: 512,
-                    height: 512,
-                    cfg_scale: 7,
-                    sampler_name: "Euler a"
+                  prompt: rawPrompt,
+                  steps: 20,
+                  width: 512,
+                  height: 512,
+                  cfg_scale: 7,
+                  sampler_name: "Euler a"
                 })
               });
               const data = await response.json();
               if (data.images && data.images.length > 0) {
                 const base64Str = data.images[0];
-                
-                // Resmi uygulamanın gizli klasörüne kaydet (galeride gözükmez)
-                const fileName = `local_sd_${Date.now()}_${index}.png`;
+
+                // Öngörülebilir dosya adı (Prompt bazlı hash kullanarak)
+                const promptHash = rawPrompt.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0).toString();
+                const fileName = `local_sd_${promptHash}.png`;
                 const fileUri = `${FileSystem.documentDirectory}${fileName}`;
-                
+
                 await FileSystem.writeAsStringAsync(fileUri, base64Str, {
                   encoding: FileSystem.EncodingType.Base64,
                 });
@@ -139,17 +142,17 @@ export const MarkdownText: React.FC<MarkdownTextProps> = ({ content, style, base
               console.error("[LOCAL SD] Error:", err);
               alert("Local SD Sunucusuna bağlanılamadı. --api ve --listen modunun açık olduğundan emin ol.");
             } finally {
-              setIsLocalGenerating(prev => ({ ...prev, index: false }));
+              setIsLocalGenerating(prev => ({ ...prev, [index]: false }));
             }
           };
 
           const isLocal = !!localSdIp;
           const localStoredImage = generatedLocalImages[index];
-          
+
           return (
             <View key={index} style={styles.lineContent}>
               {cleanLine !== '' && renderStyledText(cleanLine, `text-${index}`)}
-              <TouchableOpacity 
+              <TouchableOpacity
                 style={styles.imageContainer}
                 onPress={() => {
                   if (isLocal && !localStoredImage) {
@@ -165,33 +168,33 @@ export const MarkdownText: React.FC<MarkdownTextProps> = ({ content, style, base
                   <View style={[styles.image, { backgroundColor: '#1C1C1E', justifyContent: 'center', alignItems: 'center' }]}>
                     {isLocalGenerating[index] ? (
                       <View style={{ alignItems: 'center' }}>
-                         <Text style={{ color: '#FFFFFF', marginBottom: 10 }}>Yerel SD Üretiyor...</Text>
+                        <Text style={{ color: '#FFFFFF', marginBottom: 10 }}>Yerel SD Üretiyor...</Text>
                       </View>
                     ) : (
                       <View style={{ alignItems: 'center' }}>
                         <ImagePlus size={48} color="#FFFFFF" opacity={0.5} />
                         <Text style={{ color: '#FFFFFF', marginTop: 12, fontWeight: '600' }}>Yerel SD ile Üret</Text>
-                        <Text style={{ color: 'rgba(255,255,255,0.5)', fontSize: 12, marginTop: 4 }}>Juggernaut @ {localSdIp}</Text>
+                        <Text style={{ color: 'rgba(255,255,255,0.5)', fontSize: 12, marginTop: 4 }}>Juggernaut @ {localSdIp}:{localSdPort || '7860'}</Text>
                       </View>
                     )}
                   </View>
                 ) : (
-                  <Image 
-                    source={{ uri: localStoredImage || imageUrl }} 
+                  <Image
+                    source={{ uri: localStoredImage || imageUrl }}
                     style={styles.image}
                     resizeMode="cover"
                   />
                 )}
-                
+
                 {!pollinationsApiKey && !isLocal && (
                   <View style={styles.keyOverlay}>
                     <Text style={styles.keyWarningText}>API Key Required</Text>
                   </View>
                 )}
-                
+
                 <View style={styles.imageActionButtons}>
                   {currentTrack && (localStoredImage || !isLocal) && (
-                    <TouchableOpacity 
+                    <TouchableOpacity
                       style={[styles.actionButton, { backgroundColor: 'rgba(99, 102, 241, 0.8)' }]}
                       onPress={() => {
                         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
@@ -201,7 +204,7 @@ export const MarkdownText: React.FC<MarkdownTextProps> = ({ content, style, base
                       <ImagePlus size={16} color="#FFFFFF" strokeWidth={2.5} />
                     </TouchableOpacity>
                   )}
-                  <TouchableOpacity 
+                  <TouchableOpacity
                     style={styles.actionButton}
                     onPress={() => {
                       if (isLocal && !localStoredImage) handleLocalGenerate();
@@ -231,15 +234,15 @@ export const MarkdownText: React.FC<MarkdownTextProps> = ({ content, style, base
         onRequestClose={() => setPreviewImage(null)}
       >
         <SafeAreaView style={styles.modalContainer}>
-          <TouchableOpacity 
+          <TouchableOpacity
             style={styles.modalCloseButton}
             onPress={() => setPreviewImage(null)}
           >
             <X size={28} color="#FFFFFF" />
           </TouchableOpacity>
-          
+
           <View style={styles.modalImageContainer}>
-            <Image 
+            <Image
               source={{ uri: previewImage || undefined }}
               style={styles.modalImage}
               resizeMode="contain"

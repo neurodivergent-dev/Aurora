@@ -26,9 +26,10 @@ interface AIState {
   setImageProvider: (provider: 'pollinations' | 'local') => void;
   setLocalSdModel: (model: string) => void;
   localSdIp: string | null;
-  ollamaModel: string;
   setLocalSdIp: (ip: string | null) => void;
-  setOllamaModel: (model: string) => void;
+  localSdPort: string;
+  setLocalSdPort: (port: string) => void;
+
   setApiKey: (key: string | null) => Promise<void>;
   setGroqKey: (key: string | null) => Promise<void>;
   setPollinationsApiKey: (key: string | null) => Promise<void>;
@@ -57,7 +58,6 @@ export const useAIStore = create<AIState>()(
       activeProvider: 'gemini',
       groqModel: 'llama-3.1-8b-instant',
       imageProvider: 'pollinations',
-      localSdModel: '',
       isAIEnabled: false,
       chatMessages: [],
       customSystemPrompt: null,
@@ -65,12 +65,15 @@ export const useAIStore = create<AIState>()(
       chatSoundsEnabled: true,
       chatSoundType: 'pop',
       localSdIp: '192.168.1.203',
-      ollamaModel: 'gpt-oss-20b',
+      localSdPort: '7860',
+      localSdModel: 'jaggernautxl.safetensors',
+
 
       setImageProvider: (provider) => set({ imageProvider: provider }),
       setLocalSdModel: (model) => set({ localSdModel: model }),
       setLocalSdIp: (ip) => set({ localSdIp: ip }),
-      setOllamaModel: (model) => set({ ollamaModel: model }),
+      setLocalSdPort: (port) => set({ localSdPort: port }),
+
 
       setApiKey: async (key: string | null) => {
         if (key) {
@@ -113,7 +116,7 @@ export const useAIStore = create<AIState>()(
           const gKey = await SecureStore.getItemAsync('groq_api_key');
           const pKey = await SecureStore.getItemAsync(POLLINATIONS_API_KEY_STORAGE_KEY);
           const enabledStatus = await SecureStore.getItemAsync(AI_ENABLED_STORAGE_KEY);
-          
+
           set((state) => {
             const hasProvider = key || gKey || state.activeProvider === 'ollama';
             const isEnabled = hasProvider ? (enabledStatus === null ? true : enabledStatus === 'true') : false;
@@ -160,7 +163,7 @@ export const useAIStore = create<AIState>()(
     {
       name: 'ai-storage',
       storage: createJSONStorage(() => AsyncStorage),
-      partialize: (state) => ({ 
+      partialize: (state) => ({
         isAIEnabled: state.isAIEnabled,
         activeProvider: state.activeProvider,
         groqModel: state.groqModel,
@@ -172,7 +175,8 @@ export const useAIStore = create<AIState>()(
         chatSoundsEnabled: state.chatSoundsEnabled,
         chatSoundType: state.chatSoundType,
         localSdIp: state.localSdIp,
-        ollamaModel: state.ollamaModel,
+        localSdPort: state.localSdPort,
+
       }),
     }
   )

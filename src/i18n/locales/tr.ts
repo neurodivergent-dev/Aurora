@@ -80,6 +80,8 @@ export default {
     },
     uiSounds: 'Ses Efektleri',
     uiSoundsDescription: 'Uygulama içi etkileşim seslerini yönet',
+    themeEruptions: 'Tema Patlamaları',
+    themeEruptionsDescription: 'Müzik ritmine göre dinamik tema değişimleri',
     currentLanguage: 'Mevcut Dil',
     resetAllData: 'Tüm Verileri Sıfırla',
     resetAllDataDescription: 'Tüm kişiselleştirme, tema ve dil ayarlarınızı sıfırlayın',
@@ -112,7 +114,7 @@ export default {
       chat: {
         title: 'AI DJ',
         placeholder: 'AI DJ ile konuşun...',
-        welcome: 'Selam! Ben senin AI DJ\'inim. Hangi atmosferde müzik dinlemek istersin? Temayı veya arka planı değiştirmemi ister misin?',
+        welcome: 'Selam! Ben senin Aurora AI DJ\'inim. Hangi atmosferde müzik dinlemek istersin? Temayı veya arka planı değiştirmemi ister misin?',
         noApiKey: 'Lütfen ayarlardan AI DJ API anahtarınızı girin.',
         error: 'Bir hata oluştu. Lütfen tekrar deneyin.',
         typing: 'AI DJ yazıyor...',
@@ -177,6 +179,12 @@ export default {
     effectGrid: 'Siber Izgara',
     effectSilk: 'Sıvı İpek',
     effectPrism: 'Prizma Işığı',
+    effectNebula: 'Sıvı Nebula',
+    effectFlow: 'Siber Akış',
+    effectBlackhole: 'Kozmik Kara Delik',
+    effectStardust: 'Yıldız Tozu',
+    effectNeural: 'Yapay Sinir Ağı',
+    effectDna: 'DNA Modeli',
     effectNone: 'Yok',
     preview: 'Önizleme',
     sampleCard: 'Örnek Kart',
@@ -195,7 +203,8 @@ export default {
     soundNone: 'Sessiz',
   },
   themeNames: {
-    default: 'Cyberpunk',
+    default: 'Aurora',
+    cyberpunk: 'Cyberpunk',
     neon: 'Neon',
     matrix: 'Matrix',
     plasma: 'Plazma',
@@ -214,6 +223,7 @@ export default {
     library: 'Kitaplık',
     playlists: 'Listeler',
     ai: 'AI DJ',
+    zen: 'CORE',
     settings: 'Ayarlar',
   },
   playlist_screen: {
@@ -247,8 +257,8 @@ export default {
     connectTitle: "Bize Ulaşın",
     github: "GitHub",
     contact: "İletişim",
-    madeWith: "ile",
-    inTurkey: "Türkiye'de",
+    madeWith: "Türkiye'de",
+    inTurkey: "ile üretildi",
     copyright: "© 2026 MetaFrame • Melih Can Demir"
   },
   privacy: {
@@ -271,5 +281,10 @@ export default {
     policyUpdates: "Bu gizlilik politikasını zaman zaman güncelleyebiliriz.",
     lastUpdated: "Son Güncelleme: Mart 2026",
     copyright: "© 2026 Melih Can Demir. Tüm hakları saklıdır."
+  },
+  zen: {
+    title: 'SİSTEM ÇEKİRDEĞİ',
+    subtitle: 'İmersif Mod Aktif',
+    quotePlaceholder: 'SİSTEM GÖZLEMİ BAŞLATILIYOR...',
   }
 };
