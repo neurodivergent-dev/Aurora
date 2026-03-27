@@ -1,4 +1,4 @@
-import React, { useState, useRef, useMemo } from 'react';
+import React, { useState, useRef, useMemo, useCallback, useEffect } from 'react';
 import {
   StyleSheet,
   View,
@@ -14,7 +14,7 @@ import {
 import { router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
-import { Sparkles, User, Bot, Trash2, ChevronDown, CheckCircle2, Circle, X, Copy, CheckCheck, Send, Zap, BrainCircuit, Settings2, ChevronUp, Cloud } from 'lucide-react-native';
+import { Sparkles, User, Bot, Trash2, ChevronDown, CheckCircle2, Circle, X, Copy, CheckCheck, Send, Zap, BrainCircuit, Settings2, ChevronUp, Cloud, Mic, MicOff, Volume2, VolumeX } from 'lucide-react-native';
 import { useAIStore, ChatMessage } from '../../store/aiStore';
 import { useOllamaStore } from '../../store/ollamaStore';
 import { useTheme } from '../../components/ThemeProvider';
@@ -27,6 +27,8 @@ import * as Clipboard from 'expo-clipboard';
 import Animated, { FadeInUp, FadeInDown, FadeIn, FadeOut, useSharedValue, useAnimatedStyle, withRepeat, withDelay, withTiming } from 'react-native-reanimated';
 import { styles } from './styles';
 import { useAIChat } from './hooks/useAIChat';
+import { useVoiceInput } from './hooks/useVoiceInput';
+import { useSpeechOutput } from './hooks/useSpeechOutput';
 import { useThemeStore } from '../../store/themeStore';
 import { soundService } from '../../services/SoundService';
 
@@ -90,7 +92,7 @@ const AIChatScreen = () => {
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [showModelSelector, setShowModelSelector] = useState(false);
 
-  // Use the custom hook
+  // Use the custom hooks
   const {
     isLoading,
     clearChatAlertVisible,
@@ -98,6 +100,41 @@ const AIChatScreen = () => {
     handleSend,
     clearChat,
   } = useAIChat();
+
+  // Voice hooks
+  const { isRecording, isProcessing, startRecording, stopRecording } = useVoiceInput();
+  const { isSpeaking, speakingMessageId, speakText, stopSpeaking } = useSpeechOutput();
+  const lastSpokenMsgId = useRef<string | null>(null);
+  const prevMsgCount = useRef(chatMessages.length);
+  const isMounted = useRef(false);
+
+  // Auto-TTS: only read NEW AI responses (not old messages on mount)
+  useEffect(() => {
+    // Skip first render (mount) to avoid reading old AI messages
+    if (!isMounted.current) {
+      isMounted.current = true;
+      prevMsgCount.current = chatMessages.length;
+      return;
+    }
+
+    // Only trigger when a NEW message was added (count increased)
+    if (chatMessages.length <= prevMsgCount.current) {
+      prevMsgCount.current = chatMessages.length;
+      return;
+    }
+    prevMsgCount.current = chatMessages.length;
+
+    const lastMsg = chatMessages[chatMessages.length - 1];
+    // Only read AI (model) messages, not user messages
+    if (
+      lastMsg.role === 'model' &&
+      lastMsg.id !== lastSpokenMsgId.current &&
+      !isLoading
+    ) {
+      lastSpokenMsgId.current = lastMsg.id;
+      speakText(lastMsg.text, lastMsg.id);
+    }
+  }, [chatMessages, isLoading]);
 
   const [deleteAlertVisible, setDeleteAlertVisible] = useState(false);
 
@@ -209,9 +246,22 @@ const AIChatScreen = () => {
     handleModelChange(nextProvider);
   };
 
+  const handleMicPress = useCallback(async () => {
+    if (isRecording) {
+      const text = await stopRecording();
+      if (text) {
+        // Automatically send the transcribed text
+        handleSend(text, setInputText, chatSoundsEnabled, chatSoundType);
+      }
+    } else {
+      await startRecording();
+    }
+  }, [isRecording, startRecording, stopRecording, handleSend, setInputText, chatSoundsEnabled, chatSoundType]);
+
   const renderMessage = ({ item }: { item: ChatMessage }) => {
     const isAi = item.role === 'model';
     const isSelected = selectedIds.includes(item.id);
+    const isCurrentlySpeaking = speakingMessageId === item.id && isSpeaking;
 
     return (
       <Animated.View
@@ -236,35 +286,51 @@ const AIChatScreen = () => {
           <View style={[styles.avatar, { backgroundColor: isAi ? colors.primary + '15' : colors.secondary + '15' }]}>
             {isAi ? <Bot size={14} color={colors.primary} /> : <User size={14} color={colors.secondary} />}
           </View>
-          <TouchableOpacity
-            activeOpacity={0.9}
-            onLongPress={() => handleDeleteMessage(item.id, item.text)}
-            onPress={() => isSelectionMode ? toggleSelection(item.id) : null}
-            style={[
-              styles.messageBubble,
-              {
-                backgroundColor: isAi
-                  ? (isDarkMode ? 'rgba(255,255,255,0.06)' : colors.card)
-                  : colors.primary,
-                borderBottomLeftRadius: isAi ? 4 : 20,
-                borderBottomRightRadius: isAi ? 20 : 4,
-                borderWidth: isSelected ? 1.5 : 0,
-                borderColor: colors.primary,
-                shadowColor: "#000",
-                shadowOffset: { width: 0, height: 2 },
-                shadowOpacity: isDarkMode ? 0 : 0.05,
-                shadowRadius: 5,
-                elevation: isDarkMode ? 0 : 2,
-              },
-              isSelectionMode && { maxWidth: '85%' }
-            ]}
-          >
-            <MarkdownText
-              content={item.text}
-              baseColor={isAi ? colors.text : '#FFFFFF'}
-              style={styles.messageText}
-            />
-          </TouchableOpacity>
+          <View style={{ flex: 1 }}>
+            <TouchableOpacity
+              activeOpacity={0.9}
+              onLongPress={() => handleDeleteMessage(item.id, item.text)}
+              onPress={() => isSelectionMode ? toggleSelection(item.id) : null}
+              style={[
+                styles.messageBubble,
+                {
+                  backgroundColor: isAi
+                    ? (isDarkMode ? 'rgba(255,255,255,0.06)' : colors.card)
+                    : colors.primary,
+                  borderBottomLeftRadius: isAi ? 4 : 20,
+                  borderBottomRightRadius: isAi ? 20 : 4,
+                  borderWidth: isSelected ? 1.5 : 0,
+                  borderColor: colors.primary,
+                  shadowColor: "#000",
+                  shadowOffset: { width: 0, height: 2 },
+                  shadowOpacity: isDarkMode ? 0 : 0.05,
+                  shadowRadius: 5,
+                  elevation: isDarkMode ? 0 : 2,
+                },
+                isSelectionMode && { maxWidth: '85%' }
+              ]}
+            >
+              <MarkdownText
+                content={item.text}
+                baseColor={isAi ? colors.text : '#FFFFFF'}
+                style={styles.messageText}
+              />
+            </TouchableOpacity>
+            {/* Speaker button for AI messages */}
+            {isAi && item.id !== 'welcome' && !isSelectionMode && (
+              <TouchableOpacity
+                onPress={() => isCurrentlySpeaking ? stopSpeaking() : speakText(item.text, item.id)}
+                style={[styles.speakerButton, { backgroundColor: isCurrentlySpeaking ? colors.primary + '20' : 'transparent' }]}
+                hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+              >
+                {isCurrentlySpeaking ? (
+                  <VolumeX size={14} color={colors.primary} />
+                ) : (
+                  <Volume2 size={14} color={colors.subText + '80'} />
+                )}
+              </TouchableOpacity>
+            )}
+          </View>
         </View>
       </Animated.View>
     );
@@ -448,15 +514,42 @@ const AIChatScreen = () => {
 
               {isLoading && <TypingIndicator colors={colors} isDarkMode={isDarkMode} />}
 
+              {/* Recording indicator */}
+              {(isRecording || isProcessing) && (
+                <Animated.View
+                  entering={FadeIn.duration(200)}
+                  exiting={FadeOut.duration(200)}
+                  style={[styles.recordingIndicator, { backgroundColor: isRecording ? 'rgba(239,68,68,0.1)' : 'rgba(99,102,241,0.1)', borderColor: isRecording ? '#EF4444' + '40' : colors.primary + '40' }]}
+                >
+                  <View style={[styles.recordingDot, { backgroundColor: isRecording ? '#EF4444' : colors.primary }]} />
+                  <Text style={[styles.recordingText, { color: isRecording ? '#EF4444' : colors.primary }]}>
+                    {isRecording ? t('settings.ai.chat.voiceRecording') : t('settings.ai.chat.voiceProcessing')}
+                  </Text>
+                </Animated.View>
+              )}
+
               <View style={[styles.inputContainer, { borderTopColor: isDarkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)', backgroundColor: colors.background }]}>
                 <View style={[styles.inputWrapper, { backgroundColor: isDarkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.03)' }]}>
+                  {/* Microphone button */}
+                  <TouchableOpacity
+                    onPress={handleMicPress}
+                    disabled={isLoading || isProcessing}
+                    style={[styles.micButton, isRecording && styles.micButtonActive, isRecording && { backgroundColor: '#EF4444' + '20' }]}
+                  >
+                    {isRecording ? (
+                      <MicOff size={20} color="#EF4444" />
+                    ) : (
+                      <Mic size={20} color={isProcessing ? colors.subText + '40' : colors.primary} />
+                    )}
+                  </TouchableOpacity>
                   <TextInput
                     style={[styles.input, { color: colors.text }]}
-                    placeholder={t('settings.ai.chat.placeholder')}
+                    placeholder={isRecording ? t('settings.ai.chat.voiceRecording') : t('settings.ai.chat.placeholder')}
                     placeholderTextColor={colors.subText + '80'}
                     value={inputText}
                     onChangeText={setInputText}
                     multiline
+                    editable={!isRecording}
                   />
                   <TouchableOpacity
                     onPress={() => handleSend(inputText, setInputText, chatSoundsEnabled, chatSoundType)}

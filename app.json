@@ -29,7 +29,8 @@
       "permissions": [
         "WAKE_LOCK",
         "FOREGROUND_SERVICE",
-        "FOREGROUND_SERVICE_AUDIO"
+        "FOREGROUND_SERVICE_AUDIO",
+        "RECORD_AUDIO"
       ]
     },
     "web": {
