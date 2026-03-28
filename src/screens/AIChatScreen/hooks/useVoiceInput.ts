@@ -72,7 +72,7 @@ export const useVoiceInput = () => {
     } catch (error: any) {
       setIsRecording(false);
       setIsProcessing(false);
-      await disableRecordingMode().catch(() => {});
+      await disableRecordingMode().catch(e => logger.warn(`Failed to disable recording mode: ${e}`, 'useVoiceInput'));
       logger.error(`Stop error: ${error}`, 'useVoiceInput');
 
       if (error.message === 'GROQ_KEY_REQUIRED') {

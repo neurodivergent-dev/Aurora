@@ -1,0 +1,17 @@
+﻿
+> aurora@1.0.0 typecheck
+> tsc --noEmit
+
+src/screens/AIChatScreen/handlers/theme/colorFixes.ts(1,29): error TS2307: Cannot find module '../../../types/chat' or its corresponding type declarations.
+src/screens/AIChatScreen/handlers/theme/colorFixes.ts(2,20): error TS2307: Cannot find module '../../../utils/logger' or its corresponding type declarations.
+src/screens/AIChatScreen/handlers/theme/handleCreateTheme.ts(2,31): error TS2307: Cannot find module '../../../store/themeStore' or its corresponding type declarations.
+src/screens/AIChatScreen/handlers/theme/handleCreateTheme.ts(3,29): error TS2307: Cannot find module '../../../constants/themes' or its corresponding type declarations.
+src/screens/AIChatScreen/handlers/theme/handleCreateTheme.ts(5,52): error TS2307: Cannot find module '../../../types/chat' or its corresponding type declarations.
+src/screens/AIChatScreen/handlers/theme/handleCreateTheme.ts(6,20): error TS2307: Cannot find module '../../../utils/logger' or its corresponding type declarations.
+src/screens/AIChatScreen/handlers/theme/handleSetAppTheme.ts(2,31): error TS2307: Cannot find module '../../../store/themeStore' or its corresponding type declarations.
+src/screens/AIChatScreen/handlers/theme/handleSetAppTheme.ts(4,26): error TS2307: Cannot find module '../../../types/chat' or its corresponding type declarations.
+src/screens/AIChatScreen/handlers/theme/handleSetAppTheme.ts(5,20): error TS2307: Cannot find module '../../../utils/logger' or its corresponding type declarations.
+src/screens/AIChatScreen/handlers/theme/handleSetDarkMode.ts(2,31): error TS2307: Cannot find module '../../../store/themeStore' or its corresponding type declarations.
+src/screens/AIChatScreen/handlers/theme/handleSetDarkMode.ts(4,26): error TS2307: Cannot find module '../../../types/chat' or its corresponding type declarations.
+src/screens/AIChatScreen/handlers/theme/handleSetDarkMode.ts(5,20): error TS2307: Cannot find module '../../../utils/logger' or its corresponding type declarations.
+src/screens/AIChatScreen/handlers/theme/types.ts(1,29): error TS2307: Cannot find module '../../../types/chat' or its corresponding type declarations.
