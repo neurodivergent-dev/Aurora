@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback, useState } from "react";
 import {
   StyleSheet,
   View,
@@ -8,12 +8,12 @@ import {
   StatusBar,
   Pressable,
   Modal,
-  FlatList,
   Alert,
   ScrollView,
   Image,
   GestureResponderEvent
 } from "react-native";
+import { FlashList, FlashListRef } from "@shopify/flash-list";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import {
   Play,
@@ -124,6 +124,49 @@ export const MusicPlayerScreen: React.FC = () => {
     setDeleteTrackAlertVisible(false);
     setTrackToDelete(null);
   };
+
+  const renderQueueItem = useCallback(({ item }: { item: Track }) => {
+    const isCurrent = currentTrack?.id === item.id;
+    const isLocal = item.genre === 'Local';
+
+    return (
+      <View style={[styles.trackItem, isCurrent && { backgroundColor: colors.primary + '10' }]}>
+        <TouchableOpacity
+          style={styles.trackInfo}
+          onPress={() => {
+            setCurrentTrack(item);
+            play();
+            setIsLibraryVisible(false);
+          }}
+          accessibilityRole="button"
+          accessibilityLabel={t("a11y.trackItem", { title: item.title, artist: item.artist || 'Aurora' })}
+        >
+          <View style={[styles.trackIcon, { backgroundColor: isCurrent ? colors.primary : colors.border }]}>
+            <Music size={16} color={isCurrent ? "#FFFFFF" : colors.subText} />
+          </View>
+          <View style={styles.trackDetails}>
+            <Text style={[styles.trackItemTitle, { color: isCurrent ? colors.primary : colors.text }]} numberOfLines={1}>
+              {item.title}
+            </Text>
+            <Text style={[styles.trackItemArtist, { color: colors.subText }]} numberOfLines={1}>
+              {item.artist}
+            </Text>
+          </View>
+        </TouchableOpacity>
+
+        {isLocal && (
+          <TouchableOpacity
+            onPress={() => handleDeleteTrack(item)}
+            style={styles.deleteBtn}
+            accessibilityRole="button"
+            accessibilityLabel={t("a11y.deleteTrack")}
+          >
+            <Trash2 size={20} color="#FF4444" opacity={0.7} />
+          </TouchableOpacity>
+        )}
+      </View>
+    );
+  }, [currentTrack, colors, setCurrentTrack, play, setIsLibraryVisible, t]);
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
@@ -374,52 +417,12 @@ export const MusicPlayerScreen: React.FC = () => {
               <Text style={[styles.addBtnText, { color: colors.primary }]}>{t("playlist_screen.addFromDevice")}</Text>
             </TouchableOpacity>
 
-            <FlatList
+            <FlashList<Track>
               data={playlist}
               keyExtractor={(item) => item.id}
               contentContainerStyle={styles.listContent}
-              renderItem={({ item }) => {
-                const isCurrent = currentTrack?.id === item.id;
-                const isLocal = item.genre === 'Local';
-
-                return (
-                  <View style={[styles.trackItem, isCurrent && { backgroundColor: colors.primary + '10' }]}>
-                    <TouchableOpacity
-                      style={styles.trackInfo}
-                      onPress={() => {
-                        setCurrentTrack(item);
-                        play();
-                        setIsLibraryVisible(false);
-                      }}
-                      accessibilityRole="button"
-                      accessibilityLabel={t("a11y.trackItem", { title: item.title, artist: item.artist || 'Aurora' })}
-                    >
-                      <View style={[styles.trackIcon, { backgroundColor: isCurrent ? colors.primary : colors.border }]}>
-                        <Music size={16} color={isCurrent ? "#FFFFFF" : colors.subText} />
-                      </View>
-                      <View style={styles.trackDetails}>
-                        <Text style={[styles.trackItemTitle, { color: isCurrent ? colors.primary : colors.text }]} numberOfLines={1}>
-                          {item.title}
-                        </Text>
-                        <Text style={[styles.trackItemArtist, { color: colors.subText }]} numberOfLines={1}>
-                          {item.artist}
-                        </Text>
-                      </View>
-                    </TouchableOpacity>
-
-                    {isLocal && (
-                      <TouchableOpacity
-                        onPress={() => handleDeleteTrack(item)}
-                        style={styles.deleteBtn}
-                        accessibilityRole="button"
-                        accessibilityLabel={t("a11y.deleteTrack")}
-                      >
-                        <Trash2 size={20} color="#FF4444" opacity={0.7} />
-                      </TouchableOpacity>
-                    )}
-                  </View>
-                );
-              }}
+              renderItem={renderQueueItem}
+              {...({ estimatedItemSize: 64 } as any)}
               ListEmptyComponent={
                 <View style={styles.emptyContainer}>
                   <Text style={{ color: colors.subText }}>{t("playlist_screen.libraryEmpty")}</Text>

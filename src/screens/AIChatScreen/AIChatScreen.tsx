@@ -5,12 +5,13 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
-  FlatList,
   KeyboardAvoidingView,
   Platform,
   StatusBar,
   Keyboard,
 } from 'react-native';
+import { FlashList } from '@shopify/flash-list';
+import type { FlashListRef } from '@shopify/flash-list';
 import { router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
@@ -88,7 +89,7 @@ const AIChatScreen = () => {
   const { chatMessages, chatSoundsEnabled, chatSoundType, activeProvider, groqModel, setActiveProvider, setGroqModel } = useAIStore();
   const { ollamaModel, ollamaCloudMode } = useOllamaStore();
   const insets = useSafeAreaInsets();
-  const flatListRef = useRef<FlatList>(null);
+  const flatListRef = useRef<FlashListRef<ChatMessage>>(null);
 
   const [inputText, setInputText] = useState('');
   const [showScrollToBottom, setShowScrollToBottom] = useState(false);
@@ -262,7 +263,7 @@ const AIChatScreen = () => {
     }
   }, [isRecording, startRecording, stopRecording, handleSend, setInputText, chatSoundsEnabled, chatSoundType]);
 
-  const renderMessage = ({ item }: { item: ChatMessage }) => {
+  const renderMessage = useCallback(({ item }: { item: ChatMessage }) => {
     const isAi = item.role === 'model';
     const isSelected = selectedIds.includes(item.id);
     const isCurrentlySpeaking = speakingMessageId === item.id && isSpeaking;
@@ -277,8 +278,8 @@ const AIChatScreen = () => {
         ]}
       >
         {isSelectionMode && item.id !== 'welcome' && (
-          <TouchableOpacity 
-            onPress={() => toggleSelection(item.id)} 
+          <TouchableOpacity
+            onPress={() => toggleSelection(item.id)}
             style={styles.selectionCircle}
             accessibilityRole="checkbox"
             accessibilityState={{ checked: isSelected }}
@@ -348,11 +349,23 @@ const AIChatScreen = () => {
         </View>
       </Animated.View>
     );
-  };
+  }, [
+    selectedIds,
+    speakingMessageId,
+    isSpeaking,
+    isSelectionMode,
+    colors,
+    isDarkMode,
+    t,
+    toggleSelection,
+    handleDeleteMessage,
+    stopSpeaking,
+    speakText
+  ]);
 
   return (
-    <TouchableOpacity 
-      style={[styles.container, { backgroundColor: colors.background }]} 
+    <TouchableOpacity
+      style={[styles.container, { backgroundColor: colors.background }]}
       activeOpacity={1}
       onPress={() => showModelSelector && setShowModelSelector(false)}
     >
@@ -394,8 +407,8 @@ const AIChatScreen = () => {
               {isSelectionMode ? (
                 <>
                   <View style={styles.headerTitleContainer}>
-                    <TouchableOpacity 
-                      onPress={clearSelection} 
+                    <TouchableOpacity
+                      onPress={clearSelection}
                       style={styles.clearSelectionButton}
                       accessibilityRole="button"
                       accessibilityLabel={t('a11y.close')}
@@ -407,24 +420,24 @@ const AIChatScreen = () => {
                     </Text>
                   </View>
                   <View style={styles.headerSelectionActions}>
-                    <TouchableOpacity 
-                      onPress={handleSelectAll} 
+                    <TouchableOpacity
+                      onPress={handleSelectAll}
                       style={styles.selectionActionButton}
                       accessibilityRole="button"
                       accessibilityLabel={t('a11y.selectAll')}
                     >
                       <CheckCheck size={20} color={colors.primary} />
                     </TouchableOpacity>
-                    <TouchableOpacity 
-                      onPress={handleCopySelected} 
+                    <TouchableOpacity
+                      onPress={handleCopySelected}
                       style={styles.selectionActionButton}
                       accessibilityRole="button"
                       accessibilityLabel={t('a11y.copy')}
                     >
                       <Copy size={20} color={colors.primary} />
                     </TouchableOpacity>
-                    <TouchableOpacity 
-                      onPress={() => setDeleteAlertVisible(true)} 
+                    <TouchableOpacity
+                      onPress={() => setDeleteAlertVisible(true)}
                       style={styles.selectionActionButton}
                       accessibilityRole="button"
                       accessibilityLabel={t('a11y.delete')}
@@ -442,9 +455,9 @@ const AIChatScreen = () => {
                     <View style={styles.headerTitleWrapper}>
                       <Text style={styles.headerTitle}>{t('settings.ai.chat.title')}</Text>
                       <Text style={styles.headerSubtitle}>{t('app.slogan')}</Text>
-                      
-                      <TouchableOpacity 
-                        style={styles.activeModelChip} 
+
+                      <TouchableOpacity
+                        style={styles.activeModelChip}
                         onPress={() => setShowModelSelector(!showModelSelector)}
                         activeOpacity={0.7}
                         accessibilityRole="button"
@@ -482,7 +495,7 @@ const AIChatScreen = () => {
                             </Text>
                             {activeProvider === 'gemini' && <CheckCircle2 size={14} color="#FFFFFF" />}
                           </TouchableOpacity>
-                          
+
                           <TouchableOpacity
                             style={[styles.modelSelectorOption, { backgroundColor: activeProvider === 'groq' ? colors.primary + '30' : 'transparent' }]}
                             onPress={() => handleModelChange('groq')}
@@ -496,7 +509,7 @@ const AIChatScreen = () => {
                             </Text>
                             {activeProvider === 'groq' && <CheckCircle2 size={14} color="#FFFFFF" />}
                           </TouchableOpacity>
-                          
+
                           <TouchableOpacity
                             style={[styles.modelSelectorOption, { backgroundColor: activeProvider === 'ollama' ? colors.primary + '30' : 'transparent' }]}
                             onPress={() => handleModelChange('ollama')}
@@ -514,8 +527,8 @@ const AIChatScreen = () => {
                       </View>
                     )}
                   </View>
-                  <TouchableOpacity 
-                    onPress={clearChat} 
+                  <TouchableOpacity
+                    onPress={clearChat}
                     style={styles.clearButton}
                     accessibilityRole="button"
                     accessibilityLabel={t('a11y.clearChat')}
@@ -540,12 +553,13 @@ const AIChatScreen = () => {
             </View>
           ) : (
             <>
-              <FlatList
+              <FlashList<ChatMessage>
                 ref={flatListRef}
-                data={displayMessages}
+                data={displayMessages as ChatMessage[]}
                 renderItem={renderMessage}
                 keyExtractor={item => item.id}
                 contentContainerStyle={styles.listContent}
+                {...({ estimatedItemSize: 100 } as any)}
                 onContentSizeChange={() => {
                   if (!showScrollToBottom) flatListRef.current?.scrollToEnd({ animated: true });
                 }}
@@ -557,8 +571,8 @@ const AIChatScreen = () => {
 
               {showScrollToBottom && (
                 <Animated.View entering={FadeInDown.duration(200)} exiting={FadeInDown.duration(200)} style={styles.scrollToBottomContainer}>
-                  <TouchableOpacity 
-                    onPress={scrollToBottom} 
+                  <TouchableOpacity
+                    onPress={scrollToBottom}
                     style={[styles.scrollToBottomButton, { backgroundColor: colors.card }]}
                     accessibilityRole="button"
                     accessibilityLabel={t('a11y.scrollToBottom')}

@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useRef } from "react";
+import React, { useState, useMemo, useRef, useCallback } from "react";
 import {
   StyleSheet,
   View,
@@ -7,8 +7,8 @@ import {
   ScrollView,
   Dimensions,
   TextInput,
-  FlatList,
 } from "react-native";
+import { FlashList, FlashListRef } from "@shopify/flash-list";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useTheme } from "../components/ThemeProvider";
 import { BackgroundEffects } from "../components/BackgroundEffects/";
@@ -149,7 +149,7 @@ export const PlaylistsScreen: React.FC = () => {
     );
   }, [playlist, searchQuery]);
 
-  const renderTrackItem = ({ item }: { item: Track }) => {
+  const renderTrackItem = useCallback(({ item }: { item: Track }) => {
     const isSelected = selectedTracks.includes(item.id);
     return (
       <TouchableOpacity
@@ -171,7 +171,7 @@ export const PlaylistsScreen: React.FC = () => {
         </View>
       </TouchableOpacity>
     );
-  };
+  }, [selectedTracks, colors, t, toggleTrackSelection]);
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
@@ -459,20 +459,23 @@ export const PlaylistsScreen: React.FC = () => {
                 />
               </View>
 
-              <ScrollView
-                style={styles.listContainer}
-                showsVerticalScrollIndicator={false}
-                keyboardShouldPersistTaps="handled"
-              >
+              <View style={styles.listContainer}>
                 {modalFilteredTracks.length === 0 ? (
                   <View style={{ alignItems: 'center', paddingTop: 30 }}>
                     <Music size={32} color={colors.subText} />
                     <Text style={{ color: colors.subText, marginTop: 10 }}>{t("playlist_screen.noSongsInLibrary")}</Text>
                   </View>
                 ) : (
-                  modalFilteredTracks.map((item) => <React.Fragment key={item.id}>{renderTrackItem({ item })}</React.Fragment>)
+                  <FlashList<Track>
+                    data={modalFilteredTracks}
+                    renderItem={renderTrackItem}
+                    keyExtractor={(item) => item.id}
+                    {...({ estimatedItemSize: 72 } as any)}
+                    keyboardShouldPersistTaps="handled"
+                    showsVerticalScrollIndicator={false}
+                  />
                 )}
-              </ScrollView>
+              </View>
 
               <View style={styles.modalButtons}>
                 <TouchableOpacity
