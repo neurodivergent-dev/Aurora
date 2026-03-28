@@ -266,19 +266,19 @@ export default function ThemeSettingsScreen() {
                         />
                       </View>
                       {/* Badge Handling */}
-                      <Text
-                        style={[
-                          styles.themeCardTitle,
-                          { color: colors.text },
-                          themeId === theme.id && {
-                            fontWeight: "700",
-                            color: theme.colors.primary,
-                          },
-                        ]}
-                        numberOfLines={1}
-                      >
-                        {t(`themeNames.${theme.id}`, theme.name)}
-                      </Text>
+                    <Text
+                      style={[
+                        styles.themeCardTitle,
+                        { color: colors.text },
+                        themeId === theme.id && {
+                          fontWeight: "700",
+                          color: theme.colors.primary,
+                        },
+                      ]}
+                      numberOfLines={1}
+                    >
+                      {t(`themeNames.${theme.id}`, theme.name)}
+                    </Text>
                       <View style={styles.colorDotsContainer}>
                         <View style={[styles.colorDot, { backgroundColor: theme.colors.primary }]} />
                         <View style={[styles.colorDot, { backgroundColor: theme.colors.secondary }]} />
@@ -298,24 +298,24 @@ export default function ThemeSettingsScreen() {
           >
             <View style={styles.effectsContainer}>
               {[
-                { id: 'bokeh', name: t("themeSettings.effectBokeh", "Rüya Odaklaması"), icon: Circle },
-                { id: 'quantum', name: t("themeSettings.effectQuantum", "Kuantum Tozu"), icon: Sparkles },
-                { id: 'crystals', name: t("themeSettings.effectCrystals", "Atom Modeli"), icon: Atom },
-                { id: 'tesseract', name: t("themeSettings.effectTesseract", "Tesseract"), icon: Hexagon },
-                { id: 'aurora', name: t("themeSettings.effectAurora", "Aurora Işıkları"), icon: Star },
-                { id: 'matrix', name: t("themeSettings.effectMatrix", "Matrix Akışı"), icon: Activity },
-                { id: 'vortex', name: t("themeSettings.effectVortex", "Girdap Enerjisi"), icon: Wind },
-                { id: 'grid', name: t("themeSettings.effectGrid", "Siber Izgara"), icon: Grid3X3 },
-                { id: 'silk', name: t("themeSettings.effectSilk", "Sıvı İpek"), icon: Wind },
-                { id: 'prism', name: t("themeSettings.effectPrism", "Prizma Işığı"), icon: Zap },
-                { id: 'nebula', name: t("themeSettings.effectNebula", "Sıvı Nebula"), icon: CloudRain },
-                { id: 'flow', name: t("themeSettings.effectFlow", "Siber Akış"), icon: Activity },
+                { id: 'bokeh', name: t("themeSettings.effectBokeh"), icon: Circle },
+                { id: 'quantum', name: t("themeSettings.effectQuantum"), icon: Sparkles },
+                { id: 'crystals', name: t("themeSettings.effectCrystals"), icon: Atom },
+                { id: 'tesseract', name: t("themeSettings.effectTesseract"), icon: Hexagon },
+                { id: 'aurora', name: t("themeSettings.effectAurora"), icon: Star },
+                { id: 'matrix', name: t("themeSettings.effectMatrix"), icon: Activity },
+                { id: 'vortex', name: t("themeSettings.effectVortex"), icon: Wind },
+                { id: 'grid', name: t("themeSettings.effectGrid"), icon: Grid3X3 },
+                { id: 'silk', name: t("themeSettings.effectSilk"), icon: Wind },
+                { id: 'prism', name: t("themeSettings.effectPrism"), icon: Zap },
+                { id: 'nebula', name: t("themeSettings.effectNebula"), icon: CloudRain },
+                { id: 'flow', name: t("themeSettings.effectFlow"), icon: Activity },
                 { id: 'blackhole', name: t("themeSettings.effectBlackhole"), icon: Circle },
                 { id: 'stardust', name: t("themeSettings.effectStardust"), icon: Sparkles },
                 { id: 'neural', name: t("themeSettings.effectNeural"), icon: Zap },
                 { id: 'dna', name: t("themeSettings.effectDna"), icon: Atom },
-                { id: 'winamp', name: t("themeSettings.effectWinamp", "Winamp Viz"), icon: Music },
-                { id: 'none', name: t("themeSettings.effectNone", "Yok"), icon: CircleOff },
+                { id: 'winamp', name: t("themeSettings.effectWinamp"), icon: Music },
+                { id: 'none', name: t("themeSettings.effectNone"), icon: CircleOff },
               ].map((effect) => (
                 <TouchableOpacity
                   key={effect.id}

@@ -4,6 +4,7 @@ import { createMMKV } from 'react-native-mmkv';
 import * as DocumentPicker from 'expo-document-picker';
 import { createAudioPlayer } from 'expo-audio';
 import logger from '../utils/logger';
+import i18n from '../i18n/i18n';
 
 const mmkv = createMMKV({ id: 'music-store' });
 
@@ -265,8 +266,8 @@ export const useMusicStore = create<MusicState>()(
 
             return {
               id: asset.uri,
-              title: asset.name ? asset.name.replace(/\.[^/.]+$/, '') : 'Bilinmeyen Şarkı',
-              artist: 'Telefon Hafızası',
+              title: asset.name ? asset.name.replace(/\.[^/.]+$/, '') : i18n.t('music.unknownTrack'),
+              artist: i18n.t('playlist_screen.localFiles'),
               url: asset.uri,
               duration,
               genre: 'Local',
@@ -285,21 +286,21 @@ export const useMusicStore = create<MusicState>()(
               playlist: [...DEFAULT_TRACKS, ...updatedLocal],
             });
             get().showAlert(
-              "Müzikler Eklendi",
-              `${newTracks.length} adet yeni lokal şarkı kütüphanene eklendi! 🎉`,
+              i18n.t('music.musicsAddedTitle', { defaultValue: "Müzikler Eklendi" }),
+              i18n.t('music.musicsAddedMessage', { count: newTracks.length, defaultValue: `${newTracks.length} adet yeni lokal şarkı kütüphanene eklendi! 🎉` }),
               'music'
             );
           } else {
             get().showAlert(
-              "Zaten Mevcut",
-              "Seçtiğin şarkılar zaten kütüphanende mevcut.",
+              i18n.t('music.alreadyExistsTitle', { defaultValue: "Zaten Mevcut" }),
+              i18n.t('music.alreadyExistsMessage', { defaultValue: "Seçtiğin şarkılar zaten kütüphanende mevcut." }),
               'info'
             );
           }
         } catch (error) {
           get().showAlert(
-            "Hata",
-            "Lokal müzikleri eklerken bir hata oluştu.",
+            i18n.t('common.error', { defaultValue: "Hata" }),
+            i18n.t('music.loadLocalError', { defaultValue: "Lokal müzikleri eklerken bir hata oluştu." }),
             'error'
           );
         }

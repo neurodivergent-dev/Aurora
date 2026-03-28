@@ -68,6 +68,8 @@ export const MusicPlayerScreen: React.FC = () => {
   const [lyricsResetAlertVisible, setLyricsResetAlertVisible] = React.useState(false);
   const [resetType, setResetType] = React.useState<'single' | 'all'>('single');
   const [isLyricsVisible, setIsLyricsVisible] = React.useState(false);
+  const [deleteTrackAlertVisible, setDeleteTrackAlertVisible] = React.useState(false);
+  const [trackToDelete, setTrackToDelete] = React.useState<any>(null);
 
   const progressVal = useSharedValue(0);
 
@@ -109,6 +111,19 @@ export const MusicPlayerScreen: React.FC = () => {
     }
   };
 
+  const handleDeleteTrack = (track: any) => {
+    setTrackToDelete(track);
+    setDeleteTrackAlertVisible(true);
+  };
+
+  const confirmTrackDelete = () => {
+    if (trackToDelete) {
+      removeLocalTrack(trackToDelete.id);
+    }
+    setDeleteTrackAlertVisible(false);
+    setTrackToDelete(null);
+  };
+
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <BackgroundEffects />
@@ -121,7 +136,7 @@ export const MusicPlayerScreen: React.FC = () => {
             <TouchableOpacity onPress={() => router.back()} style={styles.iconBtn}>
               <ChevronDown size={28} color={colors.text} />
             </TouchableOpacity>
-            <Text style={[styles.headerTitle, { color: colors.text }]}>{t('settings.ai.chat.nowPlaying')}</Text>
+            <Text style={[styles.headerTitle, { color: colors.text }]}>{t('music.nowPlaying')}</Text>
             <TouchableOpacity onPress={() => setIsLibraryVisible(true)} style={styles.iconBtn}>
               <List size={24} color={colors.text} />
             </TouchableOpacity>
@@ -167,9 +182,9 @@ export const MusicPlayerScreen: React.FC = () => {
                     repeatSpacer={40}
                     marqueeDelay={1500}
                   >
-                    {currentTrack?.title || t('settings.ai.chat.unknownTrack')}
+                    {currentTrack?.title || t('music.unknownTrack')}
                   </TextTicker>
-                  <Text style={[styles.trackArtist, { color: colors.subText }]} numberOfLines={1}>{currentTrack?.artist || t('settings.ai.chat.unknownArtist')}</Text>
+                  <Text style={[styles.trackArtist, { color: colors.subText }]} numberOfLines={1}>{currentTrack?.artist || t('music.unknownArtist')}</Text>
                 </View>
                 
                 <TouchableOpacity
@@ -319,20 +334,7 @@ export const MusicPlayerScreen: React.FC = () => {
 
                     {isLocal && (
                       <TouchableOpacity
-                        onPress={() => {
-                          Alert.alert(
-                            t("settings.ai.chat.removeTrack"),
-                            `"${item.title}" ${t("settings.ai.chat.removeTrackConfirm")}`,
-                            [
-                              { text: t("common.cancel"), style: "cancel" },
-                              {
-                                text: t("settings.ai.chat.remove"),
-                                style: "destructive",
-                                onPress: () => removeLocalTrack(item.id)
-                              }
-                            ]
-                          );
-                        }}
+                        onPress={() => handleDeleteTrack(item)}
                         style={styles.deleteBtn}
                       >
                         <Trash2 size={20} color="#FF4444" opacity={0.7} />
@@ -395,7 +397,10 @@ export const MusicPlayerScreen: React.FC = () => {
                     {t("playlist_screen.lyricsNotAdded")}
                   </Text>
                   <Text style={[styles.noLyricsSub, { color: colors.subText }]}>
-                    AI Chat'e gidip "{t('settings.ai.chat.findLyricsPrompt')}" diyebilirsin!
+                    {t('music.aiChatPrompt', { 
+                      languageName: t(`language.${t('common.language') === 'tr' ? 'turkish' : t('common.language') === 'ja' ? 'japanese' : 'english'}`),
+                      findLyricsPrompt: t('music.findLyricsPrompt')
+                    })}
                   </Text>
                 </View>
               )}
@@ -406,13 +411,24 @@ export const MusicPlayerScreen: React.FC = () => {
 
       <CustomAlert
         visible={lyricsResetAlertVisible}
-        title={t("settings.ai.chat.deleteLyrics")}
-        message={t("settings.ai.chat.deleteLyricsConfirm")}
+        title={t("music.deleteLyrics")}
+        message={t("music.deleteLyricsConfirm")}
         type="danger"
-        confirmText={t("settings.ai.chat.remove")}
+        confirmText={t("music.remove")}
         cancelText={t("common.cancel")}
         onConfirm={confirmLyricsDelete}
         onCancel={() => setLyricsResetAlertVisible(false)}
+      />
+
+      <CustomAlert
+        visible={deleteTrackAlertVisible}
+        title={t("music.removeTrack")}
+        message={trackToDelete ? `"${trackToDelete.title}" ${t("music.removeTrackConfirm")}` : ""}
+        type="danger"
+        confirmText={t("music.remove")}
+        cancelText={t("common.cancel")}
+        onConfirm={confirmTrackDelete}
+        onCancel={() => setDeleteTrackAlertVisible(false)}
       />
 
     </View>
