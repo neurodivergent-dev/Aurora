@@ -288,15 +288,31 @@ export const AboutScreen: React.FC = () => {
           </Text>
 
           <View style={styles.madeWithContainer} accessible={true} accessibilityRole="text" accessibilityLabel={`${t("about.madeWith")} love ${t("about.inTurkey")}`}>
-            <Text style={[styles.madeLoveText, { color: colors.subText }]}>
-              {t("about.madeWith")}
-            </Text>
-            <View style={styles.heartPulse}>
-              <Heart size={14} color="#EF4444" fill="#EF4444" />
-            </View>
-            <Text style={[styles.madeLoveText, { color: colors.subText }]}>
-              {t("about.inTurkey")}
-            </Text>
+            {i18n.language === 'tr' ? (
+              <>
+                <Text style={[styles.madeLoveText, { color: colors.subText }]}>
+                  {t("about.madeWith")}
+                </Text>
+                <View style={styles.heartPulse}>
+                  <Heart size={14} color="#EF4444" fill="#EF4444" />
+                </View>
+                <Text style={[styles.madeLoveText, { color: colors.subText }]}>
+                  {t("about.inTurkey")}
+                </Text>
+              </>
+            ) : (
+              <>
+                <Text style={[styles.madeLoveText, { color: colors.subText }]}>
+                  {t("about.madeWith")}
+                </Text>
+                <View style={styles.heartPulse}>
+                  <Heart size={14} color="#EF4444" fill="#EF4444" />
+                </View>
+                <Text style={[styles.madeLoveText, { color: colors.subText }]}>
+                  {t("about.inTurkey")}
+                </Text>
+              </>
+            )}
           </View>
         </View>
       </ScrollView>

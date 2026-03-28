@@ -218,13 +218,13 @@ export const PrivacyPolicyScreen: React.FC = () => {
             {t("common.language") === "tr" ? (
               <>
                 <Text style={[styles.madeLoveText, { color: colors.subText }]}>
-                  {t("about.inTurkey")}
+                  {t("about.madeWith")}
                 </Text>
                 <View style={styles.heartPulse}>
                   <Heart size={14} color="#EF4444" fill="#EF4444" />
                 </View>
                 <Text style={[styles.madeLoveText, { color: colors.subText }]}>
-                  {" " + t("about.madeWith")}
+                  {t("about.inTurkey")}
                 </Text>
               </>
             ) : (

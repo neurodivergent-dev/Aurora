@@ -367,7 +367,7 @@ export default {
     githubPlaceholder: "GitHub",
     contactPlaceholder: "İletişim",
     madeWith: "Türkiye'de",
-    inTurkey: "sevgiyle üretildi",
+    inTurkey: "ile üretildi",
     copyright: "© 2026 MetaFrame • Melih Can Demir"
   },
   privacy: {
