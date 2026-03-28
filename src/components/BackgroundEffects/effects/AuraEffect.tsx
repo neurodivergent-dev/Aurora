@@ -13,7 +13,15 @@ import { styles } from '../styles';
 
 const { width, height } = Dimensions.get('window');
 
-const AuraOrb = React.memo(({ delay = 0, initialX = 0, initialY = 0, size = 400, color = '#fff' }: any) => {
+interface AuraOrbProps {
+  delay?: number;
+  initialX?: number;
+  initialY?: number;
+  size?: number;
+  color?: string;
+}
+
+const AuraOrb = React.memo(({ delay = 0, initialX = 0, initialY = 0, size = 400, color = '#fff' }: AuraOrbProps) => {
   const scale = useSharedValue(1); const opacity = useSharedValue(0.15);
   const gradId = useMemo(() => `aura-${Math.random()}`, []);
   useEffect(() => {

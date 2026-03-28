@@ -3,6 +3,8 @@ import { StyleSheet, View, Text } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import Animated, { FadeIn, FadeOut, useAnimatedStyle, withTiming, useSharedValue, withRepeat, withDelay } from 'react-native-reanimated';
 
+import { ThemeColors } from '../../../types/chat';
+
 const Dot = ({ backgroundColor, delay }: { backgroundColor: string, delay: number }) => {
   const scale = useSharedValue(1);
 
@@ -22,7 +24,7 @@ const Dot = ({ backgroundColor, delay }: { backgroundColor: string, delay: numbe
   return <Animated.View style={[styles.typingDot, { backgroundColor }, animatedStyle]} />;
 };
 
-export const TypingIndicator = ({ colors, isDarkMode }: { colors: any, isDarkMode: boolean }) => {
+export const TypingIndicator = ({ colors, isDarkMode }: { colors: ThemeColors, isDarkMode: boolean }) => {
   const { t } = useTranslation();
 
   return (

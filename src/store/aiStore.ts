@@ -3,6 +3,7 @@ import { persist, createJSONStorage } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as SecureStore from 'expo-secure-store';
 import logger from '../utils/logger';
+import { STORAGE_KEYS } from '../constants/storageKeys';
 
 export interface ChatMessage {
   id: string;
@@ -47,9 +48,6 @@ interface AIState {
   setChatSoundType: (type: 'pop' | 'digital' | 'minimal') => void;
 }
 
-const API_KEY_STORAGE_KEY = 'gemini_api_key';
-const POLLINATIONS_API_KEY_STORAGE_KEY = 'pollinations_api_key';
-const AI_ENABLED_STORAGE_KEY = 'ai_enabled_status';
 
 export const useAIStore = create<AIState>()(
   persist(
@@ -78,32 +76,32 @@ export const useAIStore = create<AIState>()(
 
       setApiKey: async (key: string | null) => {
         if (key) {
-          await SecureStore.setItemAsync(API_KEY_STORAGE_KEY, key);
-          await SecureStore.setItemAsync(AI_ENABLED_STORAGE_KEY, 'true');
+          await SecureStore.setItemAsync(STORAGE_KEYS.GEMINI_API_KEY, key);
+          await SecureStore.setItemAsync(STORAGE_KEYS.AI_ENABLED_STATUS, 'true');
           set({ apiKey: key, isAIEnabled: true });
         } else {
-          await SecureStore.deleteItemAsync(API_KEY_STORAGE_KEY);
-          await SecureStore.setItemAsync(AI_ENABLED_STORAGE_KEY, 'false');
+          await SecureStore.deleteItemAsync(STORAGE_KEYS.GEMINI_API_KEY);
+          await SecureStore.setItemAsync(STORAGE_KEYS.AI_ENABLED_STATUS, 'false');
           set({ apiKey: null, isAIEnabled: false });
         }
       },
 
       setGroqKey: async (key: string | null) => {
         if (key) {
-          await SecureStore.setItemAsync('groq_api_key', key);
+          await SecureStore.setItemAsync(STORAGE_KEYS.GROQ_API_KEY, key);
           set({ groqApiKey: key });
         } else {
-          await SecureStore.deleteItemAsync('groq_api_key');
+          await SecureStore.deleteItemAsync(STORAGE_KEYS.GROQ_API_KEY);
           set({ groqApiKey: null });
         }
       },
 
       setPollinationsApiKey: async (key: string | null) => {
         if (key) {
-          await SecureStore.setItemAsync(POLLINATIONS_API_KEY_STORAGE_KEY, key);
+          await SecureStore.setItemAsync(STORAGE_KEYS.POLLINATIONS_API_KEY, key);
           set({ pollinationsApiKey: key });
         } else {
-          await SecureStore.deleteItemAsync(POLLINATIONS_API_KEY_STORAGE_KEY);
+          await SecureStore.deleteItemAsync(STORAGE_KEYS.POLLINATIONS_API_KEY);
           set({ pollinationsApiKey: null });
         }
       },
@@ -113,10 +111,10 @@ export const useAIStore = create<AIState>()(
 
       loadApiKey: async () => {
         try {
-          const key = await SecureStore.getItemAsync(API_KEY_STORAGE_KEY);
-          const gKey = await SecureStore.getItemAsync('groq_api_key');
-          const pKey = await SecureStore.getItemAsync(POLLINATIONS_API_KEY_STORAGE_KEY);
-          const enabledStatus = await SecureStore.getItemAsync(AI_ENABLED_STORAGE_KEY);
+          const key = await SecureStore.getItemAsync(STORAGE_KEYS.GEMINI_API_KEY);
+          const gKey = await SecureStore.getItemAsync(STORAGE_KEYS.GROQ_API_KEY);
+          const pKey = await SecureStore.getItemAsync(STORAGE_KEYS.POLLINATIONS_API_KEY);
+          const enabledStatus = await SecureStore.getItemAsync(STORAGE_KEYS.AI_ENABLED_STATUS);
 
           set((state) => {
             const hasProvider = key || gKey || state.activeProvider === 'ollama';
@@ -129,7 +127,7 @@ export const useAIStore = create<AIState>()(
       },
 
       toggleAI: async (enabled: boolean) => {
-        await SecureStore.setItemAsync(AI_ENABLED_STORAGE_KEY, enabled ? 'true' : 'false');
+        await SecureStore.setItemAsync(STORAGE_KEYS.AI_ENABLED_STATUS, enabled ? 'true' : 'false');
         set({ isAIEnabled: enabled });
       },
 
@@ -162,7 +160,7 @@ export const useAIStore = create<AIState>()(
       setChatSoundType: (type: 'pop' | 'digital' | 'minimal') => set({ chatSoundType: type }),
     }),
     {
-      name: 'ai-storage',
+      name: STORAGE_KEYS.AI_STORE,
       storage: createJSONStorage(() => AsyncStorage),
       partialize: (state) => ({
         isAIEnabled: state.isAIEnabled,

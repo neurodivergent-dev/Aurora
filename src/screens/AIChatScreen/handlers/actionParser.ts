@@ -108,7 +108,9 @@ export const parseActionData = (jsonStr: string | null): Record<string, unknown>
         }
       }
       if (Object.keys(data).length > 0) return data;
-    } catch (innerE) { }
+    } catch (innerE) {
+      logger.debug(`Strategy 2 parse failed: ${innerE}`, 'ActionParser');
+    }
 
     // Strategy 3: Aggressive JSON cleanup (Find first { and last })
     try {
@@ -118,7 +120,9 @@ export const parseActionData = (jsonStr: string | null): Record<string, unknown>
         const segment = rawClean.substring(start, end + 1);
         return JSON.parse(escapeNewlines(segment));
       }
-    } catch (e3) { }
+    } catch (e3) {
+      logger.debug(`Strategy 3 parse failed: ${e3}`, 'ActionParser');
+    }
   }
   return null;
 };

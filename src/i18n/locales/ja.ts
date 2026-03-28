@@ -17,6 +17,11 @@ export default {
     update: '更新',
     create: '作成',
     language: 'ja',
+    errorBoundary: {
+      title: 'おっと！何かが上手くいかなかったようです',
+      description: '予期しないエラーが発生しました。アプリを再起動するか、もう一度お試しください。',
+      retry: 'もう一度試す',
+    },
   },
   language: {
     english: '英語',

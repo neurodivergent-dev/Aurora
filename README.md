@@ -72,6 +72,18 @@ A minimalist, offline-first music player with AI-powered personalization. Experi
 
 ---
 
+## 🔒 Security Note
+
+### Local Network Connections (HTTP)
+For local AI integration (Ollama and Stable Diffusion), Aurora uses standard **HTTP** connections to communicate with services running on your local machine or LAN. 
+- **Ollama**: Connects via `http://[IP]:[PORT]/api/chat`
+- **Stable Diffusion**: Connects via `http://[IP]:[PORT]/sdapi/v1/txt2img`
+
+> [!IMPORTANT]
+> Since these connections are unencrypted (HTTP), they are intended for use within **trusted local networks** only. If exposing these services over a public network, it is highly recommended to use a reverse proxy with HTTPS (like Nginx or Caddy).
+
+---
+
 ## 🚀 Quick Start
 
 ### Prerequisites

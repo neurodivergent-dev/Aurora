@@ -17,6 +17,11 @@ export default {
     update: 'Güncelle',
     create: 'Oluştur',
     language: 'tr',
+    errorBoundary: {
+      title: 'Ups! Bir Şeyler Ters Gitti',
+      description: 'Beklenmedik bir hata oluştu. Uygulamayı yeniden başlatmayı veya tekrar denemeyi deneyebilirsiniz.',
+      retry: 'Tekrar Dene',
+    },
   },
   language: {
     english: 'İngilizce',

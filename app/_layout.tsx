@@ -19,6 +19,7 @@ import { useAIStore } from "../src/store/aiStore";
 import { useOllamaStore } from "../src/store/ollamaStore";
 import { useThemeStore } from "../src/store/themeStore";
 import { GlassAlert } from "../src/components/GlassAlert";
+import { ErrorBoundary as GlobalErrorBoundary } from "../src/components/ErrorBoundary";
 
 import "../src/i18n/i18n"; // Import i18n initialization
 
@@ -96,46 +97,48 @@ function RootLayoutNav() {
   const safeTheme = theme || DefaultTheme;
 
   return (
-    <SafeAreaProvider>
-      <CustomThemeProvider>
-        <SoundPlayer />
-        <MiniPlayer />
-        <Stack
-          screenOptions={{
-              freezeOnBlur: true,
-              contentStyle: {
-                backgroundColor: colors.background,
-              },
-              animation: 'fade',
-            }}
-          >
-            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-            <Stack.Screen name="modal" options={{ presentation: "modal" }} />
-            <Stack.Screen name="onboarding" options={{ headerShown: false }} />
-            <Stack.Screen name="about" options={{ headerShown: false }} />
-            <Stack.Screen name="privacy-policy" options={{ headerShown: false }} />
-            <Stack.Screen name="theme-settings" options={{ headerShown: false }} />
-            <Stack.Screen name="backup-settings" options={{ headerShown: false }} />
-            <Stack.Screen name="ai-settings" options={{ headerShown: false }} />
-            <Stack.Screen 
-              name="music-player" 
-              options={{ 
-                presentation: "modal", 
-                headerShown: false, 
-                animation: "slide_from_bottom"
-              }} 
-            />
-            <Stack.Screen 
-              name="playlist-detail" 
-              options={{ 
-                headerShown: false, 
-                animation: "slide_from_right"
-              }} 
-            />
-        </Stack>
-        <GlassAlert />
-      </CustomThemeProvider>
-    </SafeAreaProvider>
+    <GlobalErrorBoundary>
+      <SafeAreaProvider>
+        <CustomThemeProvider>
+          <SoundPlayer />
+          <MiniPlayer />
+          <Stack
+            screenOptions={{
+                freezeOnBlur: true,
+                contentStyle: {
+                  backgroundColor: colors.background,
+                },
+                animation: 'fade',
+              }}
+            >
+              <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+              <Stack.Screen name="modal" options={{ presentation: "modal" }} />
+              <Stack.Screen name="onboarding" options={{ headerShown: false }} />
+              <Stack.Screen name="about" options={{ headerShown: false }} />
+              <Stack.Screen name="privacy-policy" options={{ headerShown: false }} />
+              <Stack.Screen name="theme-settings" options={{ headerShown: false }} />
+              <Stack.Screen name="backup-settings" options={{ headerShown: false }} />
+              <Stack.Screen name="ai-settings" options={{ headerShown: false }} />
+              <Stack.Screen 
+                name="music-player" 
+                options={{ 
+                  presentation: "modal", 
+                  headerShown: false, 
+                  animation: "slide_from_bottom"
+                }} 
+              />
+              <Stack.Screen 
+                name="playlist-detail" 
+                options={{ 
+                  headerShown: false, 
+                  animation: "slide_from_right"
+                }} 
+              />
+          </Stack>
+          <GlassAlert />
+        </CustomThemeProvider>
+      </SafeAreaProvider>
+    </GlobalErrorBoundary>
   );
 }
 

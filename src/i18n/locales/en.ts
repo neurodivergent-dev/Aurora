@@ -17,6 +17,11 @@ export default {
     update: 'Update',
     create: 'Create',
     language: 'en',
+    errorBoundary: {
+      title: 'Oops! Something Went Wrong',
+      description: 'An unexpected error occurred. You can try restarting the app or try again.',
+      retry: 'Try Again',
+    },
   },
   language: {
     english: 'English',
