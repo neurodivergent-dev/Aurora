@@ -15,7 +15,7 @@ import { ChevronLeft, Music, Play, PlayCircle, Heart } from "lucide-react-native
 import { LinearGradient } from "expo-linear-gradient";
 import Animated, { FadeInDown } from "react-native-reanimated";
 import { router, useLocalSearchParams } from "expo-router";
-import { useMusicStore } from "../store/musicStore";
+import { useMusicStore, Track } from "../store/musicStore";
 import { soundService } from "../services/SoundService";
 import { useTranslation } from "react-i18next";
 import * as Haptics from "expo-haptics";
@@ -49,7 +49,7 @@ export const PlaylistDetailScreen: React.FC = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
   };
 
-  const handlePlayTrack = (track: any) => {
+  const handlePlayTrack = (track: Track) => {
     playFeedback();
     if (currentTrack?.id === track.id && isPlaying) {
       pause();
@@ -68,7 +68,12 @@ export const PlaylistDetailScreen: React.FC = () => {
         colors={[colors.primary, colors.secondary || colors.primary]}
         style={[styles.header, { paddingTop: insets.top + 20 }]}
       >
-        <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
+        <TouchableOpacity 
+          style={styles.backBtn} 
+          onPress={() => router.back()}
+          accessibilityRole="button"
+          accessibilityLabel={t("a11y.goBack")}
+        >
           <ChevronLeft size={28} color="#FFF" />
         </TouchableOpacity>
 
@@ -80,7 +85,7 @@ export const PlaylistDetailScreen: React.FC = () => {
               <Music size={40} color="#FFF" />
             )}
           </View>
-          <Text style={styles.title}>{playlistTitle}</Text>
+          <Text style={styles.title} accessibilityRole="header">{playlistTitle}</Text>
           <Text style={styles.subtitle}>{playlistStats}</Text>
         </View>
       </LinearGradient>
@@ -109,6 +114,10 @@ export const PlaylistDetailScreen: React.FC = () => {
               <TouchableOpacity
                 style={[styles.trackRow, { borderBottomColor: colors.border }]}
                 onPress={() => handlePlayTrack(track)}
+                accessibilityRole="button"
+                accessibilityLabel={t("a11y.trackItem", { title: track.title, artist: track.artist || 'Aurora' })}
+                accessibilityHint={isCurrent && isPlaying ? t("a11y.pauseTrack", { title: track.title }) : t("a11y.playTrack", { title: track.title })}
+                accessibilityState={{ selected: isCurrent }}
               >
                 <View style={[styles.trackIcon, { backgroundColor: isCurrent ? colors.primary + '20' : colors.card }]}>
                   {isCurrent && isPlaying ? (

@@ -11,7 +11,8 @@ import {
   FlatList,
   Alert,
   ScrollView,
-  Image
+  Image,
+  GestureResponderEvent
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import {
@@ -38,7 +39,7 @@ import Animated, {
   useSharedValue,
   withSpring
 } from "react-native-reanimated";
-import { useMusicStore } from "../store/musicStore";
+import { useMusicStore, Track } from "../store/musicStore";
 import { useTheme } from "../components/ThemeProvider";
 import { router } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
@@ -83,7 +84,7 @@ export const MusicPlayerScreen: React.FC = () => {
     };
   });
 
-  const handleSeek = (e: any) => {
+  const handleSeek = (e: GestureResponderEvent) => {
     if (trackWidth > 0 && playbackDuration > 0) {
       const x = e.nativeEvent.locationX;
       const ratio = Math.max(0, Math.min(1, x / trackWidth));
@@ -91,7 +92,7 @@ export const MusicPlayerScreen: React.FC = () => {
     }
   };
 
-  const handleVolumeSeek = (e: any) => {
+  const handleVolumeSeek = (e: GestureResponderEvent) => {
     if (volWidth > 0) {
       const x = e.nativeEvent.locationX;
       const ratio = Math.max(0, Math.min(1, x / volWidth));
@@ -111,7 +112,7 @@ export const MusicPlayerScreen: React.FC = () => {
     }
   };
 
-  const handleDeleteTrack = (track: any) => {
+  const handleDeleteTrack = (track: Track) => {
     setTrackToDelete(track);
     setDeleteTrackAlertVisible(true);
   };
@@ -133,11 +134,21 @@ export const MusicPlayerScreen: React.FC = () => {
         <View style={styles.contentWrapper}>
           {/* Header */}
           <View style={styles.header}>
-            <TouchableOpacity onPress={() => router.back()} style={styles.iconBtn}>
+            <TouchableOpacity 
+              onPress={() => router.back()} 
+              style={styles.iconBtn}
+              accessibilityRole="button"
+              accessibilityLabel={t('a11y.back')}
+            >
               <ChevronDown size={28} color={colors.text} />
             </TouchableOpacity>
-            <Text style={[styles.headerTitle, { color: colors.text }]}>{t('music.nowPlaying')}</Text>
-            <TouchableOpacity onPress={() => setIsLibraryVisible(true)} style={styles.iconBtn}>
+            <Text style={[styles.headerTitle, { color: colors.text }]} accessibilityRole="header">{t('music.nowPlaying')}</Text>
+            <TouchableOpacity 
+              onPress={() => setIsLibraryVisible(true)} 
+              style={styles.iconBtn}
+              accessibilityRole="button"
+              accessibilityLabel={t('a11y.openLibrary')}
+            >
               <List size={24} color={colors.text} />
             </TouchableOpacity>
           </View>
@@ -154,17 +165,27 @@ export const MusicPlayerScreen: React.FC = () => {
                   source={{ uri: currentTrack.artwork }}
                   style={styles.artworkImage}
                   resizeMode="cover"
+                  accessible={true}
+                  accessibilityRole="image"
+                  accessibilityLabel={currentTrack?.title || t('music.unknownTrack')}
                   onLoadStart={() => logger.debug(`Image Load Start: ${currentTrack.artwork}`, 'MusicPlayer')}
                   onLoad={() => logger.debug("Image Load Success", 'MusicPlayer')}
                   onError={(e) => logger.error(`Image Load Error: ${e.nativeEvent.error}`, 'MusicPlayer')}
                 />
               ) : (
-                <LinearGradient
-                  colors={[colors.primary, colors.secondary || colors.primary]}
-                  style={styles.artworkGradient}
+                <View 
+                  accessible={true} 
+                  accessibilityRole="image" 
+                  accessibilityLabel={currentTrack?.title || t('music.unknownTrack')}
+                  style={{ width: '100%', height: '100%' }}
                 >
-                  <Music size={120} color="#FFFFFF" opacity={0.5} />
-                </LinearGradient>
+                  <LinearGradient
+                    colors={[colors.primary, colors.secondary || colors.primary]}
+                    style={styles.artworkGradient}
+                  >
+                    <Music size={120} color="#FFFFFF" opacity={0.5} />
+                  </LinearGradient>
+                </View>
               )}
             </View>
 
@@ -190,6 +211,8 @@ export const MusicPlayerScreen: React.FC = () => {
                 <TouchableOpacity
                   onPress={() => setIsLyricsVisible(true)}
                   style={[styles.lyricsToggle, { backgroundColor: colors.primary + '15' }]}
+                  accessibilityRole="button"
+                  accessibilityLabel={t('a11y.lyrics')}
                 >
                   <FileText size={20} color={colors.primary} />
                 </TouchableOpacity>
@@ -205,6 +228,15 @@ export const MusicPlayerScreen: React.FC = () => {
                 style={styles.progressTrack}
                 onLayout={(e) => setTrackWidth(e.nativeEvent.layout.width)}
                 onPress={handleSeek}
+                accessibilityRole="adjustable"
+                accessibilityLabel={t('a11y.progressPosition', { current: formatTime(playbackPosition), total: formatTime(playbackDuration) })}
+                accessibilityValue={{ min: 0, max: playbackDuration || 100, now: playbackPosition }}
+                accessibilityActions={[{ name: 'increment' }, { name: 'decrement' }]}
+                onAccessibilityAction={(event) => {
+                  const step = playbackDuration * 0.05;
+                  if (event.nativeEvent.actionName === 'increment') seek(Math.min(playbackPosition + step, playbackDuration));
+                  if (event.nativeEvent.actionName === 'decrement') seek(Math.max(playbackPosition - step, 0));
+                }}
               >
                 <View style={styles.trackBackground}>
                   <Animated.View style={[styles.progressFill, progressStyle, { backgroundColor: colors.primary }]} />
@@ -218,17 +250,30 @@ export const MusicPlayerScreen: React.FC = () => {
 
             {/* Main Controls */}
             <View style={styles.mainControls}>
-              <TouchableOpacity onPress={toggleShuffle} style={styles.secondaryBtn}>
+              <TouchableOpacity 
+                onPress={toggleShuffle} 
+                style={styles.secondaryBtn}
+                accessibilityRole="button"
+                accessibilityLabel={isShuffled ? t("a11y.shuffleOff") : t("a11y.shuffleOn")}
+                accessibilityState={{ checked: isShuffled }}
+              >
                 <Shuffle size={24} color={isShuffled ? colors.primary : colors.text} opacity={isShuffled ? 1 : 0.6} />
               </TouchableOpacity>
 
-              <TouchableOpacity onPress={prev} style={styles.primaryBtn}>
+              <TouchableOpacity 
+                onPress={prev} 
+                style={styles.primaryBtn}
+                accessibilityRole="button"
+                accessibilityLabel={t("a11y.previous")}
+              >
                 <SkipBack size={32} color={colors.text} fill={colors.text} />
               </TouchableOpacity>
 
               <TouchableOpacity
                 onPress={isPlaying ? pause : play}
                 style={[styles.playBtn, { backgroundColor: colors.primary }]}
+                accessibilityRole="button"
+                accessibilityLabel={isPlaying ? t('a11y.pause') : t('a11y.play')}
               >
                 {isPlaying ? (
                   <Pause size={40} color="#FFFFFF" fill="#FFFFFF" />
@@ -237,11 +282,22 @@ export const MusicPlayerScreen: React.FC = () => {
                 )}
               </TouchableOpacity>
 
-              <TouchableOpacity onPress={next} style={styles.primaryBtn}>
+              <TouchableOpacity 
+                onPress={next} 
+                style={styles.primaryBtn}
+                accessibilityRole="button"
+                accessibilityLabel={t("a11y.next")}
+              >
                 <SkipForward size={32} color={colors.text} fill={colors.text} />
               </TouchableOpacity>
 
-              <TouchableOpacity onPress={toggleRepeat} style={styles.secondaryBtn}>
+              <TouchableOpacity 
+                onPress={toggleRepeat} 
+                style={styles.secondaryBtn}
+                accessibilityRole="button"
+                accessibilityLabel={isRepeating ? t("a11y.repeatOff") : t("a11y.repeatOn")}
+                accessibilityState={{ checked: isRepeating }}
+              >
                 <Repeat size={24} color={isRepeating ? colors.primary : colors.text} opacity={isRepeating ? 1 : 0.6} />
               </TouchableOpacity>
             </View>
@@ -253,6 +309,14 @@ export const MusicPlayerScreen: React.FC = () => {
                 style={styles.volumeTrackContainer}
                 onLayout={(e) => setVolWidth(e.nativeEvent.layout.width)}
                 onPress={handleVolumeSeek}
+                accessibilityRole="adjustable"
+                accessibilityLabel={t('a11y.volumeLevel', { level: Math.round(volume * 100) })}
+                accessibilityValue={{ min: 0, max: 100, now: Math.round(volume * 100) }}
+                accessibilityActions={[{ name: 'increment' }, { name: 'decrement' }]}
+                onAccessibilityAction={(event) => {
+                  if (event.nativeEvent.actionName === 'increment') setVolume(Math.min(volume + 0.1, 1));
+                  if (event.nativeEvent.actionName === 'decrement') setVolume(Math.max(volume - 0.1, 0));
+                }}
               >
                 <View style={[styles.volumeTrack, { backgroundColor: colors.border }]}>
                   <View style={[styles.volumeFill, { width: `${volume * 100}%`, backgroundColor: colors.primary }]} />
@@ -262,6 +326,8 @@ export const MusicPlayerScreen: React.FC = () => {
               <TouchableOpacity
                 onPress={() => currentTrack && toggleFavorite(currentTrack.id)}
                 style={styles.secondaryBtn}
+                accessibilityRole="button"
+                accessibilityLabel={currentTrack && isFavorite(currentTrack.id) ? t('a11y.favoriteActive') : t('a11y.favorite')}
               >
                 <Heart
                   size={24}
@@ -284,11 +350,16 @@ export const MusicPlayerScreen: React.FC = () => {
         transparent={true}
         onRequestClose={() => setIsLibraryVisible(false)}
       >
-        <View style={styles.modalOverlay}>
+        <View style={styles.modalOverlay} accessibilityViewIsModal={true}>
           <View style={[styles.modalContent, { backgroundColor: colors.card }]}>
             <View style={styles.modalHeader}>
-              <Text style={[styles.modalTitle, { color: colors.text }]}>{t("playlist_screen.musicLibrary")}</Text>
-              <TouchableOpacity onPress={() => setIsLibraryVisible(false)} style={styles.closeBtn}>
+              <Text style={[styles.modalTitle, { color: colors.text }]} accessibilityRole="header">{t("playlist_screen.musicLibrary")}</Text>
+              <TouchableOpacity 
+                onPress={() => setIsLibraryVisible(false)} 
+                style={styles.closeBtn}
+                accessibilityRole="button"
+                accessibilityLabel={t('a11y.close')}
+              >
                 <ChevronDown size={24} color={colors.text} />
               </TouchableOpacity>
             </View>
@@ -296,6 +367,8 @@ export const MusicPlayerScreen: React.FC = () => {
             <TouchableOpacity
               style={[styles.addBtn, { backgroundColor: colors.primary + '20' }]}
               onPress={() => loadLocalMusic()}
+              accessibilityRole="button"
+              accessibilityLabel={t("a11y.addMusic")}
             >
               <Plus size={20} color={colors.primary} />
               <Text style={[styles.addBtnText, { color: colors.primary }]}>{t("playlist_screen.addFromDevice")}</Text>
@@ -318,6 +391,8 @@ export const MusicPlayerScreen: React.FC = () => {
                         play();
                         setIsLibraryVisible(false);
                       }}
+                      accessibilityRole="button"
+                      accessibilityLabel={t("a11y.trackItem", { title: item.title, artist: item.artist || 'Aurora' })}
                     >
                       <View style={[styles.trackIcon, { backgroundColor: isCurrent ? colors.primary : colors.border }]}>
                         <Music size={16} color={isCurrent ? "#FFFFFF" : colors.subText} />
@@ -336,6 +411,8 @@ export const MusicPlayerScreen: React.FC = () => {
                       <TouchableOpacity
                         onPress={() => handleDeleteTrack(item)}
                         style={styles.deleteBtn}
+                        accessibilityRole="button"
+                        accessibilityLabel={t("a11y.deleteTrack")}
                       >
                         <Trash2 size={20} color="#FF4444" opacity={0.7} />
                       </TouchableOpacity>
@@ -360,23 +437,30 @@ export const MusicPlayerScreen: React.FC = () => {
         transparent={true}
         onRequestClose={() => setIsLyricsVisible(false)}
       >
-        <View style={styles.modalOverlay}>
+        <View style={styles.modalOverlay} accessibilityViewIsModal={true}>
           <View style={[styles.modalContent, { backgroundColor: colors.card, height: height * 0.7 }]}>
             <View style={styles.modalHeader}>
               <View>
-                <Text style={[styles.modalTitle, { color: colors.text }]}>{t("playlist_screen.lyrics")}</Text>
-                <Text style={{ color: colors.subText, fontSize: 12 }}>{currentTrack?.title}</Text>
+                <Text style={[styles.modalTitle, { color: colors.text }]} accessibilityRole="header">{t("playlist_screen.lyrics")}</Text>
+                <Text style={{ color: colors.subText, fontSize: 12 }} accessibilityRole="text">{currentTrack?.title}</Text>
               </View>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
                 {currentTrack?.lyrics && (
                   <TouchableOpacity
                     onPress={handleDeleteLyrics}
                     style={styles.closeBtn}
+                    accessibilityRole="button"
+                    accessibilityLabel={t("a11y.delete")}
                   >
                     <Trash2 size={20} color="#FF4444" opacity={0.6} />
                   </TouchableOpacity>
                 )}
-                <TouchableOpacity onPress={() => setIsLyricsVisible(false)} style={styles.closeBtn}>
+                <TouchableOpacity 
+                  onPress={() => setIsLyricsVisible(false)} 
+                  style={styles.closeBtn}
+                  accessibilityRole="button"
+                  accessibilityLabel={t("a11y.close")}
+                >
                   <ChevronDown size={24} color={colors.text} />
                 </TouchableOpacity>
               </View>

@@ -17,7 +17,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import Animated, { FadeInDown, FadeInRight, FadeIn } from "react-native-reanimated";
 import { useTranslation } from "react-i18next";
 import { router } from "expo-router";
-import { useMusicStore } from "../store/musicStore";
+import { useMusicStore, Track, UserPlaylist } from "../store/musicStore";
 import { soundService } from "../services/SoundService";
 import { KeyboardAvoidingView, Platform, Modal } from "react-native";
 
@@ -88,7 +88,7 @@ export const PlaylistsScreen: React.FC = () => {
     });
   }, [activeCategory, playlist]);
 
-  const handlePlayTrack = (track: any) => {
+  const handlePlayTrack = (track: Track) => {
     playFeedback();
     if (currentTrack?.id === track.id && isPlaying) {
       pause();
@@ -125,7 +125,7 @@ export const PlaylistsScreen: React.FC = () => {
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
   };
 
-  const handleEditPlaylist = (list: any) => {
+  const handleEditPlaylist = (list: UserPlaylist) => {
     playFeedback();
     setEditingPlaylistId(list.id);
     setNewPlaylistName(list.name);
@@ -149,7 +149,7 @@ export const PlaylistsScreen: React.FC = () => {
     );
   }, [playlist, searchQuery]);
 
-  const renderTrackItem = ({ item }: { item: any }) => {
+  const renderTrackItem = ({ item }: { item: Track }) => {
     const isSelected = selectedTracks.includes(item.id);
     return (
       <TouchableOpacity
@@ -158,6 +158,9 @@ export const PlaylistsScreen: React.FC = () => {
           { borderColor: isSelected ? colors.primary : colors.border, backgroundColor: isSelected ? colors.primary + '10' : 'transparent' }
         ]}
         onPress={() => toggleTrackSelection(item.id)}
+        accessibilityRole="checkbox"
+        accessibilityState={{ checked: isSelected }}
+        accessibilityLabel={t("a11y.trackItem", { title: item.title, artist: item.artist || 'Aurora' })}
       >
         <View style={styles.trackSelectInfo}>
           <Text style={[styles.trackSelectTitle, { color: colors.text }]} numberOfLines={1}>{item.title}</Text>
@@ -186,7 +189,12 @@ export const PlaylistsScreen: React.FC = () => {
         <Animated.View entering={FadeInDown.delay(100)} style={styles.headerContent}>
           <Text style={styles.headerTitle}>{t("playlist_screen.title")}</Text>
           <View style={styles.headerIcons}>
-            <TouchableOpacity style={styles.iconBtn} onPress={() => { playFeedback(); loadLocalMusic(); }}>
+            <TouchableOpacity 
+              style={styles.iconBtn} 
+              onPress={() => { playFeedback(); loadLocalMusic(); }}
+              accessibilityRole="button"
+              accessibilityLabel={t("a11y.addMusic")}
+            >
               <Plus size={24} color="#FFFFFF" />
             </TouchableOpacity>
           </View>
@@ -201,7 +209,7 @@ export const PlaylistsScreen: React.FC = () => {
         >
           {/* Kategoriler */}
           <Animated.View entering={FadeInRight.delay(200)} style={styles.categoriesWrapper}>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.categoriesList}>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.categoriesList} accessibilityRole="radiogroup">
               {CATEGORY_KEYS.map((cat, index) => {
                 const isActive = activeCategory === cat.key;
                 return (
@@ -215,6 +223,9 @@ export const PlaylistsScreen: React.FC = () => {
                         borderColor: isActive ? colors.primary : colors.border
                       }
                     ]}
+                    accessibilityRole="radio"
+                    accessibilityState={{ checked: isActive }}
+                    accessibilityLabel={t(cat.label)}
                   >
                     <Text style={[styles.categoryText, { color: isActive ? "#FFFFFF" : colors.subText }]}>
                       {t(cat.label)}
@@ -239,7 +250,14 @@ export const PlaylistsScreen: React.FC = () => {
               decelerationRate="fast"
             >
               {featuredTracks.map((track, index) => (
-                <TouchableOpacity key={track.id} activeOpacity={0.8} onPress={() => handlePlayTrack(track)}>
+                <TouchableOpacity 
+                  key={track.id} 
+                  activeOpacity={0.8} 
+                  onPress={() => handlePlayTrack(track)}
+                  accessibilityRole="button"
+                  accessibilityLabel={t("a11y.trackPlaying", { title: track.title, artist: track.artist || 'Aurora' })}
+                  accessibilityHint={currentTrack?.id === track.id && isPlaying ? t("a11y.pauseTrack", { title: track.title }) : t("a11y.playTrack", { title: track.title })}
+                >
                   <LinearGradient
                     colors={favoriteTrackIds.includes(track.id)
                       ? ["#FF416C", "#FF4B2B"] // Favoriler için sexy kırmızı/turuncu gradyan
@@ -289,6 +307,8 @@ export const PlaylistsScreen: React.FC = () => {
                   });
                 }
               }}
+              accessibilityRole="button"
+              accessibilityLabel={`${t("playlist_screen.myFavorites")}, ${favoritesCount} ${t("playlist_screen.track")}`}
             >
               <View style={[styles.libraryIconWrapper, { backgroundColor: "#FF4444" }]}>
                 <Heart size={24} color="#FFF" fill="#FFF" />
@@ -306,6 +326,8 @@ export const PlaylistsScreen: React.FC = () => {
                 playFeedback();
                 router.replace("/");
               }}
+              accessibilityRole="button"
+              accessibilityLabel={`${t("home.playlists")}, ${playlist.length} ${t("tabs.library")}`}
             >
               <View style={[styles.libraryIconWrapper, { backgroundColor: colors.primary }]}>
                 <Flame size={24} color="#FFF" />
@@ -320,6 +342,8 @@ export const PlaylistsScreen: React.FC = () => {
             <TouchableOpacity
               style={[styles.libraryItem, { backgroundColor: colors.card, borderColor: colors.border }]}
               onPress={() => { playFeedback(); loadLocalMusic(); }}
+              accessibilityRole="button"
+              accessibilityLabel={`${t("playlist_screen.localFiles")}, ${t("playlist_screen.localFilesDesc")}`}
             >
               <View style={[styles.libraryIconWrapper, { backgroundColor: colors.secondary || colors.primary }]}>
                 <Music size={24} color="#FFF" />
@@ -343,6 +367,8 @@ export const PlaylistsScreen: React.FC = () => {
                       params: { id: list.id }
                     });
                   }}
+                  accessibilityRole="button"
+                  accessibilityLabel={`${list.name}, ${list.trackIds.length} ${t("playlist_screen.track")}`}
                 >
                   <View style={[styles.libraryIconWrapper, { backgroundColor: colors.primary + '30' }]}>
                     <Music size={24} color={colors.primary} />
@@ -353,10 +379,20 @@ export const PlaylistsScreen: React.FC = () => {
                   </View>
                 </TouchableOpacity>
                 <View style={styles.libraryItemActions}>
-                  <TouchableOpacity onPress={() => handleEditPlaylist(list)} style={styles.actionBtn}>
+                  <TouchableOpacity 
+                    onPress={() => handleEditPlaylist(list)} 
+                    style={styles.actionBtn}
+                    accessibilityRole="button"
+                    accessibilityLabel={t("a11y.edit")}
+                  >
                     <Edit2 size={18} color={colors.subText} />
                   </TouchableOpacity>
-                  <TouchableOpacity onPress={() => handleDeletePlaylist(list.id)} style={styles.actionBtn}>
+                  <TouchableOpacity 
+                    onPress={() => handleDeletePlaylist(list.id)} 
+                    style={styles.actionBtn}
+                    accessibilityRole="button"
+                    accessibilityLabel={t("a11y.delete")}
+                  >
                     <Trash2 size={18} color="#FF6B6B" />
                   </TouchableOpacity>
                 </View>
@@ -368,6 +404,8 @@ export const PlaylistsScreen: React.FC = () => {
           <TouchableOpacity
             style={[styles.createNewBtn, { borderColor: colors.primary, marginHorizontal: 20, marginTop: 20 }]}
             onPress={() => { playFeedback(); setIsModalVisible(true); }}
+            accessibilityRole="button"
+            accessibilityLabel={t("playlist_screen.newList")}
           >
             <Plus size={20} color={colors.primary} />
             <Text style={[styles.createNewText, { color: colors.primary }]}>{t("playlist_screen.newList")}</Text>
@@ -381,7 +419,7 @@ export const PlaylistsScreen: React.FC = () => {
         animationType="fade"
         onRequestClose={() => { setIsModalVisible(false); setEditingPlaylistId(null); }}
       >
-        <View style={styles.modalOverlay}>
+        <View style={styles.modalOverlay} accessibilityViewIsModal={true}>
           <TouchableOpacity
             activeOpacity={1}
             style={StyleSheet.absoluteFill}
@@ -403,6 +441,7 @@ export const PlaylistsScreen: React.FC = () => {
                   placeholderTextColor={colors.subText}
                   value={newPlaylistName}
                   onChangeText={setNewPlaylistName}
+                  accessibilityLabel={t("playlist_screen.enterListName")}
                 />
               </View>
 
@@ -416,6 +455,7 @@ export const PlaylistsScreen: React.FC = () => {
                   placeholderTextColor={colors.subText}
                   value={searchQuery}
                   onChangeText={setSearchQuery}
+                  accessibilityLabel={t("a11y.searchInput")}
                 />
               </View>
 
@@ -438,6 +478,8 @@ export const PlaylistsScreen: React.FC = () => {
                 <TouchableOpacity
                   style={[styles.modalBtn, { backgroundColor: colors.border }]}
                   onPress={() => { setIsModalVisible(false); setEditingPlaylistId(null); setSelectedTracks([]); }}
+                  accessibilityRole="button"
+                  accessibilityLabel={t("common.cancel")}
                 >
                   <Text style={{ color: colors.subText, fontWeight: "600" }}>{t("common.cancel")}</Text>
                 </TouchableOpacity>
@@ -445,6 +487,8 @@ export const PlaylistsScreen: React.FC = () => {
                   style={[styles.modalBtn, { backgroundColor: colors.primary, opacity: newPlaylistName.trim() ? 1 : 0.5 }]}
                   onPress={handleCreatePlaylist}
                   disabled={!newPlaylistName.trim()}
+                  accessibilityRole="button"
+                  accessibilityLabel={editingPlaylistId ? t("common.update") : t("common.create")}
                 >
                   <Text style={{ color: "#FFF", fontWeight: "700" }}>
                     {editingPlaylistId ? t("common.update") : t("common.create")}
