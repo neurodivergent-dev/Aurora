@@ -11,6 +11,8 @@ export const handleSetDarkMode = (cleanResponse: string, match: AIAction): { new
   const data = parseActionData(match.data) as { isDark?: boolean } | null;
   
   if (data && typeof data.isDark === 'boolean') {
+    const mode = data.isDark ? 'dark' : 'light';
+    useThemeStore.getState().setThemeMode(mode);
     setIsDarkMode(data.isDark);
     const newResponse = cleanResponse.replace(match.fullMatch, '').split('\n').filter(line => line.trim() !== '').join('\n').trim();
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);

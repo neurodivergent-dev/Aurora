@@ -12,6 +12,9 @@ export const handleSetAppTheme = (cleanResponse: string, match: AIAction): { new
   
   if (data && data.themeId) {
     setThemeId(data.themeId.toLowerCase());
+    // All premium themes are designed for dark mode, so toggle it too for sync
+    useThemeStore.getState().setIsDarkMode(true); 
+    useThemeStore.getState().setThemeMode('dark');
     const newResponse = cleanResponse.replace(match.fullMatch, '').split('\n').filter(line => line.trim() !== '').join('\n').trim();
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     return { newResponse, changed: true };
