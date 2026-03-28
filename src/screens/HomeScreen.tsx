@@ -14,7 +14,7 @@ import Animated, { FadeInDown } from "react-native-reanimated";
 import { LinearGradient } from "expo-linear-gradient";
 import { useMusicStore } from "../store/musicStore";
 import { useTheme } from "../components/ThemeProvider";
-import { BackgroundEffects } from "../components/BackgroundEffects";
+import { BackgroundEffects } from "../components/BackgroundEffects/";
 import { router } from "expo-router";
 import { useTranslation } from "react-i18next";
 

@@ -44,7 +44,7 @@ import { useTheme } from "../components/ThemeProvider";
 import { router } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
 import { useTranslation } from "react-i18next";
-import { BackgroundEffects } from "../components/BackgroundEffects";
+import { BackgroundEffects } from "../components/BackgroundEffects/";
 import TextTicker from 'react-native-text-ticker';
 
 import { CustomAlert } from "../components/CustomAlert";

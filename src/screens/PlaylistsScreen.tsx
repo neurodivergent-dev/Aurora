@@ -11,7 +11,7 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useTheme } from "../components/ThemeProvider";
-import { BackgroundEffects } from "../components/BackgroundEffects";
+import { BackgroundEffects } from "../components/BackgroundEffects/";
 import { Search, Plus, PlayCircle, Music, Headphones, Flame, RefreshCw, ChevronRight, Trash2, Edit2, Heart } from "lucide-react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import Animated, { FadeInDown, FadeInRight, FadeIn } from "react-native-reanimated";

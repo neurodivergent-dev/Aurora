@@ -10,7 +10,7 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useTheme } from "../components/ThemeProvider";
-import { BackgroundEffects } from "../components/BackgroundEffects";
+import { BackgroundEffects } from "../components/BackgroundEffects/";
 import { ChevronLeft, Music, Play, PlayCircle, Heart } from "lucide-react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import Animated, { FadeInDown } from "react-native-reanimated";

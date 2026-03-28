@@ -20,7 +20,7 @@ import { useOllamaStore } from '../../store/ollamaStore';
 import { useTheme } from '../../components/ThemeProvider';
 import { MarkdownText } from '../../components/MarkdownText';
 import { CustomAlert } from '../../components/CustomAlert';
-import { BackgroundEffects } from '../../components/BackgroundEffects';
+import { BackgroundEffects } from '../../components/BackgroundEffects/';
 import * as Haptics from 'expo-haptics';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Clipboard from 'expo-clipboard';
