@@ -3,12 +3,12 @@ import { View, TouchableOpacity } from 'react-native';
 import { User, Bot, CheckCircle2, Circle } from 'lucide-react-native';
 import Animated, { FadeInUp, FadeInDown } from 'react-native-reanimated';
 import { MarkdownText } from '../../../components/MarkdownText';
-import { ChatMessage } from '../../../types/chat';
+import { ChatMessage, ThemeColors } from '../../../types/chat';
 import { styles } from '../styles';
 
 interface MessageBubbleProps {
   item: ChatMessage;
-  colors: any;
+  colors: ThemeColors;
   isDarkMode: boolean;
   isSelectionMode: boolean;
   isSelected: boolean;

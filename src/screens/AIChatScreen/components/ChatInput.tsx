@@ -3,9 +3,10 @@ import { View, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
 import { Send } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
 import { styles } from '../styles';
+import { ThemeColors } from '../../../types/chat';
 
 interface ChatInputProps {
-  colors: any;
+  colors: ThemeColors;
   isDarkMode: boolean;
   inputText: string;
   setInputText: (text: string) => void;

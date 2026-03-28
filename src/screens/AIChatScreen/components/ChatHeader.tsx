@@ -4,9 +4,10 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { X, CheckCheck, Copy, Trash2, Sparkles } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
 import { styles } from '../styles';
+import { ThemeColors } from '../../../types/chat';
 
 interface ChatHeaderProps {
-  colors: any;
+  colors: ThemeColors;
   isSelectionMode: boolean;
   selectedCount: number;
   insets: { top: number };

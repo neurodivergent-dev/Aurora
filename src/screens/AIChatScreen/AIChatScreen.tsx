@@ -31,8 +31,9 @@ import { useVoiceInput } from './hooks/useVoiceInput';
 import { useSpeechOutput } from './hooks/useSpeechOutput';
 import { useThemeStore } from '../../store/themeStore';
 import { soundService } from '../../services/SoundService';
+import { ThemeColors } from '../../types/chat';
 
-const TypingIndicator = ({ colors, isDarkMode }: { colors: any, isDarkMode: boolean }) => {
+const TypingIndicator = ({ colors, isDarkMode }: { colors: ThemeColors, isDarkMode: boolean }) => {
   const { t } = useTranslation();
 
   const Dot = ({ delay }: { delay: number }) => {
@@ -67,6 +68,9 @@ const TypingIndicator = ({ colors, isDarkMode }: { colors: any, isDarkMode: bool
           borderColor: colors.primary + '30'
         }
       ]}
+      accessible={true}
+      accessibilityRole="text"
+      accessibilityLabel={t('settings.ai.chat.typing')}
     >
       <View style={styles.typingDotsRow}>
         <Dot delay={0} />
@@ -273,7 +277,13 @@ const AIChatScreen = () => {
         ]}
       >
         {isSelectionMode && item.id !== 'welcome' && (
-          <TouchableOpacity onPress={() => toggleSelection(item.id)} style={styles.selectionCircle}>
+          <TouchableOpacity 
+            onPress={() => toggleSelection(item.id)} 
+            style={styles.selectionCircle}
+            accessibilityRole="checkbox"
+            accessibilityState={{ checked: isSelected }}
+            accessibilityLabel={t('a11y.selectMessage')}
+          >
             {isSelected ? (
               <CheckCircle2 size={22} color={colors.primary} fill={colors.primary + '20'} />
             ) : (
@@ -309,6 +319,8 @@ const AIChatScreen = () => {
                 },
                 isSelectionMode && { maxWidth: '85%' }
               ]}
+              accessibilityRole={isSelectionMode ? "button" : "text"}
+              accessibilityLabel={item.text}
             >
               <MarkdownText
                 content={item.text}
@@ -322,6 +334,8 @@ const AIChatScreen = () => {
                 onPress={() => isCurrentlySpeaking ? stopSpeaking() : speakText(item.text, item.id)}
                 style={[styles.speakerButton, { backgroundColor: isCurrentlySpeaking ? colors.primary + '20' : 'transparent' }]}
                 hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                accessibilityRole="button"
+                accessibilityLabel={isCurrentlySpeaking ? t('a11y.stopResponse') : t('a11y.playResponse')}
               >
                 {isCurrentlySpeaking ? (
                   <VolumeX size={14} color={colors.primary} />
@@ -380,7 +394,12 @@ const AIChatScreen = () => {
               {isSelectionMode ? (
                 <>
                   <View style={styles.headerTitleContainer}>
-                    <TouchableOpacity onPress={clearSelection} style={styles.clearSelectionButton}>
+                    <TouchableOpacity 
+                      onPress={clearSelection} 
+                      style={styles.clearSelectionButton}
+                      accessibilityRole="button"
+                      accessibilityLabel={t('a11y.close')}
+                    >
                       <X size={20} color={colors.text} />
                     </TouchableOpacity>
                     <Text style={[styles.headerTitle, { color: colors.text }]}>
@@ -388,13 +407,28 @@ const AIChatScreen = () => {
                     </Text>
                   </View>
                   <View style={styles.headerSelectionActions}>
-                    <TouchableOpacity onPress={handleSelectAll} style={styles.selectionActionButton}>
+                    <TouchableOpacity 
+                      onPress={handleSelectAll} 
+                      style={styles.selectionActionButton}
+                      accessibilityRole="button"
+                      accessibilityLabel={t('a11y.selectAll')}
+                    >
                       <CheckCheck size={20} color={colors.primary} />
                     </TouchableOpacity>
-                    <TouchableOpacity onPress={handleCopySelected} style={styles.selectionActionButton}>
+                    <TouchableOpacity 
+                      onPress={handleCopySelected} 
+                      style={styles.selectionActionButton}
+                      accessibilityRole="button"
+                      accessibilityLabel={t('a11y.copy')}
+                    >
                       <Copy size={20} color={colors.primary} />
                     </TouchableOpacity>
-                    <TouchableOpacity onPress={() => setDeleteAlertVisible(true)} style={styles.selectionActionButton}>
+                    <TouchableOpacity 
+                      onPress={() => setDeleteAlertVisible(true)} 
+                      style={styles.selectionActionButton}
+                      accessibilityRole="button"
+                      accessibilityLabel={t('a11y.delete')}
+                    >
                       <Trash2 size={20} color={colors.error} />
                     </TouchableOpacity>
                   </View>
@@ -413,6 +447,9 @@ const AIChatScreen = () => {
                         style={styles.activeModelChip} 
                         onPress={() => setShowModelSelector(!showModelSelector)}
                         activeOpacity={0.7}
+                        accessibilityRole="button"
+                        accessibilityLabel={t('a11y.modelSelector')}
+                        accessibilityState={{ expanded: showModelSelector }}
                       >
                         {activeProvider === 'gemini' ? (
                           <Sparkles size={12} color="#FFFFFF" />
@@ -435,6 +472,9 @@ const AIChatScreen = () => {
                           <TouchableOpacity
                             style={[styles.modelSelectorOption, { backgroundColor: activeProvider === 'gemini' ? colors.primary + '30' : 'transparent' }]}
                             onPress={() => handleModelChange('gemini')}
+                            accessibilityRole="button"
+                            accessibilityState={{ selected: activeProvider === 'gemini' }}
+                            accessibilityLabel="Gemini 2.5 Flash"
                           >
                             <Sparkles size={16} color={activeProvider === 'gemini' ? '#FFFFFF' : 'rgba(255,255,255,0.7)'} />
                             <Text style={[styles.modelSelectorText, { color: activeProvider === 'gemini' ? '#FFFFFF' : 'rgba(255,255,255,0.7)' }]}>
@@ -446,6 +486,9 @@ const AIChatScreen = () => {
                           <TouchableOpacity
                             style={[styles.modelSelectorOption, { backgroundColor: activeProvider === 'groq' ? colors.primary + '30' : 'transparent' }]}
                             onPress={() => handleModelChange('groq')}
+                            accessibilityRole="button"
+                            accessibilityState={{ selected: activeProvider === 'groq' }}
+                            accessibilityLabel={groqModel}
                           >
                             <Cloud size={16} color={activeProvider === 'groq' ? '#FFFFFF' : 'rgba(255,255,255,0.7)'} />
                             <Text style={[styles.modelSelectorText, { color: activeProvider === 'groq' ? '#FFFFFF' : 'rgba(255,255,255,0.7)' }]}>
@@ -457,6 +500,9 @@ const AIChatScreen = () => {
                           <TouchableOpacity
                             style={[styles.modelSelectorOption, { backgroundColor: activeProvider === 'ollama' ? colors.primary + '30' : 'transparent' }]}
                             onPress={() => handleModelChange('ollama')}
+                            accessibilityRole="button"
+                            accessibilityState={{ selected: activeProvider === 'ollama' }}
+                            accessibilityLabel={`${ollamaModel} ${ollamaCloudMode ? '(Cloud)' : '(Ollama)'}`}
                           >
                             <BrainCircuit size={16} color={activeProvider === 'ollama' ? '#FFFFFF' : 'rgba(255,255,255,0.7)'} />
                             <Text style={[styles.modelSelectorText, { color: activeProvider === 'ollama' ? '#FFFFFF' : 'rgba(255,255,255,0.7)' }]}>
@@ -468,7 +514,12 @@ const AIChatScreen = () => {
                       </View>
                     )}
                   </View>
-                  <TouchableOpacity onPress={clearChat} style={styles.clearButton}>
+                  <TouchableOpacity 
+                    onPress={clearChat} 
+                    style={styles.clearButton}
+                    accessibilityRole="button"
+                    accessibilityLabel={t('a11y.clearChat')}
+                  >
                     <View style={styles.clearButtonInner}>
                       <Trash2 size={18} color="#FFFFFF" />
                     </View>
@@ -506,7 +557,12 @@ const AIChatScreen = () => {
 
               {showScrollToBottom && (
                 <Animated.View entering={FadeInDown.duration(200)} exiting={FadeInDown.duration(200)} style={styles.scrollToBottomContainer}>
-                  <TouchableOpacity onPress={scrollToBottom} style={[styles.scrollToBottomButton, { backgroundColor: colors.card }]}>
+                  <TouchableOpacity 
+                    onPress={scrollToBottom} 
+                    style={[styles.scrollToBottomButton, { backgroundColor: colors.card }]}
+                    accessibilityRole="button"
+                    accessibilityLabel={t('a11y.scrollToBottom')}
+                  >
                     <ChevronDown size={20} color={colors.primary} />
                   </TouchableOpacity>
                 </Animated.View>
@@ -535,6 +591,9 @@ const AIChatScreen = () => {
                     onPress={handleMicPress}
                     disabled={isLoading || isProcessing}
                     style={[styles.micButton, isRecording && styles.micButtonActive, isRecording && { backgroundColor: '#EF4444' + '20' }]}
+                    accessibilityRole="button"
+                    accessibilityLabel={isRecording ? t('a11y.stopRecording') : t('a11y.startVoiceChat')}
+                    accessibilityState={{ selected: isRecording }}
                   >
                     {isRecording ? (
                       <MicOff size={20} color="#EF4444" />
@@ -550,11 +609,14 @@ const AIChatScreen = () => {
                     onChangeText={setInputText}
                     multiline
                     editable={!isRecording}
+                    accessibilityLabel={t('a11y.chatInput')}
                   />
                   <TouchableOpacity
                     onPress={() => handleSend(inputText, setInputText, chatSoundsEnabled, chatSoundType)}
                     disabled={!inputText.trim() || isLoading}
                     style={[styles.sendButton, { backgroundColor: inputText.trim() && !isLoading ? colors.primary : colors.subText + '20' }]}
+                    accessibilityRole="button"
+                    accessibilityLabel={t('a11y.sendMessage')}
                   >
                     <Send size={18} color="#FFFFFF" />
                   </TouchableOpacity>
