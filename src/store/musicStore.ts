@@ -80,6 +80,7 @@ interface MusicState {
   hideAlert: () => void;
   loadLocalMusic: () => Promise<void>;
   removeLocalTrack: (id: string) => void;
+  removeLocalTracks: (ids: string[]) => void;
   setIsPlaying: (isPlaying: boolean) => void;
   setCurrentTrack: (track: Track | null) => void;
   setPlaylist: (tracks: Track[]) => void;
@@ -98,6 +99,12 @@ interface MusicState {
   setTrackLyrics: (id: string, lyrics: string) => void;
   setTrackArtwork: (id: string, imageUrl: string) => void;
   clearAllLyrics: () => void;
+
+  // Selection Actions
+  selectedTrackIds: string[];
+  setSelectedTrackIds: (ids: string[]) => void;
+  clearSelection: () => void;
+  playSelectedTracks: () => void;
 
   // Controls
   play: () => void;
@@ -123,6 +130,24 @@ export const useMusicStore = create<MusicState>()(
       seekPosition: null,
       isShuffled: false,
       isRepeating: false,
+      selectedTrackIds: [] as string[],
+
+      setSelectedTrackIds: (ids) => set({ selectedTrackIds: ids }),
+      clearSelection: () => set({ selectedTrackIds: [] }),
+      
+      playSelectedTracks: () => {
+        const { selectedTrackIds, playlist } = get();
+        if (selectedTrackIds.length === 0) return;
+        
+        const tracksToPlay = playlist.filter(t => selectedTrackIds.includes(t.id));
+        if (tracksToPlay.length > 0) {
+          set({ 
+            currentTrack: tracksToPlay[0], 
+            isPlaying: true,
+            selectedTrackIds: [] 
+          });
+        }
+      },
 
       setIsPlaying: (isPlaying) => set({ isPlaying }),
       setCurrentTrack: (track) => set({ currentTrack: track }),
@@ -232,6 +257,14 @@ export const useMusicStore = create<MusicState>()(
 
       removeLocalTrack: (id) => set((state) => {
         const newLocalTracks = state.localTracks.filter(t => t.id !== id);
+        return {
+          localTracks: newLocalTracks,
+          playlist: [...DEFAULT_TRACKS, ...newLocalTracks],
+        };
+      }),
+
+      removeLocalTracks: (ids) => set((state) => {
+        const newLocalTracks = state.localTracks.filter(t => !ids.includes(t.id));
         return {
           localTracks: newLocalTracks,
           playlist: [...DEFAULT_TRACKS, ...newLocalTracks],

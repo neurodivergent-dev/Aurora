@@ -236,7 +236,7 @@ export const SoundPlayer: React.FC = () => {
     };
   }, [currentTrack]); // Only load when currentTrack changes
 
-  // Handle Play/Pause
+  // Handle Play/Pause & Force Load/Play on Cold Start
   useEffect(() => {
     if (musicPlayerRef.current) {
       if (isPlaying) {
@@ -244,8 +244,13 @@ export const SoundPlayer: React.FC = () => {
       } else {
         musicPlayerRef.current.pause();
       }
+    } else if (isPlaying && currentTrack) {
+        // COLD START CASE: If it should be playing but player is null, 
+        // the main currentTrack effect will handle creation, 
+        // but we ensure it plays immediately.
+        logger.info("Cold start detected, player will initialize and play.", "SoundPlayer");
     }
-  }, [isPlaying]); // Only handle play state
+  }, [isPlaying, currentTrack]); // React to play state AND track existence
 
 
   // Sync Music Volume

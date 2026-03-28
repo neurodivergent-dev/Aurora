@@ -3,26 +3,32 @@ import {
   StyleSheet,
   View,
   Text,
-  SafeAreaView,
   ScrollView,
   TouchableOpacity,
   TextInput,
 } from "react-native";
-import { Play, Shuffle, Search, Music, Pause, RefreshCw } from "lucide-react-native";
+import { Play, Shuffle, Search, Music } from "lucide-react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Animated, { FadeInDown } from "react-native-reanimated";
 import { LinearGradient } from "expo-linear-gradient";
 import { useMusicStore } from "../store/musicStore";
 import { useTheme } from "../components/ThemeProvider";
 import { BackgroundEffects } from "../components/BackgroundEffects/";
-import { router } from "expo-router";
 import { useTranslation } from "react-i18next";
+import * as Haptics from "expo-haptics";
+
+import { TrackItem } from "../components/TrackItem";
 
 export const HomeScreen: React.FC = () => {
   const insets = useSafeAreaInsets();
   const { colors } = useTheme();
   const { t } = useTranslation();
-  const { playlist, currentTrack, isPlaying, play, pause, setCurrentTrack, isShuffled, toggleShuffle } = useMusicStore();
+  const { 
+    playlist, currentTrack, isPlaying, play, pause, 
+    setCurrentTrack, isShuffled, toggleShuffle,
+    selectedTrackIds, setSelectedTrackIds
+  } = useMusicStore();
+  
   const [searchQuery, setSearchQuery] = useState("");
   const [isSearchVisible, setIsSearchVisible] = useState(false);
 
@@ -30,6 +36,34 @@ export const HomeScreen: React.FC = () => {
     track.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
     (track.artist && track.artist.toLowerCase().includes(searchQuery.toLowerCase()))
   );
+
+  const handleLongPress = (track: any) => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    if (!selectedTrackIds.includes(track.id)) {
+      setSelectedTrackIds([...selectedTrackIds, track.id]);
+    }
+  };
+
+  const handlePress = (track: any) => {
+    if (selectedTrackIds.length > 0) {
+      // Selection mode is active
+      Haptics.selectionAsync();
+      if (selectedTrackIds.includes(track.id)) {
+        setSelectedTrackIds(selectedTrackIds.filter(id => id !== track.id));
+      } else {
+        setSelectedTrackIds([...selectedTrackIds, track.id]);
+      }
+    } else {
+      // Normal playback mode
+      const isSelected = currentTrack?.id === track.id;
+      if (isSelected && isPlaying) {
+        pause();
+      } else {
+        setCurrentTrack(track);
+        play();
+      }
+    }
+  };
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
@@ -49,16 +83,13 @@ export const HomeScreen: React.FC = () => {
           <View style={styles.headerContent}>
             <Text style={styles.headerTitle}>{t("home.library")}</Text>
             <View style={styles.headerActions}>
-
               <TouchableOpacity
                 style={[styles.iconBtn, isSearchVisible && { backgroundColor: 'rgba(255, 255, 255, 0.2)' }]}
                 onPress={() => {
                   setIsSearchVisible(!isSearchVisible);
-                  if (isSearchVisible) setSearchQuery(""); // Kapanınca aramayı temizle
+                  if (isSearchVisible) setSearchQuery("");
                 }}
                 accessibilityRole="button"
-                accessibilityLabel={isSearchVisible ? t('a11y.close') : t('a11y.toggleSearch')}
-                accessibilityState={{ expanded: isSearchVisible }}
               >
                 <Search size={24} color="#FFFFFF" />
               </TouchableOpacity>
@@ -74,7 +105,6 @@ export const HomeScreen: React.FC = () => {
                 value={searchQuery}
                 onChangeText={setSearchQuery}
                 autoFocus
-                accessibilityLabel={t("a11y.searchInput")}
               />
             </Animated.View>
           )}
@@ -97,8 +127,6 @@ export const HomeScreen: React.FC = () => {
                   play();
                 }
               }}
-              accessibilityRole="button"
-              accessibilityLabel={t("a11y.playAll")}
             >
               <Play size={24} color="#FFFFFF" fill="#FFFFFF" style={{ marginLeft: 4 }} />
             </TouchableOpacity>
@@ -114,9 +142,6 @@ export const HomeScreen: React.FC = () => {
               onPress={() => {
                 toggleShuffle();
               }}
-              accessibilityRole="button"
-              accessibilityLabel={isShuffled ? t("a11y.shuffleOff") : t("a11y.shuffleOn")}
-              accessibilityState={{ checked: isShuffled }}
             >
               <Shuffle size={20} color={isShuffled ? colors.primary : colors.text} />
               <Text style={[styles.actionText, { color: isShuffled ? colors.primary : colors.text }]}>{t("home.shuffle")}</Text>
@@ -125,8 +150,6 @@ export const HomeScreen: React.FC = () => {
             <TouchableOpacity
               style={[styles.actionBtn, { backgroundColor: colors.card, borderColor: colors.border, borderWidth: 1 }]}
               onPress={() => useMusicStore.getState().loadLocalMusic()}
-              accessibilityRole="button"
-              accessibilityLabel={t("a11y.addMusic")}
             >
               <Music size={20} color={colors.primary} />
               <Text style={[styles.actionText, { color: colors.text }]}>{t("home.addLocalMusic")}</Text>
@@ -139,40 +162,19 @@ export const HomeScreen: React.FC = () => {
           <View style={styles.listContainer}>
             {filteredPlaylist.map((item, index) => {
               const isSelected = currentTrack?.id === item.id;
+              const isActionsSelected = selectedTrackIds.includes(item.id);
+              
               return (
-                <Animated.View key={item.id} entering={FadeInDown.delay(200 + index * 50)}>
-                  <TouchableOpacity
-                    style={[styles.trackItem, isSelected && { backgroundColor: colors.primary + '20' }]}
-                    onPress={() => {
-                      if (isSelected && isPlaying) {
-                        pause();
-                      } else {
-                        setCurrentTrack(item);
-                        play();
-                      }
-                    }}
-                    accessibilityRole="button"
-                    accessibilityLabel={isSelected && isPlaying ? t("a11y.trackPlaying", { title: item.title, artist: item.artist || 'Aurora' }) : t("a11y.trackItem", { title: item.title, artist: item.artist || 'Aurora' })}
-                    accessibilityHint={isSelected && isPlaying ? t("a11y.pauseTrack", { title: item.title }) : t("a11y.playTrack", { title: item.title })}
-                  >
-                    <View style={[styles.trackIcon, { backgroundColor: colors.card, borderColor: colors.border, borderWidth: 1 }]}>
-                      {isSelected && isPlaying ? (
-                        <Pause size={20} color={colors.primary} fill={colors.primary} />
-                      ) : (
-                        <Music size={20} color={isSelected ? colors.primary : colors.text} />
-                      )}
-                    </View>
-
-                    <View style={styles.trackInfo}>
-                      <Text style={[styles.trackTitle, { color: isSelected ? colors.primary : colors.text }]} numberOfLines={1}>
-                        {item.title}
-                      </Text>
-                      <Text style={[styles.trackArtist, { color: colors.subText }]} numberOfLines={1}>
-                        {item.artist}
-                      </Text>
-                    </View>
-                  </TouchableOpacity>
-                </Animated.View>
+                <TrackItem 
+                  key={item.id}
+                  item={item}
+                  index={index}
+                  isSelected={isSelected}
+                  isPlaying={isPlaying}
+                  isActionsSelected={isActionsSelected}
+                  onPress={() => handlePress(item)}
+                  onLongPress={() => handleLongPress(item)}
+                />
               );
             })}
 
@@ -182,8 +184,8 @@ export const HomeScreen: React.FC = () => {
               </View>
             )}
 
-            {/* Added padding for bottom to avoid MiniPlayer overlap */}
-            <View style={{ height: 100 }} />
+            {/* Standard padding for MiniPlayer / Action Bar */}
+            <View style={{ height: 120 }} />
           </View>
         </ScrollView>
       </View>
@@ -219,137 +221,125 @@ const styles = StyleSheet.create({
     width: 140,
     height: 140,
     borderRadius: 70,
-    backgroundColor: 'rgba(255, 255, 255, 0.15)',
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
   },
   headerDecorationCircle2: {
     position: 'absolute',
     bottom: -30,
-    left: -40,
+    left: -20,
     width: 100,
     height: 100,
     borderRadius: 50,
-    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
   },
   headerContent: {
     flexDirection: 'row',
-    alignItems: 'center',
     justifyContent: 'space-between',
+    alignItems: 'center',
     zIndex: 1,
   },
   headerTitle: {
-    color: "#FFFFFF",
-    fontSize: 32,
-    fontWeight: "800",
+    fontSize: 28,
+    fontWeight: '900',
+    color: '#FFFFFF',
     letterSpacing: -0.5,
   },
   headerActions: {
-    flexDirection: "row",
-    gap: 15,
+    flexDirection: 'row',
+    gap: 12,
   },
   iconBtn: {
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: 'rgba(255,255,255,0.05)',
-    justifyContent: "center",
-    alignItems: "center",
+    backgroundColor: 'rgba(255, 255, 255, 0.15)',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   searchInput: {
-    height: 46,
-    borderRadius: 23,
+    height: 50,
+    borderRadius: 15,
     paddingHorizontal: 20,
     fontSize: 16,
-    fontWeight: "500",
+    zIndex: 1,
   },
   heroCard: {
+    flexDirection: 'row',
     borderRadius: 24,
     padding: 24,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
+    alignItems: 'center',
+    justifyContent: 'space-between',
     marginBottom: 20,
+    marginTop: 10,
+    elevation: 4,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
   },
   heroInfo: {
     flex: 1,
   },
   heroLabel: {
     fontSize: 12,
-    fontWeight: "700",
-    letterSpacing: 1,
-    marginBottom: 8,
+    fontWeight: '800',
+    letterSpacing: 1.5,
+    marginBottom: 4,
   },
   heroTitle: {
-    fontSize: 24,
-    fontWeight: "700",
+    fontSize: 22,
+    fontWeight: '800',
     marginBottom: 4,
   },
   heroSubtitle: {
     fontSize: 14,
+    opacity: 0.8,
   },
   playBtn: {
     width: 56,
     height: 56,
     borderRadius: 28,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
+    elevation: 6,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.3,
+    shadowRadius: 5,
   },
   actionRow: {
-    flexDirection: "row",
+    flexDirection: 'row',
     gap: 12,
-    marginBottom: 30,
+    marginBottom: 24,
   },
   actionBtn: {
     flex: 1,
-    height: 50,
-    borderRadius: 16,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 8,
+    flexDirection: 'row',
+    height: 54,
+    borderRadius: 18,
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 10,
   },
   actionText: {
     fontSize: 15,
-    fontWeight: "600",
+    fontWeight: '700',
   },
   sectionTitle: {
     fontSize: 20,
-    fontWeight: "700",
+    fontWeight: '800',
     marginBottom: 16,
+    paddingHorizontal: 4,
   },
   listContainer: {
-    gap: 8,
-  },
-  trackItem: {
-    flexDirection: "row",
-    alignItems: "center",
-    padding: 12,
-    borderRadius: 16,
-  },
-  trackIcon: {
-    width: 48,
-    height: 48,
-    borderRadius: 12,
-    justifyContent: "center",
-    alignItems: "center",
-    marginRight: 16,
-  },
-  trackInfo: {
-    flex: 1,
-    justifyContent: "center",
-  },
-  trackTitle: {
-    fontSize: 16,
-    fontWeight: "600",
-    marginBottom: 4,
-  },
-  trackArtist: {
-    fontSize: 13,
+    gap: 0,
   },
   emptyState: {
     padding: 40,
-    alignItems: "center",
+    alignItems: 'center',
   },
   emptyText: {
     fontSize: 16,
+    opacity: 0.6,
   }
 });

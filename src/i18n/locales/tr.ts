@@ -63,6 +63,10 @@ export default {
       default: 'Selam',
     },
     shuffle: 'Karıştır',
+    deleteTrackTitle: 'Şarkıyı Sil',
+    deleteTrackConfirm: 'Bu şarkıyı kütüphanenden kalıcı olarak silmek istediğine emin misin?',
+    deleteSuccess: 'Şarkı silindi',
+    cannotDeleteDefault: 'Varsayılan şarkılar silinemez',
     addGoalDescription: 'Aşağıdaki butonu kullanarak hedefinizi ekleyin',
   },
   settings: {

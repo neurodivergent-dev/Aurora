@@ -63,6 +63,10 @@ export default {
       default: 'Hello',
     },
     shuffle: 'Shuffle',
+    deleteTrackTitle: 'Delete Track',
+    deleteTrackConfirm: 'Are you sure you want to delete this track from your library?',
+    deleteSuccess: 'Track deleted',
+    cannotDeleteDefault: 'Default tracks cannot be deleted',
     addGoalDescription: 'Add your goal using the button below',
   },
   settings: {
