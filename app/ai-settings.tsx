@@ -165,7 +165,7 @@ export default function AISettingsScreen() {
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       setTimeout(() => setIsOllamaSaved(false), 3000);
     } catch (error) {
-      Alert.alert("Hata", "Ollama ayarları kaydedilemedi");
+      Alert.alert(t("settings.ai.error"), t("settings.ai.ollamaError"));
     }
   };
 
@@ -197,7 +197,7 @@ export default function AISettingsScreen() {
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       setTimeout(() => setIsLocalSdSaved(false), 3000);
     } catch (error) {
-      Alert.alert("Hatali", "Yerel Görüntü Ayarları kaydedilemedi");
+      Alert.alert(t("settings.ai.error"), t("settings.ai.localSdError"));
     }
   };
 
@@ -293,7 +293,7 @@ export default function AISettingsScreen() {
             <View style={styles.cardHeader}>
               <Sparkles size={20} color={colors.primary} />
               <Text style={[styles.cardTitle, { color: colors.text }]}>
-                {isDarkMode ? "Aktif Model" : "Active Model"}
+                {t("settings.ai.activeModel")}
               </Text>
             </View>
 
@@ -323,7 +323,7 @@ export default function AISettingsScreen() {
               </View>
 
               <Text style={[styles.activeModelHint, { color: colors.subText }]}>
-                {isDarkMode ? "AI sohbetlerde bu model kullanılıyor" : "This model is used in AI chats"}
+                {t("settings.ai.modelInUse")}
               </Text>
             </View>
           </View>
@@ -399,7 +399,7 @@ export default function AISettingsScreen() {
               <View style={styles.cardHeader}>
                 <BrainCircuit size={20} color={colors.primary} />
                 <Text style={[styles.cardTitle, { color: colors.text }]}>
-                  Ollama Ayarları
+                  {t("settings.ai.ollamaSettings")}
                 </Text>
               </View>
 
@@ -409,11 +409,11 @@ export default function AISettingsScreen() {
                   <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
                     <Cloud size={16} color={ollamaCloudMode ? colors.primary : colors.subText} />
                     <Text style={[styles.cardTitle, { color: colors.text, fontSize: 14 }]}>
-                      {isDarkMode ? "Cloud Modu" : "Cloud Mode"}
+                      {t("settings.ai.cloudMode")}
                     </Text>
                   </View>
                   <Text style={[styles.cardDesc, { color: colors.subText }]}>
-                    {isDarkMode ? "Ollama Cloud API kullanarak bulut modelleri çalıştırın" : "Run cloud models via Ollama Cloud API"}
+                    {t("settings.ai.cloudModeDesc")}
                   </Text>
                 </View>
                 <Switch
@@ -432,7 +432,7 @@ export default function AISettingsScreen() {
               {ollamaCloudMode && (
                 <View style={{ marginBottom: 16 }}>
                   <Text style={[styles.cardDesc, { color: colors.subText, marginBottom: 12 }]}>
-                    {isDarkMode ? "Ollama Cloud API anahtarınızı girin. ollama.com/settings/keys adresinden alabilirsiniz." : "Enter your Ollama Cloud API key from ollama.com/settings/keys."}
+                    {t("settings.ai.cloudKeyDesc")}
                   </Text>
 
                   <Text style={[styles.cardDesc, { color: colors.text, fontWeight: '600', marginBottom: 8 }]}>
@@ -475,7 +475,7 @@ export default function AISettingsScreen() {
               {!ollamaCloudMode && (
                 <View>
                   <Text style={[styles.cardDesc, { color: colors.subText, marginBottom: 12 }]}>
-                    {isDarkMode ? "Yerel ağdaki Ollama sunucunuzun bilgilerini girin." : "Enter your local Ollama server details."}
+                    {t("settings.ai.localModeDesc")}
                   </Text>
 
                   <Text style={[styles.cardDesc, { color: colors.text, fontWeight: '600', marginBottom: 8 }]}>
@@ -491,7 +491,7 @@ export default function AISettingsScreen() {
                         marginBottom: 12
                       },
                     ]}
-                    placeholder="Örn: 192.168.1.55"
+                    placeholder={t("settings.ai.localIpPlaceholder")}
                     placeholderTextColor={colors.subText}
                     value={inputOllamaIp}
                     onChangeText={setInputOllamaIp}
@@ -511,7 +511,7 @@ export default function AISettingsScreen() {
                         marginBottom: 12
                       },
                     ]}
-                    placeholder="Örn: 11434"
+                    placeholder={t("settings.ai.localPortPlaceholder")}
                     keyboardType="numeric"
                     placeholderTextColor={colors.subText}
                     value={inputOllamaPort}
@@ -523,7 +523,7 @@ export default function AISettingsScreen() {
 
               {/* Model Name (shared) */}
               <Text style={[styles.cardDesc, { color: colors.text, fontWeight: '600', marginBottom: 8 }]}>
-                Model Adı
+                {t("settings.ai.modelName")}
               </Text>
               <TextInput
                 style={[
@@ -554,7 +554,7 @@ export default function AISettingsScreen() {
                 ) : (
                   <View style={styles.saveContent}>
                     <Save size={20} color="#FFFFFF" />
-                    <Text style={styles.saveButtonText}>Ollama Ayarlarını Kaydet</Text>
+                    <Text style={styles.saveButtonText}>{t("settings.ai.saveOllama")}</Text>
                   </View>
                 )}
               </TouchableOpacity>
@@ -572,7 +572,7 @@ export default function AISettingsScreen() {
               </View>
 
               <Text style={[styles.cardDesc, { color: colors.subText, marginBottom: 12 }]}>
-                {isDarkMode ? "Groq veya OpenAI uyumlu bir API anahtarı girin." : "Enter a Groq or OpenAI compatible API key."}
+                {t("settings.ai.groqDesc")}
               </Text>
 
               <TextInput
@@ -707,7 +707,7 @@ export default function AISettingsScreen() {
             <View style={styles.cardHeader}>
               <Sparkles size={20} color={colors.info} />
               <Text style={[styles.cardTitle, { color: colors.text }]}>
-                {isDarkMode ? "Görüntü Üretim Modeli" : "Image Generation Model"}
+                {t("settings.ai.imageGenModel")}
               </Text>
             </View>
 
@@ -753,7 +753,7 @@ export default function AISettingsScreen() {
             {imageProvider === 'pollinations' && (
               <View style={{ marginTop: 16 }}>
                 <Text style={[styles.cardDesc, { color: colors.subText, marginBottom: 16 }]}>
-                  {isDarkMode ? "İsteğe bağlı - Hız limitine takılmamak için Pollinations API anahtarı girin." : "Use Pollinations AI key for unlimited image generation."}
+                  {t("settings.ai.pollinationsDesc")}
                 </Text>
 
                 <TextInput
@@ -779,7 +779,7 @@ export default function AISettingsScreen() {
                   onPress={openPollinationsDashboard}
                 >
                   <Text style={[styles.helpLinkText, { color: colors.info }]}>
-                    {isDarkMode ? "Anahtar Al (enter.pollinations.ai)" : "Get Key (enter.pollinations.ai)"}
+                    {t("settings.ai.howToGet")}
                   </Text>
                   <ExternalLink size={14} color={colors.info} />
                 </TouchableOpacity>
@@ -807,7 +807,7 @@ export default function AISettingsScreen() {
             {imageProvider === 'local' && (
               <View style={{ marginTop: 16 }}>
                 <Text style={[styles.cardDesc, { color: colors.subText, marginBottom: 16 }]}>
-                  {isDarkMode ? "Yerel ağınızda HTTP API destekleyen Automatic1111 vb. uygulamanızı bağlayın." : "Connect to a Local SD instance (like A1111 API) on your network."}
+                  {t("settings.ai.localSdDesc")}
                 </Text>
 
                 {/* GitHub Link & Setup Info */}
@@ -825,18 +825,18 @@ export default function AISettingsScreen() {
                   <View style={styles.setupInfoHeader}>
                     <BrainCircuit size={18} color={colors.warning} />
                     <Text style={[styles.setupInfoTitle, { color: colors.text }]}>
-                      {isDarkMode ? "Kurulum Adımları" : "Setup Steps"}
+                      {t("settings.ai.setupSteps")}
                     </Text>
                   </View>
                   <Text style={[styles.setupInfoText, { color: colors.subText }]}>
                     {isDarkMode
-                      ? "1. webui-user.bat dosyasını açın\n2. COMMANDLINE_ARGS satırını bulun\n3. Şu flag'leri ekleyin: --listen --api\n4. Örnek: set COMMANDLINE_ARGS=--listen --api\n5. WebUI'yi yeniden başlatın"
+                      ? t("settings.ai.setupStep1")
                       : "1. Open webui-user.bat\n2. Find COMMANDLINE_ARGS line\n3. Add flags: --listen --api\n4. Example: set COMMANDLINE_ARGS=--listen --api\n5. Restart WebUI"
                     }
                   </Text>
                 </View>
 
-                <Text style={[styles.cardDesc, { color: colors.text, fontWeight: '600', marginBottom: 8 }]}>SD API IP Adresi</Text>
+                <Text style={[styles.cardDesc, { color: colors.text, fontWeight: '600', marginBottom: 8 }]}>{t("settings.ai.localSdIp")}</Text>
                 <TextInput
                   style={[
                     styles.input,
@@ -846,7 +846,7 @@ export default function AISettingsScreen() {
                       borderColor: colors.border,
                     },
                   ]}
-                  placeholder="Örn: 192.168.1.55"
+                  placeholder={t("settings.ai.localIpPlaceholder")}
                   placeholderTextColor={colors.subText}
                   value={inputLocalSdIp}
                   onChangeText={setInputLocalSdIp}
@@ -854,7 +854,7 @@ export default function AISettingsScreen() {
                   autoCorrect={false}
                 />
 
-                <Text style={[styles.cardDesc, { color: colors.text, fontWeight: '600', marginBottom: 8, marginTop: 4 }]}>SD API Port</Text>
+                <Text style={[styles.cardDesc, { color: colors.text, fontWeight: '600', marginBottom: 8, marginTop: 4 }]}>{t("settings.ai.localSdPort")}</Text>
                 <TextInput
                   style={[
                     styles.input,
@@ -864,7 +864,7 @@ export default function AISettingsScreen() {
                       borderColor: colors.border,
                     },
                   ]}
-                  placeholder="Örn: 7860"
+                  placeholder={t("settings.ai.localSdPortPlaceholder")}
                   keyboardType="numeric"
                   placeholderTextColor={colors.subText}
                   value={inputLocalSdPort}
@@ -873,7 +873,7 @@ export default function AISettingsScreen() {
                   autoCorrect={false}
                 />
 
-                <Text style={[styles.cardDesc, { color: colors.text, fontWeight: '600', marginBottom: 8, marginTop: 4 }]}>Görüntü Modeli Adı (Checkpoint)</Text>
+                <Text style={[styles.cardDesc, { color: colors.text, fontWeight: '600', marginBottom: 8, marginTop: 4 }]}>{t("settings.ai.localSdGen")}</Text>
                 <TextInput
                   style={[
                     styles.input,
@@ -884,7 +884,7 @@ export default function AISettingsScreen() {
                       marginBottom: 20
                     },
                   ]}
-                  placeholder="Örn: jaggernautxl.safetensors"
+                  placeholder={t("settings.ai.localSdGenPlaceholder")}
                   placeholderTextColor={colors.subText}
                   value={inputLocalSdModel}
                   onChangeText={setInputLocalSdModel}
@@ -904,7 +904,7 @@ export default function AISettingsScreen() {
                   ) : (
                     <View style={styles.saveContent}>
                       <Save size={20} color="#FFFFFF" />
-                      <Text style={styles.saveButtonText}>Görüntü Ayarlarını Kaydet</Text>
+                      <Text style={styles.saveButtonText}>{t("settings.ai.saveImageSettings")}</Text>
                     </View>
                   )}
                 </TouchableOpacity>

@@ -53,7 +53,7 @@ export const EmptyState: React.FC = () => {
           adjustsFontSizeToFit
           minimumFontScale={0.5}
         >
-          {t("home.startCompleting", "Aşağıdaki butonu kullanarak hedefinizi ekleyin")}
+          {t("home.addGoalDescription")}
         </Text>
       </View>
     </View>

@@ -71,7 +71,7 @@ export const SettingsScreen: React.FC = () => {
 
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== 'granted') {
-      alert('Galeri erişim izni gerekiyor.');
+      alert(t('settings.galleryPermissionRequired'));
       return;
     }
 

@@ -110,7 +110,7 @@ export const HomeScreen: React.FC = () => {
               }}
             >
               <Shuffle size={20} color={isShuffled ? colors.primary : colors.text} />
-              <Text style={[styles.actionText, { color: isShuffled ? colors.primary : colors.text }]}>{t("home.library").includes("Library") ? "Shuffle" : "Karıştır"}</Text>
+              <Text style={[styles.actionText, { color: isShuffled ? colors.primary : colors.text }]}>{t("home.shuffle")}</Text>
             </TouchableOpacity>
 
             <TouchableOpacity

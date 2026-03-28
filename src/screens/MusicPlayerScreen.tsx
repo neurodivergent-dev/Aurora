@@ -42,6 +42,7 @@ import { useMusicStore } from "../store/musicStore";
 import { useTheme } from "../components/ThemeProvider";
 import { router } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
+import { useTranslation } from "react-i18next";
 import { BackgroundEffects } from "../components/BackgroundEffects";
 import TextTicker from 'react-native-text-ticker';
 
@@ -59,6 +60,7 @@ export const MusicPlayerScreen: React.FC = () => {
     loadLocalMusic, setCurrentTrack, favoriteTrackIds, toggleFavorite, isFavorite, setTrackLyrics, clearAllLyrics
   } = useMusicStore();
   const { colors, isDarkMode } = useTheme();
+  const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const [trackWidth, setTrackWidth] = React.useState(0);
   const [volWidth, setVolWidth] = React.useState(0);
@@ -119,7 +121,7 @@ export const MusicPlayerScreen: React.FC = () => {
             <TouchableOpacity onPress={() => router.back()} style={styles.iconBtn}>
               <ChevronDown size={28} color={colors.text} />
             </TouchableOpacity>
-            <Text style={[styles.headerTitle, { color: colors.text }]}>Now Playing</Text>
+            <Text style={[styles.headerTitle, { color: colors.text }]}>{t('settings.ai.chat.nowPlaying')}</Text>
             <TouchableOpacity onPress={() => setIsLibraryVisible(true)} style={styles.iconBtn}>
               <List size={24} color={colors.text} />
             </TouchableOpacity>
@@ -165,9 +167,9 @@ export const MusicPlayerScreen: React.FC = () => {
                     repeatSpacer={40}
                     marqueeDelay={1500}
                   >
-                    {currentTrack?.title || 'Bilinmeyen Şarkı'}
+                    {currentTrack?.title || t('settings.ai.chat.unknownTrack')}
                   </TextTicker>
-                  <Text style={[styles.trackArtist, { color: colors.subText }]} numberOfLines={1}>{currentTrack?.artist || 'Bilinmeyen Sanatçı'}</Text>
+                  <Text style={[styles.trackArtist, { color: colors.subText }]} numberOfLines={1}>{currentTrack?.artist || t('settings.ai.chat.unknownArtist')}</Text>
                 </View>
                 
                 <TouchableOpacity
@@ -270,7 +272,7 @@ export const MusicPlayerScreen: React.FC = () => {
         <View style={styles.modalOverlay}>
           <View style={[styles.modalContent, { backgroundColor: colors.card }]}>
             <View style={styles.modalHeader}>
-              <Text style={[styles.modalTitle, { color: colors.text }]}>Müzik Kitaplığı</Text>
+              <Text style={[styles.modalTitle, { color: colors.text }]}>{t("playlist_screen.musicLibrary")}</Text>
               <TouchableOpacity onPress={() => setIsLibraryVisible(false)} style={styles.closeBtn}>
                 <ChevronDown size={24} color={colors.text} />
               </TouchableOpacity>
@@ -281,7 +283,7 @@ export const MusicPlayerScreen: React.FC = () => {
               onPress={() => loadLocalMusic()}
             >
               <Plus size={20} color={colors.primary} />
-              <Text style={[styles.addBtnText, { color: colors.primary }]}>Cihazdan Şarkı Ekle</Text>
+              <Text style={[styles.addBtnText, { color: colors.primary }]}>{t("playlist_screen.addFromDevice")}</Text>
             </TouchableOpacity>
 
             <FlatList
@@ -319,12 +321,12 @@ export const MusicPlayerScreen: React.FC = () => {
                       <TouchableOpacity
                         onPress={() => {
                           Alert.alert(
-                            "Şarkıyı Kaldır",
-                            `"${item.title}" şarkısını kitaplıktan kaldırmak istediğine emin misin?`,
+                            t("settings.ai.chat.removeTrack"),
+                            `"${item.title}" ${t("settings.ai.chat.removeTrackConfirm")}`,
                             [
-                              { text: "Vazgeç", style: "cancel" },
+                              { text: t("common.cancel"), style: "cancel" },
                               {
-                                text: "Kaldır",
+                                text: t("settings.ai.chat.remove"),
                                 style: "destructive",
                                 onPress: () => removeLocalTrack(item.id)
                               }
@@ -341,7 +343,7 @@ export const MusicPlayerScreen: React.FC = () => {
               }}
               ListEmptyComponent={
                 <View style={styles.emptyContainer}>
-                  <Text style={{ color: colors.subText }}>Kitaplığın boş.</Text>
+                  <Text style={{ color: colors.subText }}>{t("playlist_screen.libraryEmpty")}</Text>
                 </View>
               }
             />
@@ -360,7 +362,7 @@ export const MusicPlayerScreen: React.FC = () => {
           <View style={[styles.modalContent, { backgroundColor: colors.card, height: height * 0.7 }]}>
             <View style={styles.modalHeader}>
               <View>
-                <Text style={[styles.modalTitle, { color: colors.text }]}>Şarkı Sözleri</Text>
+                <Text style={[styles.modalTitle, { color: colors.text }]}>{t("playlist_screen.lyrics")}</Text>
                 <Text style={{ color: colors.subText, fontSize: 12 }}>{currentTrack?.title}</Text>
               </View>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
@@ -390,10 +392,10 @@ export const MusicPlayerScreen: React.FC = () => {
                 <View style={styles.noLyricsContainer}>
                   <Languages size={48} color={colors.subText} opacity={0.3} />
                   <Text style={[styles.noLyricsText, { color: colors.subText }]}>
-                    Şarkı sözleri henüz eklenmemiş.
+                    {t("playlist_screen.lyricsNotAdded")}
                   </Text>
                   <Text style={[styles.noLyricsSub, { color: colors.subText }]}>
-                    AI Chat'e gidip "bu şarkının sözlerini bul" diyebilirsin!
+                    AI Chat'e gidip "{t('settings.ai.chat.findLyricsPrompt')}" diyebilirsin!
                   </Text>
                 </View>
               )}
@@ -404,11 +406,11 @@ export const MusicPlayerScreen: React.FC = () => {
 
       <CustomAlert
         visible={lyricsResetAlertVisible}
-        title="Sözleri Sil"
-        message="Bu şarkının sözlerini silmek istediğine emin misin?"
+        title={t("settings.ai.chat.deleteLyrics")}
+        message={t("settings.ai.chat.deleteLyricsConfirm")}
         type="danger"
-        confirmText="Sil"
-        cancelText="Vazgeç"
+        confirmText={t("settings.ai.chat.remove")}
+        cancelText={t("common.cancel")}
         onConfirm={confirmLyricsDelete}
         onCancel={() => setLyricsResetAlertVisible(false)}
       />

@@ -30,9 +30,9 @@ const LanguageModal: React.FC<LanguageModalProps> = ({ visible, onClose }) => {
   const { currentLanguage, setLanguage } = useLanguageStore();
 
   const languageOptions: LanguageOption[] = [
-    { code: LANGUAGES.EN, label: "English" },
-    { code: LANGUAGES.TR, label: "Türkçe" },
-    { code: LANGUAGES.JA, label: "日本語" },
+    { code: LANGUAGES.EN, label: t("language.english", "English") },
+    { code: LANGUAGES.TR, label: t("language.turkish", "Türkçe") },
+    { code: LANGUAGES.JA, label: t("language.japanese", "日本語") },
   ];
 
   const handleLanguageSelect = (languageCode: string) => {
@@ -90,7 +90,7 @@ const LanguageModal: React.FC<LanguageModalProps> = ({ visible, onClose }) => {
                 onPress={onClose}
               >
                 <Text style={styles.closeButtonText}>
-                  {t("settings.close") || "Close"}
+                  {t("settings.close")}
                 </Text>
               </TouchableOpacity>
             </View>

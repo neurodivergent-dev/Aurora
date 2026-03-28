@@ -72,7 +72,7 @@ export const AIConfigModal: React.FC<AIConfigModalProps> = ({ visible, onClose }
             <View style={[styles.infoCard, { backgroundColor: isDarkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.02)' }]}>
               <ShieldCheck size={20} color={colors.success} />
               <Text style={[styles.infoText, { color: colors.text }]}>
-                API anahtarınız sadece cihazınızda güvenli bir kasada saklanır.
+                {t("settings.ai.apiKeySecure")}
               </Text>
             </View>
 
@@ -112,15 +112,15 @@ export const AIConfigModal: React.FC<AIConfigModalProps> = ({ visible, onClose }
               <View style={styles.featureItem}>
                 <Zap size={20} color={colors.warning} />
                 <View style={styles.featureText}>
-                  <Text style={[styles.featureTitle, { color: colors.text }]}>Smart Refine</Text>
-                  <Text style={[styles.featureDesc, { color: colors.subText }]}>Hedeflerinizi daha profesyonel hale getirir.</Text>
+                  <Text style={[styles.featureTitle, { color: colors.text }]}>{t("settings.ai.featureSmartRefine")}</Text>
+                  <Text style={[styles.featureDesc, { color: colors.subText }]}>{t("settings.ai.featureSmartRefineDesc")}</Text>
                 </View>
               </View>
               <View style={styles.featureItem}>
                 <Sparkles size={20} color={colors.info} />
                 <View style={styles.featureText}>
-                  <Text style={[styles.featureTitle, { color: colors.text }]}>AI Motivation</Text>
-                  <Text style={[styles.featureDesc, { color: colors.subText }]}>Size özel günlük motivasyon sağlar.</Text>
+                  <Text style={[styles.featureTitle, { color: colors.text }]}>{t("settings.ai.featureMotivation")}</Text>
+                  <Text style={[styles.featureDesc, { color: colors.subText }]}>{t("settings.ai.featureMotivationDesc")}</Text>
                 </View>
               </View>
             </View>

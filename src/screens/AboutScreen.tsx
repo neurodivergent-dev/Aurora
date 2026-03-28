@@ -16,10 +16,6 @@ import {
   Github,
   Mail,
   Heart,
-  CheckCircle2,
-  Layout,
-  Moon,
-  ShieldCheck,
   Palette,
   Brain,
   Sparkles,
@@ -170,7 +166,7 @@ export const AboutScreen: React.FC = () => {
             numberOfLines={1}
             adjustsFontSizeToFit
           >
-            {t("about.back")}
+            {t("about.back", { defaultValue: "Settings" })}
           </Text>
         </TouchableOpacity>
         <View style={styles.titleContainer}>

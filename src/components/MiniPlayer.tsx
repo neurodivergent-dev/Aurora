@@ -5,6 +5,7 @@ import { Play, Pause, SkipBack, SkipForward, Music } from 'lucide-react-native';
 import Animated, { FadeIn, FadeOut, SlideInRight, SlideOutRight } from 'react-native-reanimated';
 import { useMusicStore } from '../store/musicStore';
 import { useTheme } from './ThemeProvider';
+import { useTranslation } from 'react-i18next';
 import { router, usePathname } from 'expo-router';
 
 const { width } = Dimensions.get('window');
@@ -12,6 +13,7 @@ const { width } = Dimensions.get('window');
 export const MiniPlayer: React.FC = () => {
   const { currentTrack, isPlaying, play, pause, next } = useMusicStore();
   const { colors } = useTheme();
+  const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const pathname = usePathname();
 
@@ -64,10 +66,10 @@ export const MiniPlayer: React.FC = () => {
             
             <View style={styles.info}>
               <Text style={[styles.title, { color: colors.text }]} numberOfLines={1}>
-                {currentTrack ? currentTrack.title : 'Müzik Çalar'}
+                {currentTrack ? currentTrack.title : t('settings.ai.chat.playerTitle')}
               </Text>
               <Text style={[styles.artist, { color: colors.subText }]} numberOfLines={1}>
-                {currentTrack ? currentTrack.artist : 'Listeyi görmek için tıklayın'}
+                {currentTrack ? currentTrack.artist : t('settings.ai.chat.clickToSeeList')}
               </Text>
             </View>
           </TouchableOpacity>

@@ -250,7 +250,7 @@ export const PlaylistsScreen: React.FC = () => {
                     style={styles.featuredCard}
                   >
                     <View style={styles.cardGenreWrapper}>
-                      <Text style={styles.cardGenre}>{favoriteTrackIds.includes(track.id) ? "FAVORİ" : (track.genre || "Music")}</Text>
+                      <Text style={styles.cardGenre}>{favoriteTrackIds.includes(track.id) ? t("playlist_screen.favorite") : (track.genre || "Music")}</Text>
                     </View>
 
                     <View style={styles.cardInfo}>
@@ -294,8 +294,8 @@ export const PlaylistsScreen: React.FC = () => {
                 <Heart size={24} color="#FFF" fill="#FFF" />
               </View>
               <View style={styles.libraryItemInfo}>
-                <Text style={[styles.libraryItemTitle, { color: colors.text }]}>Favori Şarkılarım</Text>
-                <Text style={[styles.libraryItemStats, { color: colors.subText }]}>{favoritesCount} Şarkı</Text>
+                <Text style={[styles.libraryItemTitle, { color: colors.text }]}>{t("playlist_screen.myFavorites")}</Text>
+                <Text style={[styles.libraryItemStats, { color: colors.subText }]}>{favoritesCount} {t("playlist_screen.track")}</Text>
               </View>
               <ChevronRight size={20} color={colors.subText} />
             </TouchableOpacity>
@@ -325,8 +325,8 @@ export const PlaylistsScreen: React.FC = () => {
                 <Music size={24} color="#FFF" />
               </View>
               <View style={styles.libraryItemInfo}>
-                <Text style={[styles.libraryItemTitle, { color: colors.text }]}>Yerel Dosyalar</Text>
-                <Text style={[styles.libraryItemStats, { color: colors.subText }]}>Cihazı Tara</Text>
+                <Text style={[styles.libraryItemTitle, { color: colors.text }]}>{t("playlist_screen.localFiles")}</Text>
+                <Text style={[styles.libraryItemStats, { color: colors.subText }]}>{t("playlist_screen.localFilesDesc")}</Text>
               </View>
               <Plus size={20} color={colors.subText} />
             </TouchableOpacity>
@@ -349,7 +349,7 @@ export const PlaylistsScreen: React.FC = () => {
                   </View>
                   <View style={styles.libraryItemInfo}>
                     <Text style={[styles.libraryItemTitle, { color: colors.text }]}>{list.name}</Text>
-                    <Text style={[styles.libraryItemStats, { color: colors.subText }]}>{list.trackIds.length} Şarkı</Text>
+                    <Text style={[styles.libraryItemStats, { color: colors.subText }]}>{list.trackIds.length} {t("playlist_screen.track")}</Text>
                   </View>
                 </TouchableOpacity>
                 <View style={styles.libraryItemActions}>
@@ -370,7 +370,7 @@ export const PlaylistsScreen: React.FC = () => {
             onPress={() => { playFeedback(); setIsModalVisible(true); }}
           >
             <Plus size={20} color={colors.primary} />
-            <Text style={[styles.createNewText, { color: colors.primary }]}>Yeni Liste Oluştur</Text>
+            <Text style={[styles.createNewText, { color: colors.primary }]}>{t("playlist_screen.newList")}</Text>
           </TouchableOpacity>
         </ScrollView>
       </View>
@@ -393,26 +393,26 @@ export const PlaylistsScreen: React.FC = () => {
           >
             <View style={[styles.modalContent, { backgroundColor: colors.card, borderColor: colors.border }]}>
               <Text style={[styles.modalTitle, { color: colors.text }]}>
-                {editingPlaylistId ? "Listeyi Düzenle" : "Yeni Liste"}
+                {editingPlaylistId ? t("playlist_screen.editList") : t("playlist_screen.newList")}
               </Text>
 
               <View style={[styles.inputWrapper, { backgroundColor: colors.background, borderColor: colors.border }]}>
                 <TextInput
                   style={[styles.input, { color: colors.text }]}
-                  placeholder="Liste ismini girin..."
+                  placeholder={t("playlist_screen.enterListName")}
                   placeholderTextColor={colors.subText}
                   value={newPlaylistName}
                   onChangeText={setNewPlaylistName}
                 />
               </View>
 
-              <Text style={[styles.modalSubtitle, { color: colors.text }]}>Şarkı Seç ({selectedTracks.length})</Text>
+              <Text style={[styles.modalSubtitle, { color: colors.text }]}>{t("playlist_screen.selectSongs")} ({selectedTracks.length})</Text>
 
               <View style={[styles.innerSearchWrapper, { backgroundColor: colors.background, borderColor: colors.border }]}>
                 <Search size={16} color={colors.subText} style={{ marginRight: 8 }} />
                 <TextInput
                   style={[styles.innerSearchInput, { color: colors.text }]}
-                  placeholder="Şarkı veya sanatçı ara..."
+                  placeholder={t("playlist_screen.searchPlaceholder")}
                   placeholderTextColor={colors.subText}
                   value={searchQuery}
                   onChangeText={setSearchQuery}
@@ -427,7 +427,7 @@ export const PlaylistsScreen: React.FC = () => {
                 {modalFilteredTracks.length === 0 ? (
                   <View style={{ alignItems: 'center', paddingTop: 30 }}>
                     <Music size={32} color={colors.subText} />
-                    <Text style={{ color: colors.subText, marginTop: 10 }}>Kütüphanede şarkı yok</Text>
+                    <Text style={{ color: colors.subText, marginTop: 10 }}>{t("playlist_screen.noSongsInLibrary")}</Text>
                   </View>
                 ) : (
                   modalFilteredTracks.map((item) => <React.Fragment key={item.id}>{renderTrackItem({ item })}</React.Fragment>)
@@ -439,7 +439,7 @@ export const PlaylistsScreen: React.FC = () => {
                   style={[styles.modalBtn, { backgroundColor: colors.border }]}
                   onPress={() => { setIsModalVisible(false); setEditingPlaylistId(null); setSelectedTracks([]); }}
                 >
-                  <Text style={{ color: colors.text }}>İptal</Text>
+                  <Text style={{ color: colors.subText, fontWeight: "600" }}>{t("common.cancel")}</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                   style={[styles.modalBtn, { backgroundColor: colors.primary, opacity: newPlaylistName.trim() ? 1 : 0.5 }]}
@@ -447,7 +447,7 @@ export const PlaylistsScreen: React.FC = () => {
                   disabled={!newPlaylistName.trim()}
                 >
                   <Text style={{ color: "#FFF", fontWeight: "700" }}>
-                    {editingPlaylistId ? "Güncelle" : "Oluştur"}
+                    {editingPlaylistId ? t("common.update") : t("common.create")}
                   </Text>
                 </TouchableOpacity>
               </View>

@@ -140,7 +140,7 @@ export default function ThemeSettingsScreen() {
       <CustomAlert
         visible={deleteAlertVisible}
         title={t('themeSettings.deleteTheme', 'Temayı Sil')}
-        message={`"${themeToDelete?.name}" temasını silmek istediğine emin misin? Bu işlem geri alınamaz.`}
+        message={t('themeSettings.deleteConfirm', { name: themeToDelete?.name })}
         type="danger"
         confirmText={t('common.delete', 'Sil')}
         cancelText={t('common.cancel', 'İptal')}

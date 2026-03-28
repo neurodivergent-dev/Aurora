@@ -17,6 +17,7 @@ import Animated, { FadeInDown } from "react-native-reanimated";
 import { router, useLocalSearchParams } from "expo-router";
 import { useMusicStore } from "../store/musicStore";
 import { soundService } from "../services/SoundService";
+import { useTranslation } from "react-i18next";
 import * as Haptics from "expo-haptics";
 
 const { width } = Dimensions.get("window");
@@ -24,6 +25,7 @@ const { width } = Dimensions.get("window");
 export const PlaylistDetailScreen: React.FC = () => {
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
+  const { t } = useTranslation();
   const { id } = useLocalSearchParams<{ id: string }>();
   const { playlist, setCurrentTrack, play, currentTrack, isPlaying, pause, myPlaylists, favoriteTrackIds } = useMusicStore();
 
@@ -39,8 +41,8 @@ export const PlaylistDetailScreen: React.FC = () => {
     return playlist.filter(track => userPlaylist.trackIds.includes(track.id));
   }, [playlist, userPlaylist, favoriteTrackIds, isFavorites]);
 
-  const playlistTitle = isFavorites ? "Favori Şarkılarım" : (userPlaylist?.name || "Playlist");
-  const playlistStats = `${filteredPlaylist.length} Şarkı`;
+  const playlistTitle = isFavorites ? t("playlist_screen.myFavorites") : (userPlaylist?.name || t("playlist_screen.defaultName"));
+  const playlistStats = `${filteredPlaylist.length} ${t("playlist_screen.track")}`;
 
   const playFeedback = () => {
     soundService.playClick();
@@ -88,12 +90,12 @@ export const PlaylistDetailScreen: React.FC = () => {
         contentContainerStyle={{ paddingBottom: 100 }}
         showsVerticalScrollIndicator={false}
       >
-        <Text style={[styles.sectionTitle, { color: colors.text }]}>Şarkılar</Text>
+        <Text style={[styles.sectionTitle, { color: colors.text }]}>{t("playlist_screen.tracks")}</Text>
         
         {filteredPlaylist.length === 0 && (
           <View style={{ alignItems: 'center', marginTop: 40 }}>
             <Music size={40} color={colors.subText} />
-            <Text style={{ color: colors.subText, marginTop: 12 }}>Bu listede henüz şarkı yok.</Text>
+            <Text style={{ color: colors.subText, marginTop: 12 }}>{t("playlist_screen.noSongsInList")}</Text>
           </View>
         )}
 

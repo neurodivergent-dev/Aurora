@@ -3,6 +3,7 @@ import { Text, StyleSheet, TextStyle, View, Image, TouchableOpacity, Modal, Safe
 import { useAIStore } from '../store/aiStore';
 import { useMusicStore } from '../store/musicStore';
 import { X, ZoomIn, ImagePlus } from 'lucide-react-native';
+import { useTranslation } from 'react-i18next';
 import * as Haptics from 'expo-haptics';
 import * as FileSystem from 'expo-file-system/legacy';
 import logger from '../utils/logger';
@@ -22,6 +23,7 @@ export const MarkdownText: React.FC<MarkdownTextProps> = ({ content, style, base
   const lines = content.split('\n');
   const { pollinationsApiKey, localSdIp, localSdPort } = useAIStore();
   const { currentTrack, setTrackArtwork } = useMusicStore();
+  const { t } = useTranslation();
   const [previewImage, setPreviewImage] = useState<string | null>(null);
   const [previewPrompt, setPreviewPrompt] = useState<string | null>(null);
   const [isLocalGenerating, setIsLocalGenerating] = useState<Record<number, boolean>>({});
@@ -174,12 +176,12 @@ export const MarkdownText: React.FC<MarkdownTextProps> = ({ content, style, base
                   <View style={[styles.image, { backgroundColor: '#1C1C1E', justifyContent: 'center', alignItems: 'center' }]}>
                     {isLocalGenerating[index] ? (
                       <View style={{ alignItems: 'center' }}>
-                        <Text style={{ color: '#FFFFFF', marginBottom: 10 }}>Yerel SD Üretiyor...</Text>
+                        <Text style={{ color: '#FFFFFF', marginBottom: 10 }}>{t("playlist_screen.generatingLocal")}</Text>
                       </View>
                     ) : (
                       <View style={{ alignItems: 'center' }}>
                         <ImagePlus size={48} color="#FFFFFF" opacity={0.5} />
-                        <Text style={{ color: '#FFFFFF', marginTop: 12, fontWeight: '600' }}>Yerel SD ile Üret</Text>
+                        <Text style={{ color: '#FFFFFF', marginTop: 12, fontWeight: '600' }}>{t("playlist_screen.generateLocal")}</Text>
                         <Text style={{ color: 'rgba(255,255,255,0.5)', fontSize: 12, marginTop: 4 }}>Juggernaut @ {localSdIp}:{localSdPort || '7860'}</Text>
                       </View>
                     )}

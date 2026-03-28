@@ -218,7 +218,7 @@ export const PrivacyPolicyScreen: React.FC = () => {
                   <Heart size={14} color="#EF4444" fill="#EF4444" />
                 </View>
                 <Text style={[styles.madeLoveText, { color: colors.subText }]}>
-                  {" " + t("about.madeWith") + " yapıldı"}
+                  {" " + t("about.madeWith")}
                 </Text>
               </>
             ) : (

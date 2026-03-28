@@ -8,6 +8,7 @@ import {
   Platform,
 } from 'react-native';
 import { BlurView } from 'expo-blur';
+import { useTranslation } from 'react-i18next';
 import { useTheme } from './ThemeProvider';
 import { CheckCircle2, Info, AlertCircle, XCircle, Music } from 'lucide-react-native';
 import Animated, { 
@@ -24,6 +25,7 @@ const { width } = Dimensions.get('window');
 export const GlassAlert: React.FC = () => {
   const { colors, isDarkMode } = useTheme();
   const { alertVisible, alertConfig, hideAlert } = useMusicStore();
+  const { t } = useTranslation();
 
   if (!alertVisible || !alertConfig) return null;
 
@@ -92,7 +94,7 @@ export const GlassAlert: React.FC = () => {
               onPress={hideAlert}
               activeOpacity={0.8}
             >
-              <Text style={styles.buttonText}>Tamam</Text>
+              <Text style={styles.buttonText}>{t('common.ok', 'OK')}</Text>
             </TouchableOpacity>
           </View>
         </BlurView>
