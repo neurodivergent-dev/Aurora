@@ -189,7 +189,7 @@ export default {
       localSdGenPlaceholder: 'Ex: jaggernautxl.safetensors',
       saveImageSettings: 'Save Image Settings',
       setupSteps: 'Setup Steps',
-      setupStep1: '1. Open the webui-user.bat file...',
+      setupStep1: "1. Open webui-user.bat\n2. Find COMMANDLINE_ARGS line\n3. Add flags: --listen --api\n4. Example: set COMMANDLINE_ARGS=--listen --api\n5. Restart WebUI",
       localSdPortPlaceholder: 'Ex: 7860',
       localSdIp: 'SD API IP Address',
       localSdPort: 'SD API Port',

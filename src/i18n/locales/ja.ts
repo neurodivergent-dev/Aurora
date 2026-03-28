@@ -189,7 +189,7 @@ export default {
       localSdGenPlaceholder: '例: jaggernautxl.safetensors',
       saveImageSettings: '画像設定を保存',
       setupSteps: 'セットアップ手順',
-      setupStep1: '1. webui-user.batファイルを開きます...',
+      setupStep1: "1. webui-user.batを開く\n2. COMMANDLINE_ARGS 行を探す\n3. フラグを追加: --listen --api\n4. 例: set COMMANDLINE_ARGS=--listen --api\n5. WebUIを再起動",
       localSdPortPlaceholder: '例: 7860',
       localSdIp: 'SD API IPアドレス',
       localSdPort: 'SD API ポート',

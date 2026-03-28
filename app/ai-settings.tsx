@@ -829,10 +829,7 @@ export default function AISettingsScreen() {
                     </Text>
                   </View>
                   <Text style={[styles.setupInfoText, { color: colors.subText }]}>
-                    {isDarkMode
-                      ? t("settings.ai.setupStep1")
-                      : "1. Open webui-user.bat\n2. Find COMMANDLINE_ARGS line\n3. Add flags: --listen --api\n4. Example: set COMMANDLINE_ARGS=--listen --api\n5. Restart WebUI"
-                    }
+                    {t("settings.ai.setupStep1")}
                   </Text>
                 </View>
 
