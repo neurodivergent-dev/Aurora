@@ -11,7 +11,10 @@ class GroqService {
     model: string = "llama-3.1-8b-instant"
   ): Promise<string> {
     const { groqApiKey } = useAIStore.getState();
-    if (!groqApiKey) return "";
+    if (!groqApiKey) {
+      logger.warn('Groq API key is missing', 'GroqService');
+      throw new Error('Groq API key is not configured');
+    }
 
     try {
       const response = await fetch(`${this.baseUrl}/chat/completions`, {
@@ -53,17 +56,30 @@ NEVER violate these rules.`
         }),
       });
 
+      if (!response.ok) {
+        const errorBody = await response.text().catch(() => '');
+        logger.error(`Groq API HTTP ${response.status}: ${errorBody}`, 'GroqService');
+        throw new Error(`Groq API error (${response.status})`);
+      }
+
       const data = await response.json();
       
       if (data.error) {
         logger.error(`Groq API Error: ${JSON.stringify(data.error)}`, 'GroqService');
-        return "";
+        throw new Error(`Groq API error: ${data.error.message || JSON.stringify(data.error)}`);
       }
 
-      return data.choices[0]?.message?.content || "";
+      const content = data.choices[0]?.message?.content;
+      if (!content) {
+        logger.warn('Groq returned empty response', 'GroqService');
+      }
+      return content || "";
     } catch (e) {
+      if (e instanceof Error && e.message.startsWith('Groq')) {
+        throw e; // Re-throw our own errors
+      }
       logger.error(`Groq Service Error: ${e}`, 'GroqService');
-      return "";
+      throw new Error(`Groq service unavailable: ${e instanceof Error ? e.message : 'Unknown error'}`);
     }
   }
 

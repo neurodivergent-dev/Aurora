@@ -5,6 +5,17 @@ import { useThemeStore } from '../store/themeStore';
 import { useMusicStore } from '../store/musicStore';
 import logger from '../utils/logger';
 
+export interface SoundSource {
+  uri?: string;
+  [key: string]: unknown;
+}
+
+export interface PlaybackStatus {
+  error?: string;
+  currentTime?: number;
+  duration?: number;
+}
+
 const SOUND_ASSETS: Record<string, number> = {
   complete: require('../../assets/sounds/complete.mp3'),
   delete: require('../../assets/sounds/delete.mp3'),
@@ -14,7 +25,7 @@ const SOUND_ASSETS: Record<string, number> = {
   timer: require('../../assets/sounds/timer.mp3'),
 };
 
-const AMBIENT_ASSETS: Record<string, any> = {
+const AMBIENT_ASSETS: Record<string, number> = {
   river: require('../../assets/sounds/river.mp3'),
   forest: require('../../assets/sounds/forest.mp3'),
   lofi: require('../../assets/sounds/lofi.mp3'),
@@ -32,7 +43,7 @@ export const SoundPlayer: React.FC = () => {
   const playerRef = useRef<AudioPlayer | null>(null);
   const ambientPlayerRef = useRef<AudioPlayer | null>(null);
   const musicPlayerRef = useRef<AudioPlayer | null>(null);
-  const musicListenerRef = useRef<any>(null);
+  const musicListenerRef = useRef<{ remove: () => void } | null>(null);
 
   // Setup Permissions and Global Audio Mode
   useEffect(() => {
@@ -159,7 +170,7 @@ export const SoundPlayer: React.FC = () => {
 
       try {
         // Wrap URI in object for broader compatibility
-        let source: any = typeof currentTrack.url === 'string' ? { uri: currentTrack.url } : currentTrack.url;
+        let source: SoundSource | number = typeof currentTrack.url === 'string' ? { uri: currentTrack.url } : currentTrack.url;
 
         // Ensure local file URIs are properly handled
         if (typeof currentTrack.url === 'string' && currentTrack.url.startsWith('file://')) {
@@ -168,7 +179,7 @@ export const SoundPlayer: React.FC = () => {
 
         const player = createAudioPlayer(source);
         musicPlayerRef.current = player;
-        currentTrackUrlRef.current = typeof currentTrack.url === 'string' ? currentTrack.url : (currentTrack.url as any).uri || currentTrack.url;
+        currentTrackUrlRef.current = typeof currentTrack.url === 'string' ? currentTrack.url : (currentTrack.url as unknown as SoundSource).uri || currentTrack.url;
 
         // If track has pre-calculated duration, use it immediately
         if (currentTrack.duration && currentTrack.duration > 0) {
@@ -185,7 +196,7 @@ export const SoundPlayer: React.FC = () => {
           artist: currentTrack.artist || 'Aurora',
         });
 
-        musicListenerRef.current = player.addListener('playbackStatusUpdate', (status: any) => {
+        musicListenerRef.current = player.addListener('playbackStatusUpdate', (status: PlaybackStatus) => {
           if (status.error) logger.error(`Status Error: ${status.error}`, 'SoundPlayer');
 
           if (status.currentTime !== undefined) {

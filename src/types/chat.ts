@@ -8,7 +8,7 @@ export interface ChatMessage {
 export interface AIAction {
   fullMatch: string;
   type: string;
-  data: any;
+  data: Record<string, unknown>;
   regex: {
     [Symbol.replace]: (str: string) => string;
   };

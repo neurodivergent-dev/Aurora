@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo, useRef, useCallback } from 'react';
 import { Text, StyleSheet, TextStyle, View, Image, TouchableOpacity, Modal, SafeAreaView, Dimensions } from 'react-native';
 import { useAIStore } from '../store/aiStore';
 import { useMusicStore } from '../store/musicStore';
@@ -20,7 +20,7 @@ interface MarkdownTextProps {
  * Gemini'den gelen Markdown yapılarını (**bold**, *italic*, listeler) destekleyen hafif bir bileşen.
  */
 export const MarkdownText: React.FC<MarkdownTextProps> = ({ content, style, baseColor }) => {
-  const lines = content.split('\n');
+  const lines = useMemo(() => content.split('\n'), [content]);
   const { pollinationsApiKey, localSdIp, localSdPort } = useAIStore();
   const { currentTrack, setTrackArtwork } = useMusicStore();
   const { t } = useTranslation();
@@ -28,20 +28,20 @@ export const MarkdownText: React.FC<MarkdownTextProps> = ({ content, style, base
   const [previewPrompt, setPreviewPrompt] = useState<string | null>(null);
   const [isLocalGenerating, setIsLocalGenerating] = useState<Record<number, boolean>>({});
   const [generatedLocalImages, setGeneratedLocalImages] = useState<Record<number, string>>({});
-  const [lastProcessedIndex, setLastProcessedIndex] = useState<number | null>(null);
+  const triggeredIndicesRef = useRef<Set<number>>(new Set());
 
   // --- OTOMATİK ÜRETİM MANTIĞI ---
-  // Hook, bileşen seviyesinde olmalı (koşul dışında)
   React.useEffect(() => {
     // İçerikteki [IMAGE:prompt] yapılarını bul
     lines.forEach((line, index) => {
       const imageMatch = line.match(/\[IMAGE:(.*?)\]/);
-      if (imageMatch && localSdIp && !generatedLocalImages[index] && !isLocalGenerating[index]) {
+      if (imageMatch && localSdIp && !triggeredIndicesRef.current.has(index)) {
+        triggeredIndicesRef.current.add(index);
         const rawPrompt = imageMatch[1].trim();
         handleLocalGenerate(rawPrompt, index);
       }
     });
-  }, [lines, localSdIp]); // İçerik veya IP değiştiğinde tetikle
+  }, [content, localSdIp]); // İçerik veya IP değiştiğinde tetikle
 
   const handleLocalGenerate = async (rawPrompt: string, index: number) => {
     if (!localSdIp) return;

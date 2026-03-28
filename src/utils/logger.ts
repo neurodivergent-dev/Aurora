@@ -14,7 +14,7 @@ const config = {
       info: "blueBright",
       warn: "yellowBright",
       error: "redBright",
-    } as any,
+    } as Record<string, "blueBright" | "yellowBright" | "redBright">,
   },
   async: true,
   dateFormat: "time",
@@ -30,19 +30,19 @@ const log = logger.createLogger(config);
  * Usage: logger.info("message", "Tag")
  */
 export const auroraLogger = {
-  debug: (message: any, tag?: string) => {
+  debug: (message: string, tag?: string) => {
     const prefix = tag ? `[${tag}] ` : "";
     log.debug(`${prefix}${message}`);
   },
-  info: (message: any, tag?: string) => {
+  info: (message: string, tag?: string) => {
     const prefix = tag ? `[${tag}] ` : "";
     log.info(`${prefix}${message}`);
   },
-  warn: (message: any, tag?: string) => {
+  warn: (message: string, tag?: string) => {
     const prefix = tag ? `[${tag}] ` : "";
     log.warn(`${prefix}${message}`);
   },
-  error: (message: any, tag?: string) => {
+  error: (message: string, tag?: string) => {
     const prefix = tag ? `[${tag}] ` : "";
     log.error(`${prefix}${message}`);
   },

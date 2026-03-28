@@ -3,6 +3,7 @@ import { useAIStore } from "../store/aiStore";
 import { groqService } from "./groqService";
 import { ollamaService } from "./ollamaService";
 import { AURORA_SYSTEM_PROMPT, OLLAMA_SYSTEM_PROMPT, GENERAL_SYSTEM_MESSAGE, IMAGE_GENERATION_RULES, OLLAMA_COMMAND_LIST } from "../constants/auroraPrompts";
+import logger from "../utils/logger";
 
 class AIService {
   private genAI: GoogleGenerativeAI | null = null;
@@ -49,13 +50,17 @@ class AIService {
         }
         return text;
       } catch (e) {
-        return "";
+        logger.error(`Groq provider error in requestAI: ${e}`, 'AIService');
+        throw e; // Let caller handle it
       }
     }
 
     // Default Gemini
     this.init();
-    if (!this.genAI) return "";
+    if (!this.genAI) {
+      logger.warn('Gemini API key is missing or AI is disabled', 'AIService');
+      throw new Error('Gemini API key is not configured or AI is disabled');
+    }
 
     try {
       this.lastRequestTime = now;
@@ -69,9 +74,14 @@ class AIService {
       return text;
     } catch (e) {
       if (e instanceof Error && e.message?.includes('429')) {
-        if (!useFallback) return this.requestAI(prompt, cacheKey, forceRefresh, true);
+        if (!useFallback) {
+          logger.warn('Gemini rate limited (429), trying fallback model', 'AIService');
+          return this.requestAI(prompt, cacheKey, forceRefresh, true);
+        }
+        logger.error('Gemini rate limited on fallback model too', 'AIService');
       }
-      return "";
+      logger.error(`Gemini requestAI error: ${e}`, 'AIService');
+      throw e;
     }
   }
 
@@ -168,7 +178,10 @@ ${systemInstruction}`;
         return content;
       } else {
         this.init();
-        if (!this.genAI) return "";
+        if (!this.genAI) {
+          logger.warn('Gemini API key is missing or AI is disabled (chat)', 'AIService');
+          throw new Error('Gemini API key is not configured or AI is disabled');
+        }
 
         const geminiSystemPrompt = `${systemInstruction}
 
@@ -187,7 +200,8 @@ ${IMAGE_GENERATION_RULES}`;
         return text;
       }
     } catch (e) {
-      return "";
+      logger.error(`AIService.chat error: ${e}`, 'AIService');
+      throw e;
     }
   }
 }
