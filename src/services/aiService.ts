@@ -2,7 +2,7 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 import { useAIStore } from "../store/aiStore";
 import { groqService } from "./groqService";
 import { ollamaService } from "./ollamaService";
-import { AURORA_SYSTEM_PROMPT, OLLAMA_SYSTEM_PROMPT } from "../constants/auroraPrompts";
+import { AURORA_SYSTEM_PROMPT, OLLAMA_SYSTEM_PROMPT, GENERAL_SYSTEM_MESSAGE, IMAGE_GENERATION_RULES, OLLAMA_COMMAND_LIST } from "../constants/auroraPrompts";
 
 class AIService {
   private genAI: GoogleGenerativeAI | null = null;
@@ -40,7 +40,7 @@ class AIService {
 
     if (activeProvider === 'groq') {
       try {
-        const systemMsg = "You are a helpful productivity assistant. Respond ONLY with the requested text. NEVER use JSON tool calls.";
+        const systemMsg = GENERAL_SYSTEM_MESSAGE;
         const text = await groqService.chat(prompt, [], systemMsg, groqModel);
 
         if (text) {
@@ -128,27 +128,9 @@ class AIService {
       if (activeProvider === 'ollama') {
         const ollamaHistory = [
           {
-            role: 'system' as const, content: `PROMPT RULE (CRITICAL):
-For [IMAGE:description] tags, ALWAYS use ENGLISH keywords ONLY. Add artistic technical terms like "8k, cinematic, ultra realistic, masterpiece".
-Even if the user speaks Turkish, the description inside [IMAGE:] MUST be in ENGLISH.
-IMPORTANT: When you create an image with [IMAGE:description], you MUST also add the command to apply it to the cover!
-Format: (AURORA_COMMAND:SET_TRACK_ARTWORK:{"imageUrl": "IMAGE_TAG"})  <-- Use "IMAGE_TAG" as the value.
+            role: 'system' as const, content: `${IMAGE_GENERATION_RULES}
 
-COMMANDS (USE THESE EXACTLY):
-- SET_VOLUME: (AURORA_COMMAND:SET_VOLUME:{"level": 0.0-1.0}) -> USE THIS for volume requests!
-- TOGGLE_FAVORITE: (AURORA_COMMAND:TOGGLE_FAVORITE:{"trackId": "ID"}) -> Adds/Removes song from favorites.
-- TOGGLE_SHUFFLE: (AURORA_COMMAND:TOGGLE_SHUFFLE) -> Toggles shuffle mode.
-- TOGGLE_REPEAT: (AURORA_COMMAND:TOGGLE_REPEAT) -> Toggles repeat mode.
-- NEXT_TRACK: (AURORA_COMMAND:NEXT_TRACK)
-- PREV_TRACK: (AURORA_COMMAND:PREV_TRACK)
-- CREATE_PLAYLIST: (AURORA_COMMAND:CREATE_PLAYLIST:{"name": "Playlist Name", "trackIds": ["ID1", "ID2"]})
-- UPDATE_PLAYLIST: (AURORA_COMMAND:UPDATE_PLAYLIST:{"playlistId": "ID", "name": "New Name", "trackIds": ["ID1"]})
-- DELETE_PLAYLIST: (AURORA_COMMAND:DELETE_PLAYLIST:{"playlistId": "ID"})
-- PLAY_MUSIC: (AURORA_COMMAND:PLAY_MUSIC:{"trackId": "..."})
-- PAUSE_MUSIC: (AURORA_COMMAND:PAUSE_MUSIC)
-- SET_BACKGROUND_EFFECT: (AURORA_COMMAND:SET_BACKGROUND_EFFECT:{"effect": "..."})
-
-Example: [IMAGE:cyberpunk city, neon lights, 8k, cinematic] (AURORA_COMMAND:SET_TRACK_ARTWORK:{"imageUrl": "IMAGE_TAG"})
+${OLLAMA_COMMAND_LIST}
 
 ${systemInstruction}`
           },
@@ -174,9 +156,8 @@ ${systemInstruction}`
           role: h.role === 'model' ? 'assistant' : 'user',
           content: h.parts[0].text
         }));
-        const groqSystemMsg = `PROMPT RULE: For [IMAGE:...] tags, ALWAYS use ENGLISH keywords only (8k, cinematic, etc). 
-        You MUST also add: (AURORA_COMMAND:SET_TRACK_ARTWORK:{"imageUrl": "IMAGE_TAG"}) after the tag.
-        
+        const groqSystemMsg = `${IMAGE_GENERATION_RULES}
+
 ${systemInstruction}`;
 
         let content = await groqService.chat(message, groqHistory, groqSystemMsg, groqModel);
@@ -190,14 +171,8 @@ ${systemInstruction}`;
         if (!this.genAI) return "";
 
         const geminiSystemPrompt = `${systemInstruction}
-        
-PROMPT RULE (CRITICAL):
-For [IMAGE:description] tags, ALWAYS use ENGLISH keywords ONLY. Add artistic technical terms like "8k, cinematic, ultra realistic, masterpiece".
-Even if the user speaks Turkish, the description inside [IMAGE:] MUST be in ENGLISH.
-IMPORTANT: When you create an image with [IMAGE:description], you MUST also add the command to apply it to the cover!
-Format: (AURORA_COMMAND:SET_TRACK_ARTWORK:{"imageUrl": "IMAGE_TAG"})  <-- Use "IMAGE_TAG" as the value.
 
-Example: [IMAGE:cyberpunk city, neon lights, 8k, cinematic] (AURORA_COMMAND:SET_TRACK_ARTWORK:{"imageUrl": "IMAGE_TAG"})`;
+${IMAGE_GENERATION_RULES}`;
 
         const model = this.genAI.getGenerativeModel({ model: this.MODEL_NAME, systemInstruction: geminiSystemPrompt });
         const chat = model.startChat({ history });

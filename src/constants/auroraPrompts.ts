@@ -12,6 +12,33 @@ export interface PromptVariables {
   allowMusicAddition?: boolean;
 }
 
+// Genel yardımcı AI sistem mesajı (requestAI için)
+export const GENERAL_SYSTEM_MESSAGE = "You are a helpful productivity assistant. Respond ONLY with the requested text. NEVER use JSON tool calls.";
+
+// Resim oluşturma kuralları — tüm provider'lar için ortak (DRY)
+export const IMAGE_GENERATION_RULES = `PROMPT RULE (CRITICAL):
+For [IMAGE:description] tags, ALWAYS use ENGLISH keywords ONLY. Add artistic technical terms like "8k, cinematic, ultra realistic, masterpiece".
+Even if the user speaks Turkish, the description inside [IMAGE:] MUST be in ENGLISH.
+IMPORTANT: When you create an image with [IMAGE:description], you MUST also add the command to apply it to the cover!
+Format: (AURORA_COMMAND:SET_TRACK_ARTWORK:{"imageUrl": "IMAGE_TAG"})  <-- Use "IMAGE_TAG" as the value.
+
+Example: [IMAGE:cyberpunk city, neon lights, 8k, cinematic] (AURORA_COMMAND:SET_TRACK_ARTWORK:{"imageUrl": "IMAGE_TAG"})`;
+
+// Ollama için ekstra komut listesi (küçük modellerin doğru format kullanması için)
+export const OLLAMA_COMMAND_LIST = `COMMANDS (USE THESE EXACTLY):
+- SET_VOLUME: (AURORA_COMMAND:SET_VOLUME:{"level": 0.0-1.0}) -> USE THIS for volume requests!
+- TOGGLE_FAVORITE: (AURORA_COMMAND:TOGGLE_FAVORITE:{"trackId": "ID"}) -> Adds/Removes song from favorites.
+- TOGGLE_SHUFFLE: (AURORA_COMMAND:TOGGLE_SHUFFLE) -> Toggles shuffle mode.
+- TOGGLE_REPEAT: (AURORA_COMMAND:TOGGLE_REPEAT) -> Toggles repeat mode.
+- NEXT_TRACK: (AURORA_COMMAND:NEXT_TRACK)
+- PREV_TRACK: (AURORA_COMMAND:PREV_TRACK)
+- CREATE_PLAYLIST: (AURORA_COMMAND:CREATE_PLAYLIST:{"name": "Playlist Name", "trackIds": ["ID1", "ID2"]})
+- UPDATE_PLAYLIST: (AURORA_COMMAND:UPDATE_PLAYLIST:{"playlistId": "ID", "name": "New Name", "trackIds": ["ID1"]})
+- DELETE_PLAYLIST: (AURORA_COMMAND:DELETE_PLAYLIST:{"playlistId": "ID"})
+- PLAY_MUSIC: (AURORA_COMMAND:PLAY_MUSIC:{"trackId": "..."})
+- PAUSE_MUSIC: (AURORA_COMMAND:PAUSE_MUSIC)
+- SET_BACKGROUND_EFFECT: (AURORA_COMMAND:SET_BACKGROUND_EFFECT:{"effect": "..."})`;
+
 export const AURORA_SYSTEM_PROMPT = ({
   language,
   customPrompt,
