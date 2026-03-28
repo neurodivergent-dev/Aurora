@@ -332,7 +332,7 @@ Aurora is developed by **MetaFrame**, a studio focused on creating smart tools f
 - **Mindbook Trial** - Free version
 - **Aurora** - AI Music Player (this app)
 
-🌐 **Publisher Page:** [APPLION - MetaFrame](https://www.applion.jp/developer/metaframe/)
+🌐 **Publisher Page:** [APPLION - MetaFrame](https://applion.jp/android/developer/MetaFrame/)
 
 ---
 
