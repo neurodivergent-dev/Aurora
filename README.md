@@ -54,11 +54,6 @@ A minimalist, offline-first music player with AI-powered personalization. Experi
 - **Dynamic Switching**: Effects respond to your music
 - **Custom Effects**: AI-generated background configurations
 
-### 🧘 Zen Mode
-- Immersive full-screen experience
-- AI-generated inspirational quotes
-- Minimalist interface for focus
-
 ### 🔒 Privacy First
 - **100% Offline**: No internet required (except AI features)
 - **Zero Data Collection**: Your data stays on your device
@@ -166,7 +161,6 @@ aurora/
 │   │   ├── index.tsx      # Library
 │   │   ├── playlists.tsx
 │   │   ├── ai-chat.tsx
-│   │   ├── zen-space.tsx
 │   │   └── settings.tsx
 │   ├── music-player.tsx
 │   └── _layout.tsx

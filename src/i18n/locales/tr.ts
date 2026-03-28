@@ -311,7 +311,6 @@ export default {
     library: 'Kitaplık',
     playlists: 'Listeler',
     ai: 'AI DJ',
-    zen: 'CORE',
     settings: 'Ayarlar',
   },
   playlist_screen: {
@@ -391,13 +390,6 @@ export default {
     policyUpdates: "Bu gizlilik politikasını zaman zaman güncelleyebiliriz.",
     lastUpdated: "Son Güncelleme: Mart 2026",
     copyright: "© 2026 Melih Can Demir. Tüm hakları saklıdır."
-  },
-  zen: {
-    title: 'SİSTEM ÇEKİRDEĞİ',
-    subtitle: 'İmersif Mod Aktif',
-    tapForQuote: 'İlham için AI DJ\'e dokun',
-    quotePlaceholder: 'SİSTEM GÖZLEMİ BAŞLATILIYOR...',
-    loadingQuote: 'AI DJ düşünüyor...',
   },
   music: {
     nowPlaying: 'ŞİMDİ ÇALIYOR',

@@ -311,7 +311,6 @@ export default {
     library: 'ライブラリ',
     playlists: 'プレイリスト',
     ai: 'AI DJ',
-    zen: 'コア',
     settings: '設定',
   },
   playlist_screen: {
@@ -391,13 +390,6 @@ export default {
     policyUpdates: "本ポリシーは定期的に更新される場合があります。",
     lastUpdated: "最終更新日: 2026年3月",
     copyright: "© 2026 Melih Can Demir. All rights reserved."
-  },
-  zen: {
-    title: 'システム・コア',
-    subtitle: '没入モード有効',
-    tapForQuote: 'AI DJにインスピレーションを求める',
-    quotePlaceholder: 'システム監視を初期化中...',
-    loadingQuote: 'AI DJが思考中...',
   },
   music: {
     nowPlaying: '再生中',

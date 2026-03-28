@@ -311,7 +311,6 @@ export default {
     library: 'Library',
     playlists: 'Playlists',
     ai: 'AI DJ',
-    zen: 'CORE',
     settings: 'Settings',
   },
   playlist_screen: {
@@ -391,13 +390,6 @@ export default {
     policyUpdates: "We may update this policy periodically.",
     lastUpdated: "Last Updated: March 2026",
     copyright: "© 2026 Melih Can Demir. All rights reserved."
-  },
-  zen: {
-    title: 'SYSTEM CORE',
-    subtitle: 'Immersive Mode Active',
-    tapForQuote: 'Tap AI DJ for inspiration',
-    quotePlaceholder: 'INITIALIZING SYSTEM OBSERVATION...',
-    loadingQuote: 'AI DJ is thinking...',
   },
   music: {
     nowPlaying: 'NOW PLAYING',
