@@ -76,7 +76,18 @@ const project = (p: Point3D, size: number) => {
 
 // --- SUB-COMPONENTS ---
 
-const WireframeLine = ({ idx1, idx2, vertices, angleX, angleY, angleZ, color, size }: any) => {
+interface WireframeLineProps {
+  idx1: number;
+  idx2: number;
+  vertices: Point3D[];
+  angleX: SharedValue<number>;
+  angleY: SharedValue<number>;
+  angleZ: SharedValue<number>;
+  color: string;
+  size: number;
+}
+
+const WireframeLine = ({ idx1, idx2, vertices, angleX, angleY, angleZ, color, size }: WireframeLineProps) => {
   const animatedStyle = useAnimatedStyle(() => {
     const v1 = vertices[idx1];
     const v2 = vertices[idx2];
@@ -113,7 +124,7 @@ const Tesseract4D = ({ activeColor }: { activeColor: string }) => {
   }, []);
   const edges = useMemo(() => {
     const e = [[0, 1], [1, 3], [3, 2], [2, 0], [4, 5], [5, 7], [7, 6], [6, 4], [0, 4], [1, 5], [3, 7], [2, 6]];
-    const res: any[] = [];
+    const res: [number, number][] = [];
     e.forEach(([i1, i2]) => res.push([i1, i2]));
     e.forEach(([i1, i2]) => res.push([i1 + 8, i2 + 8]));
     for (let i = 0; i < 8; i++) res.push([i, i + 8]);
@@ -126,7 +137,18 @@ const Tesseract4D = ({ activeColor }: { activeColor: string }) => {
   );
 };
 
-const AtomicOrbit = ({ size, color, opacity, rx, ry, rotation, pulse, speedFactor = 1 }: any) => {
+interface AtomicOrbitProps {
+  size: number;
+  color: string;
+  opacity: number;
+  rx: string;
+  ry: string;
+  rotation: SharedValue<number>;
+  pulse: SharedValue<number>;
+  speedFactor?: number;
+}
+
+const AtomicOrbit = ({ size, color, opacity, rx, ry, rotation, pulse, speedFactor = 1 }: AtomicOrbitProps) => {
   const r = size / 2; const circ = 2 * Math.PI * r;
   const dashOffset = useSharedValue(0);
   useEffect(() => { dashOffset.value = withRepeat(withTiming(circ, { duration: 3000 / Math.abs(speedFactor), easing: Easing.linear }), -1, false); }, [circ, speedFactor]);
@@ -213,7 +235,13 @@ const AtomicSystem = ({ activeColor }: { activeColor: string }) => {
   );
 };
 
-const BokehOrb = ({ color, size, delay }: any) => {
+interface BokehOrbProps {
+  color: string;
+  size: number;
+  delay: number;
+}
+
+const BokehOrb = ({ color, size, delay }: BokehOrbProps) => {
   const tx = useSharedValue(Math.random() * width); const ty = useSharedValue(Math.random() * height);
   const scale = useSharedValue(1); const opacity = useSharedValue(0.2);
   const gradId = useMemo(() => `bokeh-grad-${Math.random()}`, []);
@@ -241,7 +269,14 @@ const DreamscapeBokehSystem = ({ activeColor }: { activeColor: string }) => {
   );
 };
 
-const QuantumParticle = ({ cloudX, cloudY, index, color }: any) => {
+interface QuantumParticleProps {
+  cloudX: SharedValue<number>;
+  cloudY: SharedValue<number>;
+  index: number;
+  color: string;
+}
+
+const QuantumParticle = ({ cloudX, cloudY, index, color }: QuantumParticleProps) => {
   const angle = useMemo(() => Math.random() * Math.PI * 2, []); const dist = useMemo(() => 50 + Math.random() * 80, []);
   const size = useMemo(() => 2 + Math.random() * 1.5, []); const pulse = useSharedValue(0.2 + Math.random() * 0.4);
   useEffect(() => { pulse.value = withRepeat(withTiming(1, { duration: 1500 + Math.random() * 2500, easing: Easing.inOut(Easing.sin) }), -1, true); }, []);
@@ -294,7 +329,13 @@ const AuroraEffect = ({ activeColor }: { activeColor: string }) => {
   return <View style={StyleSheet.absoluteFill}><AuroraLight color={activeColor} /><AuroraLight color={colors.secondary || activeColor} /></View>;
 };
 
-const MatrixColumn = ({ x, delay, color }: any) => {
+interface MatrixColumnProps {
+  x: number;
+  delay: number;
+  color: string;
+}
+
+const MatrixColumn = ({ x, delay, color }: MatrixColumnProps) => {
   const ty = useSharedValue(-height * 0.5); const gradId = useMemo(() => `matrix-grad-${Math.random()}`, []);
   useEffect(() => { ty.value = withDelay(delay, withRepeat(withTiming(height * 1.5, { duration: 5000, easing: Easing.linear }), -1, false)); }, [delay]);
   const colHeight = height * 0.4;
@@ -310,7 +351,14 @@ const MatrixRain = ({ activeColor }: { activeColor: string }) => {
   return <View style={StyleSheet.absoluteFill}>{columns.map(col => <MatrixColumn key={col.id} x={col.x} delay={col.delay} color={activeColor} />)}</View>;
 };
 
-const VortexRing = ({ radius, color, speed, index }: any) => {
+interface VortexRingProps {
+  radius: number;
+  color: string;
+  speed: number;
+  index: number;
+}
+
+const VortexRing = ({ radius, color, speed, index }: VortexRingProps) => {
   const rotation = useSharedValue(0);
   useEffect(() => { rotation.value = withRepeat(withTiming(360, { duration: speed, easing: Easing.linear }), -1, false); }, [speed]);
   return (
@@ -406,7 +454,15 @@ const CyberGrid = ({ activeColor }: { activeColor: string }) => {
   );
 };
 
-const AuraOrb = ({ delay = 0, initialX = 0, initialY = 0, size = 400, color = '#fff' }: any) => {
+interface AuraOrbProps {
+  delay?: number;
+  initialX?: number;
+  initialY?: number;
+  size?: number;
+  color?: string;
+}
+
+const AuraOrb = ({ delay = 0, initialX = 0, initialY = 0, size = 400, color = '#fff' }: AuraOrbProps) => {
   const scale = useSharedValue(1); const opacity = useSharedValue(0.15);
   const gradId = useMemo(() => `aura-${Math.random()}`, []);
   useEffect(() => {
@@ -420,7 +476,13 @@ const AuraOrb = ({ delay = 0, initialX = 0, initialY = 0, size = 400, color = '#
   );
 };
 
-const SilkPath = ({ color, delay, duration }: any) => {
+interface SilkPathProps {
+  color: string;
+  delay: number;
+  duration: number;
+}
+
+const SilkPath = ({ color, delay, duration }: SilkPathProps) => {
   const t = useSharedValue(0); useEffect(() => { t.value = withDelay(delay, withRepeat(withTiming(Math.PI * 2, { duration, easing: Easing.linear }), -1, false)); }, [delay, duration]);
   const AnimatedPath = Animated.createAnimatedComponent(Path);
   const animatedProps = useAnimatedProps(() => {
@@ -448,7 +510,13 @@ const PrismBackground = ({ activeColor }: { activeColor: string }) => {
   );
 };
 
-const NebulaOrb = ({ color, duration, delay }: any) => {
+interface NebulaOrbProps {
+  color: string;
+  duration: number;
+  delay: number;
+}
+
+const NebulaOrb = ({ color, duration, delay }: NebulaOrbProps) => {
   const tx = useSharedValue(Math.random() * width); const ty = useSharedValue(Math.random() * height);
   const scale = useSharedValue(1); const opacity = useSharedValue(0.1); const gradId = useMemo(() => `nebula-${Math.random()}`, []);
   useEffect(() => {
@@ -470,7 +538,12 @@ const NebulaBackground = ({ activeColor }: { activeColor: string }) => {
   return <View style={StyleSheet.absoluteFill}><NebulaOrb color={activeColor} duration={25000} delay={0} /><NebulaOrb color={colors.secondary || activeColor} duration={30000} delay={2000} /></View>;
 };
 
-const FlowLine = ({ color, index }: any) => {
+interface FlowLineProps {
+  color: string;
+  index: number;
+}
+
+const FlowLine = ({ color, index }: FlowLineProps) => {
   const t = useSharedValue(0); useEffect(() => { t.value = withRepeat(withTiming(Math.PI * 2, { duration: 10000 + index * 2000, easing: Easing.linear }), -1, false); }, []);
   const AnimatedPath = Animated.createAnimatedComponent(Path);
   const animatedProps = useAnimatedProps(() => {
@@ -491,7 +564,19 @@ const SaturnBackground = ({ activeColor }: { activeColor: string }) => {
 };
 
 
-const PNode = ({ p, rotation, activeColor }: any) => {
+interface PNodeData {
+  id: number;
+  angle: number;
+  dist: number;
+}
+
+interface PNodeProps {
+  p: PNodeData;
+  rotation: SharedValue<number>;
+  activeColor: string;
+}
+
+const PNode = ({ p, rotation, activeColor }: PNodeProps) => {
   const pStyle = useAnimatedStyle(() => {
     const t = Date.now() / 2000;
     const d = p.dist * (1 - ((t + p.id) % 1));
@@ -530,7 +615,19 @@ const BlackHole = ({ activeColor }: { activeColor: string }) => {
   );
 };
 
-const SNode = ({ s, activeColor }: any) => {
+interface SNodeData {
+  id: number;
+  x: number;
+  y: number;
+  z: number;
+}
+
+interface SNodeProps {
+  s: SNodeData;
+  activeColor: string;
+}
+
+const SNode = ({ s, activeColor }: SNodeProps) => {
   const sStyle = useAnimatedStyle(() => {
     const t = (Date.now() / 2000 + s.id) % 1;
     const z = s.z * (1 - t);
@@ -562,7 +659,20 @@ const Stardust = ({ activeColor }: { activeColor: string }) => {
   );
 };
 
-const PairNode = ({ p, rotation, activeColor, secondaryColor }: any) => {
+interface PairData {
+  id: number;
+  phase: number;
+  y: number;
+}
+
+interface PairNodeProps {
+  p: PairData;
+  rotation: SharedValue<number>;
+  activeColor: string;
+  secondaryColor: string;
+}
+
+const PairNode = ({ p, rotation, activeColor, secondaryColor }: PairNodeProps) => {
   const a1Style = useAnimatedStyle(() => {
     const r = 60;
     const x = Math.cos(p.phase + rotation.value) * r;
@@ -614,7 +724,22 @@ const DNAStructure = ({ activeColor }: { activeColor: string }) => {
   );
 };
 
-const LineNode = ({ p, p2, activeColor, AnimatedPath }: any) => {
+interface NeuralPointData {
+  id: number;
+  x: SharedValue<number>;
+  y: SharedValue<number>;
+  vx: SharedValue<number>;
+  vy: SharedValue<number>;
+}
+
+interface LineNodeProps {
+  p: NeuralPointData;
+  p2: NeuralPointData;
+  activeColor: string;
+  AnimatedPath: any; // Result of Animated.createAnimatedComponent(Path)
+}
+
+const LineNode = ({ p, p2, activeColor, AnimatedPath }: LineNodeProps) => {
   const lineProps = useAnimatedProps(() => {
     const d = Math.sqrt(Math.pow(p.x.value - p2.x.value, 2) + Math.pow(p.y.value - p2.y.value, 2));
     let opacity = 0;
@@ -624,7 +749,14 @@ const LineNode = ({ p, p2, activeColor, AnimatedPath }: any) => {
   return <AnimatedPath animatedProps={lineProps} stroke={activeColor} strokeWidth={1} />;
 };
 
-const PointNode = ({ p, points, activeColor, AnimatedPath }: any) => {
+interface PointNodeProps {
+  p: NeuralPointData;
+  points: NeuralPointData[];
+  activeColor: string;
+  AnimatedPath: any;
+}
+
+const PointNode = ({ p, points, activeColor, AnimatedPath }: PointNodeProps) => {
   const pointStyle = useAnimatedStyle(() => ({
     left: p.x.value,
     top: p.y.value,
@@ -640,7 +772,7 @@ const PointNode = ({ p, points, activeColor, AnimatedPath }: any) => {
     <Animated.View style={[{ width: 4, height: 4, borderRadius: 2, backgroundColor: activeColor, position: 'absolute' }, pointStyle]}>
       <Animated.View style={[{ position: 'absolute', width: width, height: height }, svgStyle]}>
         <Svg width={width} height={height}>
-          {points.filter((p2: any) => p2.id > p.id).map((p2: any) => (
+          {points.filter((p2: NeuralPointData) => p2.id > p.id).map((p2: NeuralPointData) => (
             <LineNode key={p2.id} p={p} p2={p2} activeColor={activeColor} AnimatedPath={AnimatedPath} />
           ))}
         </Svg>
@@ -802,7 +934,7 @@ export const BackgroundEffects: React.FC<BackgroundEffectsProps> = ({ customColo
   }, [backgroundEffect]);
 
   const getEffectNode = (effect: BackgroundEffectType) => {
-    const effects: any = {
+    const effects: Record<BackgroundEffectType, React.ReactNode> = {
       bokeh: <DreamscapeBokehSystem activeColor={activeColor} />,
       quantum: <QuantumDustSystem activeColor={activeColor} />,
       aurora: <AuroraEffect activeColor={activeColor} />,
@@ -820,6 +952,7 @@ export const BackgroundEffects: React.FC<BackgroundEffectsProps> = ({ customColo
       neural: <NeuralNetwork activeColor={activeColor} />,
       dna: <DNAStructure activeColor={activeColor} />,
       winamp: <WinampVisualizer activeColor={activeColor} />,
+      none: null,
     };
     return effects[effect] || <SaturnBackground activeColor={activeColor} />;
   };
