@@ -34,8 +34,7 @@ export const findAction = (response: string, type: string): AIAction | null => {
             return {
               fullMatch,
               type: uType,
-              data: null,
-              regex: { [Symbol.replace]: (str: string) => str.replace(fullMatch, '') }
+              data: null
             };
           }
 
@@ -46,8 +45,7 @@ export const findAction = (response: string, type: string): AIAction | null => {
           return {
             fullMatch,
             type: uType,
-            data: dataPart,
-            regex: { [Symbol.replace]: (str: string) => str.replace(fullMatch, '') }
+            data: dataPart
           };
         } else {
           // If no closer found, but we have a match for the prefix, check for missing closing parenthesis
@@ -62,7 +60,7 @@ export const findAction = (response: string, type: string): AIAction | null => {
   return null;
 };
 
-export const parseActionData = (jsonStr: string | null): any => {
+export const parseActionData = (jsonStr: string | null): Record<string, unknown> | null => {
   if (!jsonStr) return null;
 
   const rawClean = jsonStr.trim();
@@ -76,7 +74,7 @@ export const parseActionData = (jsonStr: string | null): any => {
     logger.debug('Strategy 1 failed, trying manual extraction...', 'ActionParser');
     // Strategy 2: Manual Key-Value Extraction (Best for lyrics or broken JSON)
     try {
-      const data: any = {};
+      const data: Record<string, unknown> = {};
       
       // Generic string/value matching for simple keys
       const simpleKeys = ['themeId', 'effect', 'isDark', 'lang', 'trackId', 'imageUrl', 'route', 'level'];

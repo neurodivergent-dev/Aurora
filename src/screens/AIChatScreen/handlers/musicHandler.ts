@@ -2,11 +2,12 @@ import * as Haptics from 'expo-haptics';
 import { useMusicStore } from '../../../store/musicStore';
 import { useAIStore } from '../../../store/aiStore';
 import { findAction, parseActionData } from './actionParser';
+import { AIAction } from '../../../types/chat';
 import * as FileSystem from 'expo-file-system/legacy';
 import logger from '../../../utils/logger';
 
-const cleanCommand = (text: string, match: any) => {
-  return text.replace(match.regex as any, '').split('\n').filter(line => line.trim() !== '').join('\n').trim();
+const cleanCommand = (text: string, match: AIAction) => {
+  return text.replace(match.fullMatch, '').split('\n').filter(line => line.trim() !== '').join('\n').trim();
 };
 
 export const handleMusicActions = (response: string): { cleanResponse: string; changed: boolean } => {
@@ -23,13 +24,13 @@ export const handleMusicActions = (response: string): { cleanResponse: string; c
     // 1. PLAY_MUSIC
     const playMatch = findAction(cleanResponse, 'PLAY_MUSIC');
     if (playMatch) {
-      const data = parseActionData(playMatch.data);
+      const data = parseActionData(playMatch.data) as { trackId?: string | number; genre?: string } | null;
       if (data) {
         if (data.trackId) {
-          const track = playlist.find(t => t.id === data.trackId.toString());
+          const track = playlist.find(t => t.id === data.trackId?.toString());
           if (track) { setCurrentTrack(track); play(); changed = true; }
         } else if (data.genre) {
-          const track = playlist.find(t => t.genre?.toLowerCase() === data.genre.toLowerCase());
+          const track = playlist.find(t => t.genre?.toLowerCase() === data.genre?.toLowerCase());
           if (track) { setCurrentTrack(track); play(); changed = true; }
         }
       }
@@ -58,7 +59,7 @@ export const handleMusicActions = (response: string): { cleanResponse: string; c
     // 4. SET_VOLUME
     const volumeMatch = findAction(cleanResponse, 'SET_VOLUME');
     if (volumeMatch) {
-      const data = parseActionData(volumeMatch.data);
+      const data = parseActionData(volumeMatch.data) as { level?: number } | null;
       if (data && data.level !== undefined) {
         const newVol = Math.max(0, Math.min(1, data.level));
         setVolume(newVol);
@@ -71,7 +72,7 @@ export const handleMusicActions = (response: string): { cleanResponse: string; c
     // 5. CREATE_PLAYLIST
     const createPlaylistMatch = findAction(cleanResponse, 'CREATE_PLAYLIST');
     if (createPlaylistMatch) {
-      const data = parseActionData(createPlaylistMatch.data);
+      const data = parseActionData(createPlaylistMatch.data) as { name?: string; trackIds?: string[] } | null;
       if (data && data.name && data.trackIds) {
         createPlaylist(data.name, data.trackIds);
         cleanResponse = cleanCommand(cleanResponse, createPlaylistMatch);
@@ -83,7 +84,7 @@ export const handleMusicActions = (response: string): { cleanResponse: string; c
     // 6. DELETE_PLAYLIST
     const deletePlaylistMatch = findAction(cleanResponse, 'DELETE_PLAYLIST');
     if (deletePlaylistMatch) {
-      const data = parseActionData(deletePlaylistMatch.data);
+      const data = parseActionData(deletePlaylistMatch.data) as { playlistId?: string } | null;
       if (data && data.playlistId) {
         deletePlaylist(data.playlistId);
         cleanResponse = cleanCommand(cleanResponse, deletePlaylistMatch);
@@ -95,7 +96,7 @@ export const handleMusicActions = (response: string): { cleanResponse: string; c
     // 7. UPDATE_PLAYLIST
     const updatePlaylistMatch = findAction(cleanResponse, 'UPDATE_PLAYLIST');
     if (updatePlaylistMatch) {
-      const data = parseActionData(updatePlaylistMatch.data);
+      const data = parseActionData(updatePlaylistMatch.data) as { playlistId?: string; name?: string; trackIds?: string[] } | null;
       if (data && data.playlistId && data.name && data.trackIds) {
         updatePlaylist(data.playlistId, data.name, data.trackIds);
         cleanResponse = cleanCommand(cleanResponse, updatePlaylistMatch);
@@ -116,7 +117,7 @@ export const handleMusicActions = (response: string): { cleanResponse: string; c
     // 9. SET_TRACK_LYRICS
     const lyricsMatch = findAction(cleanResponse, 'SET_TRACK_LYRICS');
     if (lyricsMatch) {
-      const data = parseActionData(lyricsMatch.data);
+      const data = parseActionData(lyricsMatch.data) as { trackId?: string; lyrics?: string } | null;
       if (data && data.lyrics) {
         const trackId = data.trackId || (currentTrack?.id);
         if (trackId) {
@@ -131,7 +132,7 @@ export const handleMusicActions = (response: string): { cleanResponse: string; c
     // 10. SET_TRACK_ARTWORK (with Local SD support)
     const artworkMatch = findAction(cleanResponse, 'SET_TRACK_ARTWORK');
     if (artworkMatch) {
-      const data = parseActionData(artworkMatch.data);
+      const data = parseActionData(artworkMatch.data) as { trackId?: string; imageUrl?: string } | null;
       if (data && data.imageUrl) {
         const trackId = data.trackId || (currentTrack?.id);
         if (trackId) {
@@ -182,7 +183,7 @@ export const handleMusicActions = (response: string): { cleanResponse: string; c
     // 11. TOGGLE_FAVORITE
     const favoriteMatch = findAction(cleanResponse, 'TOGGLE_FAVORITE');
     if (favoriteMatch) {
-      const data = parseActionData(favoriteMatch.data);
+      const data = parseActionData(favoriteMatch.data) as { trackId?: string } | null;
       const trackId = data?.trackId || currentTrack?.id;
       if (trackId) {
         toggleFavorite(trackId);

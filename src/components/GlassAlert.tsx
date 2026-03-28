@@ -58,6 +58,8 @@ export const GlassAlert: React.FC = () => {
           activeOpacity={1} 
           style={[styles.backdrop, { backgroundColor: isDarkMode ? 'rgba(0,0,0,0.4)' : 'rgba(0,0,0,0.2)' }]} 
           onPress={hideAlert} 
+          accessibilityRole="button"
+          accessibilityLabel={t('a11y.close')}
         />
       </Animated.View>
 
@@ -71,6 +73,9 @@ export const GlassAlert: React.FC = () => {
           intensity={Platform.OS === 'ios' ? 40 : 100}
           tint={isDarkMode ? 'dark' : 'light'}
           style={styles.blurWrapper}
+          accessible={true}
+          accessibilityViewIsModal={true}
+          accessibilityRole="alert"
         >
           <View style={[
             styles.content, 
@@ -85,14 +90,16 @@ export const GlassAlert: React.FC = () => {
             </View>
 
             <View style={styles.textContainer}>
-              <Text style={[styles.title, { color: colors.text }]}>{title}</Text>
-              <Text style={[styles.message, { color: colors.subText }]}>{message}</Text>
+              <Text style={[styles.title, { color: colors.text }]} accessibilityRole="header">{title}</Text>
+              <Text style={[styles.message, { color: colors.subText }]} accessibilityRole="text">{message}</Text>
             </View>
 
             <TouchableOpacity 
               style={[styles.button, { backgroundColor: colors.primary }]} 
               onPress={hideAlert}
               activeOpacity={0.8}
+              accessibilityRole="button"
+              accessibilityLabel={t('common.ok', 'OK')}
             >
               <Text style={styles.buttonText}>{t('common.ok', 'OK')}</Text>
             </TouchableOpacity>

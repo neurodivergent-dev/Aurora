@@ -105,6 +105,9 @@ export const AboutScreen: React.FC = () => {
         onPressIn={handlePressIn}
         onPressOut={handlePressOut}
         onPress={() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium)}
+        accessible={true}
+        accessibilityRole="button"
+        accessibilityLabel={label}
       >
         <Animated.View style={[
           styles.featureCard,
@@ -159,7 +162,12 @@ export const AboutScreen: React.FC = () => {
         <View style={styles.headerDecorationCircle1} />
         <View style={styles.headerDecorationCircle2} />
 
-        <TouchableOpacity style={styles.backButton} onPress={handleBack}>
+        <TouchableOpacity 
+          style={styles.backButton} 
+          onPress={handleBack}
+          accessibilityRole="button"
+          accessibilityLabel={t("about.back", { defaultValue: "Settings" })}
+        >
           <ChevronLeft size={24} color="#FFFFFF" style={styles.headerIconShadow} />
           <Text
             style={[styles.backText, { color: "#FFFFFF" }, styles.headerTextShadow]}
@@ -187,13 +195,13 @@ export const AboutScreen: React.FC = () => {
       >
         <View style={styles.logoContainer}>
           {/* App SVG Logo */}
-          <View style={styles.logoWrapper}>
+          <View style={styles.logoWrapper} accessible={true} accessibilityRole="image" accessibilityLabel="Aurora Logo">
             <AuroraLogo size={100} color={colors.primary} />
           </View>
-          <Text style={[styles.appName, { color: colors.text }]}>
+          <Text style={[styles.appName, { color: colors.text }]} accessibilityRole="header">
             Aurora
           </Text>
-          <View style={styles.versionBadge}>
+          <View style={styles.versionBadge} accessible={true} accessibilityRole="text">
             <Text style={[styles.versionText, { color: colors.primary }]}>
               {t("about.version")}: v{Constants.expoConfig?.version || Constants.manifest2?.extra?.expoClient?.version || "1.0.0"}
             </Text>
@@ -209,7 +217,7 @@ export const AboutScreen: React.FC = () => {
           end={{ x: 1, y: 1 }}
           style={[styles.section, { borderWidth: 1, borderColor: isDarkMode ? 'rgba(255, 255, 255, 0.15)' : colors.primary + '30', backgroundColor: colors.card }]}
         >
-          <Text style={[styles.sectionTitle, { color: colors.text }]}>
+          <Text style={[styles.sectionTitle, { color: colors.text }]} accessibilityRole="header">
             {t("about.title")}
           </Text>
           <Text style={[styles.description, { color: colors.text }]}>
@@ -237,6 +245,8 @@ export const AboutScreen: React.FC = () => {
             <TouchableOpacity
               style={[styles.actionChip, { backgroundColor: colors.primary + '15' }]}
               onPress={handleOpenPlayStore}
+              accessibilityRole="link"
+              accessibilityLabel={t("a11y.playStore", { defaultValue: "Play Store" })}
             >
               <Play size={22} color={colors.primary} />
             </TouchableOpacity>
@@ -244,6 +254,8 @@ export const AboutScreen: React.FC = () => {
             <TouchableOpacity
               style={[styles.actionChip, { backgroundColor: isDarkMode ? 'rgba(255,255,255,0.08)' : '#f3f4f6' }]}
               onPress={handleOpenGithub}
+              accessibilityRole="link"
+              accessibilityLabel={t("a11y.github", { defaultValue: "GitHub" })}
             >
               <Github size={22} color={isDarkMode ? '#fff' : '#111827'} />
             </TouchableOpacity>
@@ -251,6 +263,8 @@ export const AboutScreen: React.FC = () => {
             <TouchableOpacity
               style={[styles.actionChip, { backgroundColor: '#da552f15' }]}
               onPress={handleOpenProductHunt}
+              accessibilityRole="link"
+              accessibilityLabel={t("a11y.productHunt", { defaultValue: "Product Hunt" })}
             >
               <ProductHuntIcon size={22} color="#da552f" />
             </TouchableOpacity>
@@ -258,6 +272,8 @@ export const AboutScreen: React.FC = () => {
             <TouchableOpacity
               style={[styles.actionChip, { backgroundColor: colors.secondary + '15' }]}
               onPress={handleSendEmail}
+              accessibilityRole="button"
+              accessibilityLabel={t("a11y.email", { defaultValue: "Email" })}
             >
               <Mail size={22} color={colors.secondary} />
             </TouchableOpacity>
@@ -271,7 +287,7 @@ export const AboutScreen: React.FC = () => {
             {t("about.copyright")}
           </Text>
 
-          <View style={styles.madeWithContainer}>
+          <View style={styles.madeWithContainer} accessible={true} accessibilityRole="text" accessibilityLabel={`${t("about.madeWith")} love ${t("about.inTurkey")}`}>
             <Text style={[styles.madeLoveText, { color: colors.subText }]}>
               {t("about.madeWith")}
             </Text>

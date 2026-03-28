@@ -37,6 +37,8 @@ const EasterEggScreen = () => {
           <TouchableOpacity 
             style={styles.circleButton} 
             onPress={() => router.back()}
+            accessibilityRole="button"
+            accessibilityLabel="Go Back"
           >
             <ArrowLeft color="#fff" size={24} />
           </TouchableOpacity>
@@ -44,6 +46,8 @@ const EasterEggScreen = () => {
           <TouchableOpacity 
             style={styles.circleButton} 
             onPress={handleRefresh}
+            accessibilityRole="button"
+            accessibilityLabel="Refresh"
           >
             <RefreshCw color="#fff" size={24} />
           </TouchableOpacity>

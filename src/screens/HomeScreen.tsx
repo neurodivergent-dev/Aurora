@@ -43,8 +43,8 @@ export const HomeScreen: React.FC = () => {
           end={{ x: 1, y: 1 }}
           style={[styles.headerGradient, { paddingTop: Math.max(insets.top, 10) + 16, paddingBottom: 24 }]}
         >
-          <View style={styles.headerDecorationCircle1} />
-          <View style={styles.headerDecorationCircle2} />
+          <View style={styles.headerDecorationCircle1} importantForAccessibility="no" />
+          <View style={styles.headerDecorationCircle2} importantForAccessibility="no" />
 
           <View style={styles.headerContent}>
             <Text style={styles.headerTitle}>{t("home.library")}</Text>
@@ -56,6 +56,9 @@ export const HomeScreen: React.FC = () => {
                   setIsSearchVisible(!isSearchVisible);
                   if (isSearchVisible) setSearchQuery(""); // Kapanınca aramayı temizle
                 }}
+                accessibilityRole="button"
+                accessibilityLabel={isSearchVisible ? t('a11y.close') : t('a11y.toggleSearch')}
+                accessibilityState={{ expanded: isSearchVisible }}
               >
                 <Search size={24} color="#FFFFFF" />
               </TouchableOpacity>
@@ -71,6 +74,7 @@ export const HomeScreen: React.FC = () => {
                 value={searchQuery}
                 onChangeText={setSearchQuery}
                 autoFocus
+                accessibilityLabel={t("a11y.searchInput")}
               />
             </Animated.View>
           )}
@@ -93,6 +97,8 @@ export const HomeScreen: React.FC = () => {
                   play();
                 }
               }}
+              accessibilityRole="button"
+              accessibilityLabel={t("a11y.playAll")}
             >
               <Play size={24} color="#FFFFFF" fill="#FFFFFF" style={{ marginLeft: 4 }} />
             </TouchableOpacity>
@@ -108,6 +114,9 @@ export const HomeScreen: React.FC = () => {
               onPress={() => {
                 toggleShuffle();
               }}
+              accessibilityRole="button"
+              accessibilityLabel={isShuffled ? t("a11y.shuffleOff") : t("a11y.shuffleOn")}
+              accessibilityState={{ checked: isShuffled }}
             >
               <Shuffle size={20} color={isShuffled ? colors.primary : colors.text} />
               <Text style={[styles.actionText, { color: isShuffled ? colors.primary : colors.text }]}>{t("home.shuffle")}</Text>
@@ -116,6 +125,8 @@ export const HomeScreen: React.FC = () => {
             <TouchableOpacity
               style={[styles.actionBtn, { backgroundColor: colors.card, borderColor: colors.border, borderWidth: 1 }]}
               onPress={() => useMusicStore.getState().loadLocalMusic()}
+              accessibilityRole="button"
+              accessibilityLabel={t("a11y.addMusic")}
             >
               <Music size={20} color={colors.primary} />
               <Text style={[styles.actionText, { color: colors.text }]}>{t("home.addLocalMusic")}</Text>
@@ -140,6 +151,9 @@ export const HomeScreen: React.FC = () => {
                         play();
                       }
                     }}
+                    accessibilityRole="button"
+                    accessibilityLabel={isSelected && isPlaying ? t("a11y.trackPlaying", { title: item.title, artist: item.artist || 'Aurora' }) : t("a11y.trackItem", { title: item.title, artist: item.artist || 'Aurora' })}
+                    accessibilityHint={isSelected && isPlaying ? t("a11y.pauseTrack", { title: item.title }) : t("a11y.playTrack", { title: item.title })}
                   >
                     <View style={[styles.trackIcon, { backgroundColor: colors.card, borderColor: colors.border, borderWidth: 1 }]}>
                       {isSelected && isPlaying ? (

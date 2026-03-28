@@ -47,7 +47,12 @@ export const PrivacyPolicyScreen: React.FC = () => {
         <View style={styles.headerDecorationCircle1} />
         <View style={styles.headerDecorationCircle2} />
 
-        <TouchableOpacity style={styles.backButton} onPress={handleBack}>
+        <TouchableOpacity 
+          style={styles.backButton} 
+          onPress={handleBack}
+          accessibilityRole="button"
+          accessibilityLabel={t("privacy.back")}
+        >
           <ChevronLeft size={24} color="#FFFFFF" />
           <Text 
             style={[styles.backText, { color: "#FFFFFF" }]}
@@ -62,6 +67,7 @@ export const PrivacyPolicyScreen: React.FC = () => {
             style={[styles.title, { color: "#FFFFFF" }]}
             numberOfLines={1}
             adjustsFontSizeToFit
+            accessibilityRole="header"
           >
             {t("privacy.title")}
           </Text>
@@ -90,7 +96,7 @@ export const PrivacyPolicyScreen: React.FC = () => {
           end={{ x: 1, y: 1 }}
           style={[styles.section, { borderWidth: 1, borderColor: isDarkMode ? 'rgba(255, 255, 255, 0.1)' : colors.primary + '30', backgroundColor: isDarkMode ? 'rgba(255, 255, 255, 0.02)' : 'transparent' }]}
         >
-          <Text style={[styles.sectionTitle, { color: colors.text }]}>
+          <Text style={[styles.sectionTitle, { color: colors.text }]} accessibilityRole="header">
             {t("privacy.ourPrivacyCommitmentTitle")}
           </Text>
           <Text style={[styles.paragraph, { color: colors.text }]}>
@@ -107,7 +113,7 @@ export const PrivacyPolicyScreen: React.FC = () => {
           end={{ x: 1, y: 1 }}
           style={[styles.section, { borderWidth: 1, borderColor: isDarkMode ? 'rgba(255, 255, 255, 0.1)' : colors.primary + '30', backgroundColor: isDarkMode ? 'rgba(255, 255, 255, 0.02)' : 'transparent' }]}
         >
-          <Text style={[styles.sectionTitle, { color: colors.text }]}>
+          <Text style={[styles.sectionTitle, { color: colors.text }]} accessibilityRole="header">
             {t("privacy.dataCollectionTitle")}
           </Text>
           <View style={styles.policyItem}>
@@ -156,7 +162,7 @@ export const PrivacyPolicyScreen: React.FC = () => {
           end={{ x: 1, y: 1 }}
           style={[styles.section, { borderWidth: 1, borderColor: isDarkMode ? 'rgba(255, 255, 255, 0.1)' : colors.primary + '30', backgroundColor: isDarkMode ? 'rgba(255, 255, 255, 0.02)' : 'transparent' }]}
         >
-          <Text style={[styles.sectionTitle, { color: colors.text }]}>
+          <Text style={[styles.sectionTitle, { color: colors.text }]} accessibilityRole="header">
             {t("privacy.dataSecurityTitle")}
           </Text>
           <Text style={[styles.paragraph, { color: colors.text }]}>
@@ -173,7 +179,7 @@ export const PrivacyPolicyScreen: React.FC = () => {
           end={{ x: 1, y: 1 }}
           style={[styles.section, { borderWidth: 1, borderColor: isDarkMode ? 'rgba(255, 255, 255, 0.1)' : colors.primary + '30', backgroundColor: isDarkMode ? 'rgba(255, 255, 255, 0.02)' : 'transparent' }]}
         >
-          <Text style={[styles.sectionTitle, { color: colors.text }]}>
+          <Text style={[styles.sectionTitle, { color: colors.text }]} accessibilityRole="header">
             {t("privacy.yourRightsTitle")}
           </Text>
           <Text style={[styles.paragraph, { color: colors.text }]}>
@@ -190,7 +196,7 @@ export const PrivacyPolicyScreen: React.FC = () => {
           end={{ x: 1, y: 1 }}
           style={[styles.section, { borderWidth: 1, borderColor: isDarkMode ? 'rgba(255, 255, 255, 0.1)' : colors.primary + '30', backgroundColor: isDarkMode ? 'rgba(255, 255, 255, 0.02)' : 'transparent' }]}
         >
-          <Text style={[styles.sectionTitle, { color: colors.text }]}>
+          <Text style={[styles.sectionTitle, { color: colors.text }]} accessibilityRole="header">
             {t("privacy.policyUpdatesTitle")}
           </Text>
           <Text style={[styles.paragraph, { color: colors.text }]}>
@@ -208,7 +214,7 @@ export const PrivacyPolicyScreen: React.FC = () => {
             {t("privacy.copyright")}
           </Text>
 
-          <View style={styles.madeWithContainer}>
+          <View style={styles.madeWithContainer} accessible={true} accessibilityRole="text" accessibilityLabel={`${t("about.madeWith")} love ${t("about.inTurkey")}`}>
             {t("common.language") === "tr" ? (
               <>
                 <Text style={[styles.madeLoveText, { color: colors.subText }]}>

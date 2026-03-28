@@ -210,8 +210,8 @@ export const SettingsScreen: React.FC = () => {
       >
         <View style={styles.headerDecorationCircle1} />
         <View style={styles.headerDecorationCircle2} />
-        <Text style={[styles.title, { color: "#FFFFFF" }]}>{t("settings.title")}</Text>
-        <Text style={[styles.subtitle, { color: "rgba(255, 255, 255, 0.85)" }]}>{t("settings.customizeYourExperience")}</Text>
+        <Text style={[styles.title, { color: "#FFFFFF" }]} accessibilityRole="header">{t("settings.title")}</Text>
+        <Text style={[styles.subtitle, { color: "rgba(255, 255, 255, 0.85)" }]} accessibilityRole="text">{t("settings.customizeYourExperience")}</Text>
       </LinearGradient>
 
       <ScrollView style={styles.scrollView} contentContainerStyle={[styles.scrollViewContent, { paddingBottom: 125 }]}>
@@ -221,6 +221,9 @@ export const SettingsScreen: React.FC = () => {
             style={[styles.profileAvatarContainer, { borderColor: colors.primary + '30' }]}
             onPress={handlePickImage}
             activeOpacity={0.8}
+            accessibilityRole="button"
+            accessibilityLabel={t("a11y.profileImage")}
+            accessibilityHint={t("a11y.openLink")}
           >
             {userImage ? (
               <Image source={{ uri: userImage }} style={styles.profileAvatar} />
@@ -247,8 +250,9 @@ export const SettingsScreen: React.FC = () => {
               placeholderTextColor={colors.subText + '60'}
               maxLength={20}
               onFocus={() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)}
+              accessibilityLabel={t("a11y.userNameInput")}
             />
-            <Text style={[styles.profileSubtext, { color: colors.subText }]}>
+            <Text style={[styles.profileSubtext, { color: colors.subText }]} accessibilityRole="text">
               {t("settings.userNameDescription")}
             </Text>
           </View>
@@ -264,8 +268,8 @@ export const SettingsScreen: React.FC = () => {
             borderLeftWidth: 4,
             borderLeftColor: colors.primary
           }]}>
-            <Text style={[styles.themeLabel, { color: colors.text }]}>{t("settings.theme")}</Text>
-            <View style={styles.themeOptionsContainer}>
+            <Text style={[styles.themeLabel, { color: colors.text }]} accessibilityRole="header">{t("settings.theme")}</Text>
+            <View style={styles.themeOptionsContainer} accessibilityRole="radiogroup">
               {(["light", "dark", "system"] as const).map((mode) => (
                 <TouchableOpacity
                   key={mode}
@@ -276,6 +280,9 @@ export const SettingsScreen: React.FC = () => {
                   ]}
                   onPress={() => handleThemeChange(mode)}
                   activeOpacity={0.7}
+                  accessibilityRole="radio"
+                  accessibilityState={{ checked: themeMode === mode }}
+                  accessibilityLabel={t(`settings.themeOptions.${mode}`)}
                 >
                   <View style={[styles.themeIconCircle, themeMode === mode && { backgroundColor: colors.primary }]}>
                     {mode === "light" ? <Sun size={20} color={themeMode === mode ? "#FFFFFF" : colors.subText} /> :
@@ -306,6 +313,8 @@ export const SettingsScreen: React.FC = () => {
                 }}
                 trackColor={{ false: "#767577", true: colors.primary + '80' }}
                 thumbColor={soundsEnabled ? colors.primary : "#f4f3f4"}
+                accessibilityRole="switch"
+                accessibilityLabel={t("settings.uiSounds")}
               />
             </View>
           </View>
@@ -313,6 +322,8 @@ export const SettingsScreen: React.FC = () => {
           <TouchableOpacity
             style={[styles.settingItem, { backgroundColor: colors.card, borderLeftWidth: 4, borderLeftColor: colors.primary }]}
             onPress={handleNavigateToAISettings}
+            accessibilityRole="button"
+            accessibilityLabel={`${t("settings.ai.title")}, ${t("settings.ai.description")}`}
           >
             <View style={[styles.settingIconContainer, { backgroundColor: colors.primary + '15' }]}>
               <BrainCircuit size={20} color={colors.primary} />
@@ -335,6 +346,8 @@ export const SettingsScreen: React.FC = () => {
               key={idx}
               style={[styles.settingItem, { backgroundColor: colors.card, borderLeftWidth: 4, borderLeftColor: item.color }]}
               onPress={item.onPress}
+              accessibilityRole="button"
+              accessibilityLabel={`${t(item.label)}, ${t(item.desc)}`}
             >
               <View style={[styles.settingIconContainer, { backgroundColor: item.color + '15' }]}>
                 <item.icon size={20} color={item.color} />
@@ -351,6 +364,8 @@ export const SettingsScreen: React.FC = () => {
             style={[styles.resetCard, { borderColor: '#EF4444' + '30' }]}
             onPress={handleResetAllData}
             activeOpacity={0.8}
+            accessibilityRole="button"
+            accessibilityLabel={`${t("settings.resetAllData")}, ${t("settings.resetAllDataDescription")}`}
           >
             <LinearGradient
               colors={['#EF4444' + '15', 'transparent']}
@@ -370,8 +385,14 @@ export const SettingsScreen: React.FC = () => {
         </View>
 
         <View style={styles.section}>
-          <Text style={[styles.sectionTitle, { color: colors.text }]}>{t("settings.about")}</Text>
-          <TouchableOpacity activeOpacity={1} onPress={handleLogoPress} style={styles.logoContainer}>
+          <Text style={[styles.sectionTitle, { color: colors.text }]} accessibilityRole="header">{t("settings.about")}</Text>
+          <TouchableOpacity 
+            activeOpacity={1} 
+            onPress={handleLogoPress} 
+            style={styles.logoContainer}
+            accessibilityRole="imagebutton"
+            accessibilityLabel={t("a11y.easterEggHint")}
+          >
             <AuroraLogo size={100} color={colors.primary} />
             <View style={styles.versionBadge}>
               <Text style={[styles.versionText, { color: colors.primary }]}>Aurora v{Constants.expoConfig?.version || "1.0.0"}</Text>

@@ -52,8 +52,9 @@ const LanguageModal: React.FC<LanguageModalProps> = ({ visible, onClose }) => {
           <TouchableWithoutFeedback onPress={(e) => e.stopPropagation()}>
             <View
               style={[styles.modalContainer, { backgroundColor: colors.card }]}
+              accessibilityViewIsModal={true}
             >
-              <Text style={[styles.modalTitle, { color: colors.text }]}>
+              <Text style={[styles.modalTitle, { color: colors.text }]} accessibilityRole="header">
                 {t("settings.language")}
               </Text>
 
@@ -68,6 +69,9 @@ const LanguageModal: React.FC<LanguageModalProps> = ({ visible, onClose }) => {
                       },
                     ]}
                     onPress={() => handleLanguageSelect(option.code)}
+                    accessibilityRole="radio"
+                    accessibilityState={{ selected: currentLanguage === option.code }}
+                    accessibilityLabel={option.label}
                   >
                     <Text
                       style={[styles.languageLabel, { color: colors.text }]}
@@ -88,6 +92,8 @@ const LanguageModal: React.FC<LanguageModalProps> = ({ visible, onClose }) => {
                   { backgroundColor: colors.primary },
                 ]}
                 onPress={onClose}
+                accessibilityRole="button"
+                accessibilityLabel={t("settings.close")}
               >
                 <Text style={styles.closeButtonText}>
                   {t("settings.close")}

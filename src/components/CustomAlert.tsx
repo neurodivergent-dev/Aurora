@@ -75,10 +75,12 @@ export const CustomAlert: React.FC<CustomAlertProps> = ({
       animationType="none"
       onRequestClose={onCancel}
     >
-      <View style={styles.overlay}>
+      <View style={styles.overlay} accessibilityViewIsModal={true}>
         <Pressable
           style={StyleSheet.absoluteFill}
           onPress={onCancel}
+          accessibilityRole="button"
+          accessibilityLabel="Close alert"
         >
           <Animated.View
             entering={FadeIn.duration(200)}
@@ -110,14 +112,16 @@ export const CustomAlert: React.FC<CustomAlertProps> = ({
                 {getIcon()}
               </View>
 
-              <Text style={[styles.title, { color: colors.text }]}>{title}</Text>
-              <Text style={[styles.message, { color: colors.subText }]}>{message}</Text>
+              <Text style={[styles.title, { color: colors.text }]} accessibilityRole="header">{title}</Text>
+              <Text style={[styles.message, { color: colors.subText }]} accessibilityRole="text">{message}</Text>
 
               <View style={styles.buttonContainer}>
                 {cancelText && (
                   <TouchableOpacity
                     style={[styles.button, styles.cancelButton, { backgroundColor: isDarkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)' }]}
                     onPress={onCancel}
+                    accessibilityRole="button"
+                    accessibilityLabel={cancelText}
                   >
                     <Text style={[styles.buttonText, { color: colors.text }]}>{cancelText}</Text>
                   </TouchableOpacity>
@@ -126,6 +130,8 @@ export const CustomAlert: React.FC<CustomAlertProps> = ({
                 <TouchableOpacity
                   style={[styles.button, { backgroundColor: typeColor }]}
                   onPress={onConfirm}
+                  accessibilityRole="button"
+                  accessibilityLabel={confirmText}
                 >
                   <Text style={[styles.buttonText, { color: '#FFFFFF' }]}>{confirmText}</Text>
                 </TouchableOpacity>

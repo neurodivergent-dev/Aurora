@@ -366,15 +366,18 @@ export const useMusicStore = create<MusicState>()(
         localTracks: state.localTracks,
         favoriteTrackIds: state.favoriteTrackIds,
       }),
-      merge: (persistedState: any, currentState) => ({
-        ...currentState,
-        volume: persistedState?.volume ?? currentState.volume,
-        myPlaylists: persistedState?.myPlaylists ?? [],
-        localTracks: persistedState?.localTracks ?? [],
-        favoriteTrackIds: persistedState?.favoriteTrackIds ?? [],
-        // Reconstruct full playlist: defaults (fresh require IDs) + persisted local tracks
-        playlist: [...DEFAULT_TRACKS, ...(persistedState?.localTracks ?? [])],
-      }),
+      merge: (persistedState: unknown, currentState) => {
+        const state = persistedState as Partial<MusicState>;
+        return {
+          ...currentState,
+          volume: state?.volume ?? currentState.volume,
+          myPlaylists: state?.myPlaylists ?? [],
+          localTracks: state?.localTracks ?? [],
+          favoriteTrackIds: state?.favoriteTrackIds ?? [],
+          // Reconstruct full playlist: defaults (fresh require IDs) + persisted local tracks
+          playlist: [...DEFAULT_TRACKS, ...(state?.localTracks ?? [])],
+        };
+      },
     }
   )
 );

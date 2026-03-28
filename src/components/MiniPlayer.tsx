@@ -51,13 +51,18 @@ export const MiniPlayer: React.FC = () => {
             style={styles.content} 
             activeOpacity={0.8}
             onPress={() => router.push('/music-player')}
+            accessibilityRole="button"
+            accessibilityLabel={currentTrack ? t('a11y.nowPlaying', { title: currentTrack.title, artist: currentTrack.artist || 'Aurora' }) : t('a11y.openMusicPlayer')}
+            accessibilityHint={t('a11y.openMusicPlayer')}
           >
-            <View style={[styles.artwork, { backgroundColor: colors.primary + '20', overflow: 'hidden' }]}>
+            <View style={[styles.artwork, { backgroundColor: colors.primary + '20', overflow: 'hidden' }]} importantForAccessibility="no-hide-descendants">
               {currentTrack?.artwork ? (
                 <Image 
                   source={{ uri: currentTrack.artwork }} 
                   style={styles.artworkImage}
                   resizeMode="cover"
+                  accessibilityRole="image"
+                  accessibilityLabel={currentTrack?.title || ''}
                 />
               ) : (
                 <Music size={20} color={colors.primary} />
@@ -75,7 +80,7 @@ export const MiniPlayer: React.FC = () => {
           </TouchableOpacity>
 
           <View style={styles.controls}>
-            <TouchableOpacity onPress={isPlaying ? pause : play} style={styles.controlBtn}>
+            <TouchableOpacity onPress={isPlaying ? pause : play} style={styles.controlBtn} accessibilityRole="button" accessibilityLabel={isPlaying ? t('a11y.pause') : t('a11y.play')}>
               {isPlaying ? (
                 <Pause size={24} color={colors.primary} fill={colors.primary} />
               ) : (
@@ -83,7 +88,7 @@ export const MiniPlayer: React.FC = () => {
               )}
             </TouchableOpacity>
             
-            <TouchableOpacity onPress={next} style={styles.controlBtn}>
+            <TouchableOpacity onPress={next} style={styles.controlBtn} accessibilityRole="button" accessibilityLabel={t('a11y.next')}>
               <SkipForward size={24} color={colors.text} fill={colors.text} />
             </TouchableOpacity>
           </View>

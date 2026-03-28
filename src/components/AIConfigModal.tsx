@@ -49,7 +49,7 @@ export const AIConfigModal: React.FC<AIConfigModalProps> = ({ visible, onClose }
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         style={styles.centeredView}
       >
-        <View style={[styles.modalView, { backgroundColor: colors.card }]}>
+        <View style={[styles.modalView, { backgroundColor: colors.card }]} accessibilityViewIsModal={true}>
           <View style={styles.header}>
             <View style={styles.headerTitleRow}>
               <View style={[styles.iconBox, { backgroundColor: colors.primary + '20' }]}>
@@ -59,7 +59,12 @@ export const AIConfigModal: React.FC<AIConfigModalProps> = ({ visible, onClose }
                 {t("settings.ai.title")}
               </Text>
             </View>
-            <TouchableOpacity onPress={onClose} style={styles.closeButton}>
+            <TouchableOpacity 
+              onPress={onClose} 
+              style={styles.closeButton}
+              accessibilityRole="button"
+              accessibilityLabel={t("a11y.close")}
+            >
               <X size={24} color={colors.subText} />
             </TouchableOpacity>
           </View>
@@ -96,10 +101,15 @@ export const AIConfigModal: React.FC<AIConfigModalProps> = ({ visible, onClose }
                 secureTextEntry
                 autoCapitalize="none"
                 autoCorrect={false}
+                accessibilityLabel={t("settings.ai.apiKey")}
+                accessibilityHint={t("settings.ai.apiKeyPlaceholder")}
               />
               <TouchableOpacity 
                 style={styles.helpLink} 
                 onPress={openGeminiDashboard}
+                accessibilityRole="link"
+                accessibilityLabel={t("settings.ai.howToGet")}
+                accessibilityHint={t("a11y.openLink")}
               >
                 <Text style={[styles.helpLinkText, { color: colors.primary }]}>
                   {t("settings.ai.howToGet")}
@@ -126,7 +136,12 @@ export const AIConfigModal: React.FC<AIConfigModalProps> = ({ visible, onClose }
             </View>
           </ScrollView>
 
-          <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
+          <TouchableOpacity 
+            style={styles.saveButton} 
+            onPress={handleSave}
+            accessibilityRole="button"
+            accessibilityLabel={t("settings.ai.saveKey")}
+          >
             <LinearGradient
               colors={[colors.primary, colors.secondary || colors.primary]}
               start={{ x: 0, y: 0 }}

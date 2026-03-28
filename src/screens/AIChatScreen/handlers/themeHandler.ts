@@ -1,7 +1,8 @@
 import * as Haptics from 'expo-haptics';
 import { useThemeStore } from '../../../store/themeStore';
+import { ThemeOption } from '../../../constants/themes';
 import { findAction, parseActionData } from './actionParser';
-import { CustomTheme } from '../../../types/chat';
+import { CustomTheme, ThemeColors, AIAction } from '../../../types/chat';
 import logger from '../../../utils/logger';
 
 // Helper: Check if a color is light (returns true for light colors like #FFFFFF, false for dark like #000000)
@@ -43,8 +44,8 @@ const getComplementaryColor = (hex: string): string => {
   }
 };
 
-const cleanCommand = (text: string, match: any) => {
-  return text.replace(match.regex as any, '').split('\n').filter(line => line.trim() !== '').join('\n').trim();
+const cleanCommand = (text: string, match: AIAction) => {
+  return text.replace(match.fullMatch, '').split('\n').filter(line => line.trim() !== '').join('\n').trim();
 };
 
 export const handleThemeActions = (response: string): { cleanResponse: string; changed: boolean } => {
@@ -57,7 +58,7 @@ export const handleThemeActions = (response: string): { cleanResponse: string; c
     const darkMatch = findAction(cleanResponse, 'SET_DARK_MODE');
     if (darkMatch) {
       logger.info(`SET_DARK_MODE match found: "${darkMatch.data}"`, 'ThemeHandler');
-      const data = parseActionData(darkMatch.data);
+      const data = parseActionData(darkMatch.data) as { isDark?: boolean } | null;
       if (data && typeof data.isDark === 'boolean') {
         setIsDarkMode(data.isDark);
         cleanResponse = cleanCommand(cleanResponse, darkMatch);
@@ -72,7 +73,7 @@ export const handleThemeActions = (response: string): { cleanResponse: string; c
     const themeMatch = findAction(cleanResponse, 'SET_APP_THEME');
     if (themeMatch) {
       logger.info(`SET_APP_THEME match found: "${themeMatch.data}"`, 'ThemeHandler');
-      const data = parseActionData(themeMatch.data);
+      const data = parseActionData(themeMatch.data) as { themeId?: string } | null;
       if (data && data.themeId) {
         setThemeId(data.themeId.toLowerCase());
         cleanResponse = cleanCommand(cleanResponse, themeMatch);
@@ -86,7 +87,13 @@ export const handleThemeActions = (response: string): { cleanResponse: string; c
     // 3. CREATE_THEME
     const createThemeMatch = findAction(cleanResponse, 'CREATE_THEME');
     if (createThemeMatch) {
-      const data = parseActionData(createThemeMatch.data);
+      type AIColors = Partial<ThemeColors> & { accent?: string; bg?: string };
+      const data = parseActionData(createThemeMatch.data) as {
+        name?: string;
+        colors?: AIColors;
+        lightColors?: AIColors;
+        darkColors?: AIColors;
+      } | null;
       logger.info(`CREATE_THEME match found, raw data: ${JSON.stringify(data)}`, 'ThemeHandler');
       if (data && (data.colors || data.darkColors || data.lightColors)) {
         // If only "colors" is provided, use it for both lightColors and darkColors
@@ -148,7 +155,7 @@ export const handleThemeActions = (response: string): { cleanResponse: string; c
         }
         
         // AUTO-FIX: Add missing color fields with defaults
-        const addMissingColors = (colors: any, isDark: boolean) => {
+        const addMissingColors = (colors: (Partial<ThemeColors> & { accent?: string; bg?: string }) | undefined, isDark: boolean) => {
           if (!colors) return;
 
           // CRITICAL: Fix background and text for proper contrast
@@ -231,7 +238,7 @@ export const handleThemeActions = (response: string): { cleanResponse: string; c
         addMissingColors(data.lightColors, false);
         addMissingColors(data.darkColors, true);
         
-        const baseColors = data.colors || data.darkColors || data.lightColors || data.colors;
+        const baseColors = data.colors || data.darkColors || data.lightColors || {};
         const themeName = data.name ? data.name.charAt(0).toUpperCase() + data.name.slice(1) : 'AI Magic';
         const themeId = 'ai-' + themeName.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
         const newTheme: CustomTheme = {
@@ -240,12 +247,12 @@ export const handleThemeActions = (response: string): { cleanResponse: string; c
           colors: {
             ...baseColors,
             secondary: baseColors.secondary || baseColors.primary
-          },
-          lightColors: data.lightColors ? { ...data.lightColors, secondary: data.lightColors.secondary || data.lightColors.primary } : undefined,
-          darkColors: data.darkColors ? { ...data.darkColors, secondary: data.darkColors.secondary || data.darkColors.primary } : undefined
+          } as unknown as ThemeColors,
+          lightColors: data.lightColors ? { ...data.lightColors, secondary: data.lightColors.secondary || data.lightColors.primary } as unknown as ThemeColors : undefined,
+          darkColors: data.darkColors ? { ...data.darkColors, secondary: data.darkColors.secondary || data.darkColors.primary } as unknown as ThemeColors : undefined
         };
         logger.info(`Adding custom theme: ${JSON.stringify(newTheme)}`, 'ThemeHandler');
-        addCustomTheme(newTheme as any);
+        addCustomTheme(newTheme as unknown as ThemeOption);
         // AUTO-APPLY: Set the newly created theme as active
         logger.info(`Auto-applying theme: ${themeId}`, 'ThemeHandler');
         setThemeId(themeId);

@@ -95,7 +95,7 @@ export const useThemeStore = create<ThemeState>()(
 
         set({
           isDarkMode: isDark,
-          colors: colors as any
+          colors: colors as ThemeOption['colors']
         });
       },
 
@@ -124,7 +124,7 @@ export const useThemeStore = create<ThemeState>()(
 
         set({
           themeId: id,
-          colors: colors as any
+          colors: colors as ThemeOption['colors']
         });
       },
 
@@ -141,7 +141,7 @@ export const useThemeStore = create<ThemeState>()(
               ...darkBase,
               primary: theme.colors.primary,
               secondary: theme.colors.secondary || theme.colors.primary,
-            } as any;
+            } as ThemeOption['colors'];
           }
         } else {
           if (theme.lightColors) {
@@ -151,7 +151,7 @@ export const useThemeStore = create<ThemeState>()(
               ...lightBase,
               primary: theme.colors.primary,
               secondary: theme.colors.secondary || theme.colors.primary,
-            } as any;
+            } as ThemeOption['colors'];
           }
         }
 

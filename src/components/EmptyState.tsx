@@ -13,8 +13,13 @@ export const EmptyState: React.FC = () => {
   const { t } = useTranslation();
 
   return (
-    <View style={styles.container}>
-      <View style={styles.illustrationContainer}>
+    <View 
+      style={styles.container}
+      accessible={true}
+      accessibilityRole="text"
+      accessibilityLabel={`${t("home.emptyState.title")} - ${t("home.emptyState.description")}. ${t("home.addGoalDescription")}`}
+    >
+      <View style={styles.illustrationContainer} importantForAccessibility="no-hide-descendants">
         {/* Decorative background circles */}
         <View style={[styles.bgCircle, { backgroundColor: colors.primary, opacity: 0.05, width: 200, height: 200, top: -20 }]} />
         <View style={[styles.bgCircle, { backgroundColor: colors.secondary || colors.primary, opacity: 0.05, width: 160, height: 160, bottom: -10 }]} />
@@ -37,7 +42,7 @@ export const EmptyState: React.FC = () => {
         </LinearGradient>
       </View>
 
-      <View style={styles.textContainer}>
+      <View style={styles.textContainer} importantForAccessibility="no-hide-descendants">
         <Text style={[styles.title, { color: colors.text }]}>
           {t("home.emptyState.title")}
         </Text>
@@ -46,7 +51,7 @@ export const EmptyState: React.FC = () => {
         </Text>
       </View>
 
-      <View style={[styles.hintContainer, { backgroundColor: isDarkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.03)' }]}>
+      <View style={[styles.hintContainer, { backgroundColor: isDarkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.03)' }]} importantForAccessibility="no-hide-descendants">
         <Text 
           style={[styles.hintText, { color: colors.primary, opacity: 0.7 }]}
           numberOfLines={1}

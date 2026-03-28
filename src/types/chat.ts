@@ -8,10 +8,7 @@ export interface ChatMessage {
 export interface AIAction {
   fullMatch: string;
   type: string;
-  data: Record<string, unknown>;
-  regex: {
-    [Symbol.replace]: (str: string) => string;
-  };
+  data: string | null;
 }
 
 export interface ChatState {
@@ -27,6 +24,8 @@ export interface ThemeColors {
   secondary?: string;
   background: string;
   card: string;
+  cardBackground?: string;
+  cardBorder?: string;
   text: string;
   subText: string;
   border: string;
@@ -39,9 +38,9 @@ export interface ThemeColors {
 export interface CustomTheme {
   id: string;
   name: string;
-  colors: Partial<ThemeColors>;
-  lightColors?: Partial<ThemeColors>;
-  darkColors?: Partial<ThemeColors>;
+  colors: ThemeColors;
+  lightColors?: ThemeColors;
+  darkColors?: ThemeColors;
 }
 
 export type ChatSoundType = 'pop' | 'digital' | 'minimal';

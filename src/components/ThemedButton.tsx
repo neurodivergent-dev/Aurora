@@ -20,6 +20,7 @@ interface ThemedButtonProps {
   style?: StyleProp<ViewStyle>;
   textStyle?: StyleProp<TextStyle>;
   icon?: React.ReactNode;
+  accessibilityHint?: string;
 }
 
 export const ThemedButton: React.FC<ThemedButtonProps> = ({
@@ -31,6 +32,7 @@ export const ThemedButton: React.FC<ThemedButtonProps> = ({
   style,
   textStyle,
   icon,
+  accessibilityHint,
 }) => {
   const { colors, isDarkMode: _isDarkMode } = useTheme();
 
@@ -106,6 +108,10 @@ export const ThemedButton: React.FC<ThemedButtonProps> = ({
         onPressOut={handlePressOut}
         disabled={disabled || loading}
         activeOpacity={0.8}
+        accessibilityRole="button"
+        accessibilityLabel={loading ? `${title}, loading` : title}
+        accessibilityState={{ disabled: disabled || loading }}
+        accessibilityHint={accessibilityHint}
       >
         {loading ? (
           <ActivityIndicator size="small" color="#FFFFFF" />

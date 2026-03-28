@@ -149,7 +149,12 @@ export default function BackupSettingsScreen() {
           <View style={styles.headerDecorationCircle1} />
           <View style={styles.headerDecorationCircle2} />
 
-          <TouchableOpacity style={styles.backButton} onPress={handleBack}>
+          <TouchableOpacity 
+            style={styles.backButton} 
+            onPress={handleBack}
+            accessibilityRole="button"
+            accessibilityLabel={t("settings.title")}
+          >
             <ChevronLeft size={24} color="#FFFFFF" />
             <Text 
               style={[styles.backText, { color: "#FFFFFF" }]}
@@ -164,6 +169,7 @@ export default function BackupSettingsScreen() {
               style={[styles.headerTitle, { color: "#FFFFFF" }]}
               numberOfLines={1}
               adjustsFontSizeToFit
+              accessibilityRole="header"
             >
               {t("backup.title")}
             </Text>
@@ -174,7 +180,7 @@ export default function BackupSettingsScreen() {
         <ScrollView style={styles.scrollView}>
           <View style={styles.contentHeader}>
             <Download size={32} color={colors.primary} />
-            <Text style={[styles.title, { color: colors.text }]}>
+            <Text style={[styles.title, { color: colors.text }]} accessibilityRole="header">
               {t("backup.title")}
             </Text>
             <Text style={[styles.subtitle, { color: colors.subText }]}>
@@ -196,6 +202,8 @@ export default function BackupSettingsScreen() {
             <TouchableOpacity
               style={[styles.optionButton, { backgroundColor: colors.card }]}
               onPress={handleExport}
+              accessibilityRole="button"
+              accessibilityLabel={`${t("backup.exportJSON")}, ${t("backup.exportJSONDescription")}`}
             >
               <Download size={24} color={colors.primary} />
               <View style={styles.optionContent}>
@@ -225,6 +233,8 @@ export default function BackupSettingsScreen() {
             <TouchableOpacity
               style={[styles.optionButton, { backgroundColor: colors.card }]}
               onPress={handleImport}
+              accessibilityRole="button"
+              accessibilityLabel={`${t("backup.importJSON")}, ${t("backup.importJSONDescription")}`}
             >
               <Upload size={24} color={colors.secondary} />
               <View style={styles.optionContent}>
@@ -249,7 +259,7 @@ export default function BackupSettingsScreen() {
               <View style={[styles.infoIconCircle, { backgroundColor: colors.primary + '20' }]}>
                 <Info size={20} color={colors.primary} />
               </View>
-              <Text style={[styles.infoText, { color: colors.text }]}>
+              <Text style={[styles.infoText, { color: colors.text }]} accessible={true} accessibilityRole="text">
                 {t("backup.info")}
               </Text>
             </LinearGradient>

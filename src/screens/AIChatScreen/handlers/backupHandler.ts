@@ -28,14 +28,14 @@ export const handleBackupActions = (response: string, t?: (key: string) => strin
         });
       });
       
-      cleanResponse = cleanResponse.replace(exportMatch.regex as any, '').trim();
+      cleanResponse = cleanResponse.replace(exportMatch.fullMatch, '').trim();
       changed = true;
     }
 
     // 2. OPEN_BACKUP_SETTINGS
     const backupSettingsMatch = findAction(cleanResponse, 'OPEN_BACKUP_SETTINGS');
     if (backupSettingsMatch) {
-      cleanResponse = cleanResponse.replace(backupSettingsMatch.regex as any, '').trim();
+      cleanResponse = cleanResponse.replace(backupSettingsMatch.fullMatch, '').trim();
       setTimeout(() => router.push('/backup-settings'), 3000);
       changed = true;
     }

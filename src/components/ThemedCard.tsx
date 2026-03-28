@@ -24,6 +24,9 @@ export const ThemedCard: React.FC<ThemedCardProps> = ({
 
   return (
     <View
+      accessible={true}
+      accessibilityRole="summary"
+      accessibilityLabel={title + (description ? '. ' + description : '')}
       style={[
         styles.card,
         {
