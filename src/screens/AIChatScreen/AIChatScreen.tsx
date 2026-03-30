@@ -1,6 +1,5 @@
 import React, { useState, useRef, useMemo, useCallback, useEffect } from 'react';
 import {
-  StyleSheet,
   View,
   Text,
   TextInput,
@@ -103,9 +102,12 @@ const AIChatScreen = () => {
   const {
     isLoading,
     clearChatAlertVisible,
+    resetDataAlertVisible,
     setClearChatAlertVisible,
+    setResetDataAlertVisible,
     handleSend,
     clearChat,
+    confirmResetData,
   } = useAIChat();
 
   // Voice hooks
@@ -164,9 +166,11 @@ const AIChatScreen = () => {
     setShowScrollToBottom(!isCloseToBottom);
   };
 
-  const scrollToBottom = () => {
-    flatListRef.current?.scrollToEnd({ animated: true });
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+  const scrollToBottom = (animated = true) => {
+    if (flatListRef.current) {
+      flatListRef.current.scrollToEnd({ animated });
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    }
   };
 
   const toggleSelection = (id: string) => {
@@ -563,9 +567,15 @@ const AIChatScreen = () => {
                 contentContainerStyle={styles.listContent}
                 {...({ estimatedItemSize: 100 } as any)}
                 onContentSizeChange={() => {
-                  if (!showScrollToBottom) flatListRef.current?.scrollToEnd({ animated: true });
+                  if (!showScrollToBottom && flatListRef.current) {
+                    flatListRef.current.scrollToEnd({ animated: true });
+                  }
                 }}
-                onLayout={() => flatListRef.current?.scrollToEnd({ animated: true })}
+                onLayout={() => {
+                  if (flatListRef.current) {
+                    flatListRef.current.scrollToEnd({ animated: false });
+                  }
+                }}
                 onScroll={handleScroll}
                 scrollEventThrottle={16}
                 keyboardDismissMode="on-drag"
@@ -574,7 +584,7 @@ const AIChatScreen = () => {
               {showScrollToBottom && (
                 <Animated.View entering={FadeInDown.duration(200)} exiting={FadeInDown.duration(200)} style={styles.scrollToBottomContainer}>
                   <TouchableOpacity
-                    onPress={scrollToBottom}
+                    onPress={() => scrollToBottom()}
                     style={[styles.scrollToBottomButton, { backgroundColor: colors.card }]}
                     accessibilityRole="button"
                     accessibilityLabel={t('a11y.scrollToBottom')}
@@ -628,7 +638,9 @@ const AIChatScreen = () => {
                     accessibilityLabel={t('a11y.chatInput')}
                   />
                   <TouchableOpacity
-                    onPress={() => handleSend(inputText, setInputText, chatSoundsEnabled, chatSoundType)}
+                    onPress={() => {
+                      handleSend(inputText, setInputText, chatSoundsEnabled, chatSoundType);
+                    }}
                     disabled={!inputText.trim() || isLoading}
                     style={[styles.sendButton, { backgroundColor: inputText.trim() && !isLoading ? colors.primary : colors.subText + '20' }]}
                     accessibilityRole="button"
@@ -656,6 +668,20 @@ const AIChatScreen = () => {
           Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
         }}
         onCancel={() => setClearChatAlertVisible(false)}
+      />
+
+      <CustomAlert
+        visible={resetDataAlertVisible}
+        title={t('settings.clearDataConfirmTitle')}
+        message={t('settings.clearDataConfirmMessage')}
+        type="danger"
+        confirmText={t('common.delete')}
+        cancelText={t('common.cancel')}
+        onConfirm={() => {
+          confirmResetData();
+          setResetDataAlertVisible(false);
+        }}
+        onCancel={() => setResetDataAlertVisible(false)}
       />
 
       <CustomAlert

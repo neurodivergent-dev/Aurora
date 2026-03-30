@@ -17,21 +17,22 @@ import { handleThemeActions } from '../handlers/themeHandler';
 import { handleMusicActions } from '../handlers/musicHandler';
 import { handleSettingsActions } from '../handlers/settingsHandler';
 import { handleBackupActions } from '../handlers/backupHandler';
+import { handleInlineActions, UIEffect } from '../handlers/inlineActionsHandler';
 import logger from '../../../utils/logger';
 
 export const useAIChat = () => {
   const { t, i18n } = useTranslation();
-  
+
   // AI Store
-  const { 
-    apiKey, groqApiKey, activeProvider, isAIEnabled, 
-    chatMessages, addChatMessage, clearChatMessages, 
-    customSystemPrompt 
+  const {
+    apiKey, groqApiKey, activeProvider, isAIEnabled,
+    chatMessages, addChatMessage, clearChatMessages,
+    customSystemPrompt
   } = useAIStore();
-  
+
   // Other stores
-  const { 
-    play, pause, next, setCurrentTrack, playlist, 
+  const {
+    play, pause, next, setCurrentTrack, playlist,
     setVolume, currentTrack, loadLocalMusic,
     setTrackLyrics, setTrackArtwork, deletePlaylist, updatePlaylist, createPlaylist
   } = useMusicStore();
@@ -39,6 +40,7 @@ export const useAIChat = () => {
   // State
   const [isLoading, setIsLoading] = useState(false);
   const [clearChatAlertVisible, setClearChatAlertVisible] = useState(false);
+  const [resetDataAlertVisible, setResetDataAlertVisible] = useState(false);
 
   // Sound helper
   const playChatSound = (type: 'send' | 'receive', chatSoundsEnabled: boolean, chatSoundType: string) => {
@@ -63,7 +65,7 @@ export const useAIChat = () => {
     chatSoundType: string
   ) => {
     if (!inputText.trim() || isLoading) return;
-    
+
     const hasValidKey = apiKey || groqApiKey || activeProvider === 'ollama';
     if (!hasValidKey || !isAIEnabled) {
       Alert.alert(t('settings.ai.chat.noApiKey'));
@@ -180,56 +182,33 @@ export const useAIChat = () => {
     const backupResult = handleBackupActions(cleanResponse);
     cleanResponse = backupResult.cleanResponse;
 
-    // Handle remaining inline actions
-    const { cleaned, clearTriggered } = processInlineActions(cleanResponse);
-    cleanResponse = cleaned;
-    clearChatTriggered = clearTriggered;
+    // Handle remaining inline actions via extracted pure function (Kalkan Mimarisi)
+    const { cleanResponse: cleanedResult, effects } = handleInlineActions(cleanResponse);
+    cleanResponse = cleanedResult;
 
-    return { cleaned: cleanResponse, clearChatTriggered };
+    // Hook's job is purely to execute side-effects defined by the array
+    effects.forEach((effect: UIEffect) => {
+      if (effect.type === 'SHOW_RESET_ALERT') {
+        setResetDataAlertVisible(true);
+      } else if (effect.type === 'RATE_APP') {
+        const playStoreUrl = "https://play.google.com/store/apps/details?id=com.metaframe.aurora";
+        Linking.canOpenURL(playStoreUrl).then((supported) => {
+          if (supported) Linking.openURL(playStoreUrl);
+        });
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      }
+    });
+
+    return { cleaned: cleanResponse, clearChatTriggered: false };
   };
 
-  // Process inline actions (actions that need direct access to component state)
-  const processInlineActions = (
-    response: string
-  ): { cleaned: string; clearTriggered: boolean } => {
-    let cleanResponse = response;
-    let clearTriggered = false;
-
-    // RESET_ALL_DATA
-    if (response.includes('[ACTION:RESET_ALL_DATA]') || response.includes('(AURORA_COMMAND:RESET_ALL_DATA)')) {
-      cleanResponse = cleanResponse.replace('[ACTION:RESET_ALL_DATA]', '').replace('(AURORA_COMMAND:RESET_ALL_DATA)', '').trim();
-      Alert.alert(
-        t('settings.dangerZone.clearDataTitle') || "Reset All Data",
-        t('settings.dangerZone.clearDataDescription') || "Are you sure?",
-        [
-          { text: t('common.cancel'), style: 'cancel' },
-          {
-            text: t('common.delete'),
-            style: 'destructive',
-            onPress: async () => {
-              useLanguageStore.getState().resetState();
-              useThemeStore.getState().setIsDarkMode(true);
-              useThemeStore.getState().setThemeId('default');
-              useAIStore.getState().clearChatMessages();
-              Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-              router.replace('/');
-            }
-          }
-        ]
-      );
-    }
-
-    // RATE_APP
-    if (response.includes('[ACTION:RATE_APP]') || response.includes('(AURORA_COMMAND:RATE_APP)')) {
-      cleanResponse = cleanResponse.replace('[ACTION:RATE_APP]', '').replace('(AURORA_COMMAND:RATE_APP)', '').trim();
-      const playStoreUrl = "https://play.google.com/store/apps/details?id=com.metaframe.aurora";
-      Linking.canOpenURL(playStoreUrl).then((supported) => {
-        if (supported) Linking.openURL(playStoreUrl);
-      });
-      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-    }
-
-    return { cleaned: cleanResponse, clearTriggered };
+  const confirmResetData = async () => {
+    useLanguageStore.getState().resetState();
+    useThemeStore.getState().setIsDarkMode(true);
+    useThemeStore.getState().setThemeId('default');
+    useAIStore.getState().clearChatMessages();
+    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    router.replace('/');
   };
 
   const clearChat = () => {
@@ -240,8 +219,11 @@ export const useAIChat = () => {
   return {
     isLoading,
     clearChatAlertVisible,
+    resetDataAlertVisible,
     setClearChatAlertVisible,
+    setResetDataAlertVisible,
     handleSend,
     clearChat,
+    confirmResetData
   };
 };

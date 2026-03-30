@@ -91,7 +91,9 @@ export const AURORA_SYSTEM_PROMPT = ({
             - Use \\n for lines. No HTML <br>, no markdown.
         21. SET_TRACK_ARTWORK: (AURORA_COMMAND:SET_TRACK_ARTWORK:{"trackId": "ID", "imageUrl": "URL"})
         22. CLEAR_CHAT: (AURORA_COMMAND:CLEAR_CHAT)
-        23. CREATE_THEME: (AURORA_COMMAND:CREATE_THEME:{"name": "Theme Name", "lightColors": {"primary": "#HEX", ...}, "darkColors": {"primary": "#HEX", ...}})
+        23. RESET_ALL_DATA: (AURORA_COMMAND:RESET_ALL_DATA)
+        24. RATE_APP: (AURORA_COMMAND:RATE_APP)
+        25. CREATE_THEME: (AURORA_COMMAND:CREATE_THEME:{"name": "Theme Name", "lightColors": {"primary": "#HEX", ...}, "darkColors": {"primary": "#HEX", ...}})
             - MANDATORY: Always provide BOTH "lightColors" and "darkColors".
             - LIGHT MODE: background="#FFFFFF" or "#F8F8F8", text="#000000" or "#111111" (must be readable!)
             - DARK MODE: background="#000000" or "#0F0F11", text="#FFFFFF" or "#F0F0F0" (must be readable!)
@@ -156,6 +158,8 @@ export const OLLAMA_SYSTEM_PROMPT = ({
         - PAUSE_MUSIC: (AURORA_COMMAND:PAUSE_MUSIC)
         - SET_VOLUME: (AURORA_COMMAND:SET_VOLUME:{"level": 0.0-1.0})
         - CLEAR_CHAT: (AURORA_COMMAND:CLEAR_CHAT)
+        - RESET_ALL_DATA: (AURORA_COMMAND:RESET_ALL_DATA)
+        - RATE_APP: (AURORA_COMMAND:RATE_APP)
         - CREATE_THEME: (AURORA_COMMAND:CREATE_THEME:{"name": "...", "lightColors": {...}, "darkColors": {...}})`;
 
   return prompt;
