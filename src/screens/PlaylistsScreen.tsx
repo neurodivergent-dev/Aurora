@@ -218,10 +218,6 @@ export const PlaylistsScreen: React.FC = () => {
                     end={{ x: 1, y: 1 }}
                     style={styles.featuredCard}
                   >
-                    <View style={styles.cardGenreWrapper}>
-                      <Text style={styles.cardGenre}>{favoriteTrackIds.includes(track.id) ? t("playlist_screen.favorite") : t("playlist_screen.sections.featured")}</Text>
-                    </View>
-
                     <View style={styles.cardInfo}>
                       <Text style={styles.cardTitle} numberOfLines={1}>{track.title}</Text>
                       <Text style={styles.cardAuthor}>{track.artist}</Text>
@@ -589,7 +585,7 @@ const styles = StyleSheet.create({
   cardGenre: { color: "#FFFFFF", fontSize: 11, fontWeight: "700", textTransform: "uppercase" },
   cardInfo: { 
     marginTop: "auto",
-    marginRight: 40,
+    marginRight: 60,
   },
   cardTitle: { color: "#FFFFFF", fontSize: 20, fontWeight: "800", marginBottom: 4 },
   cardAuthor: { color: "rgba(255, 255, 255, 0.8)", fontSize: 13, fontWeight: "500" },

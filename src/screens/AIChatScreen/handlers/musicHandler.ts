@@ -16,7 +16,8 @@ export const handleMusicActions = (response: string): { cleanResponse: string; c
   const { 
     play, pause, next, setCurrentTrack, playlist, 
     setTrackArtwork, currentTrack, setTrackLyrics,
-    createPlaylist, updatePlaylist, deletePlaylist, setVolume, loadLocalMusic, toggleFavorite, prev, toggleShuffle, toggleRepeat
+    createPlaylist, updatePlaylist, deletePlaylist, setVolume, loadLocalMusic, toggleFavorite, prev, toggleShuffle, toggleRepeat,
+    toggleTrackInPlaylist
   } = useMusicStore.getState();
   const { pollinationsApiKey, localSdIp, imageProvider, localSdModel } = useAIStore.getState();
 
@@ -100,6 +101,31 @@ export const handleMusicActions = (response: string): { cleanResponse: string; c
       if (data && data.playlistId && data.name && data.trackIds) {
         updatePlaylist(data.playlistId, data.name, data.trackIds);
         cleanResponse = cleanCommand(cleanResponse, updatePlaylistMatch);
+        changed = true;
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      }
+    }
+
+    // 7.5 ADD_TO_PLAYLIST / REMOVE_FROM_PLAYLIST
+    const addToListMatch = findAction(cleanResponse, 'ADD_TO_PLAYLIST');
+    if (addToListMatch) {
+      const data = parseActionData(addToListMatch.data) as { playlistId?: string; trackId?: string } | null;
+      const trackId = data?.trackId || currentTrack?.id;
+      if (data?.playlistId && trackId) {
+        toggleTrackInPlaylist(data.playlistId, trackId, 'add');
+        cleanResponse = cleanCommand(cleanResponse, addToListMatch);
+        changed = true;
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      }
+    }
+
+    const removeFromListMatch = findAction(cleanResponse, 'REMOVE_FROM_PLAYLIST');
+    if (removeFromListMatch) {
+      const data = parseActionData(removeFromListMatch.data) as { playlistId?: string; trackId?: string } | null;
+      const trackId = data?.trackId || currentTrack?.id;
+      if (data?.playlistId && trackId) {
+        toggleTrackInPlaylist(data.playlistId, trackId, 'remove');
+        cleanResponse = cleanCommand(cleanResponse, removeFromListMatch);
         changed = true;
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       }

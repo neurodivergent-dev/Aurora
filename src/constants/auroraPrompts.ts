@@ -35,8 +35,11 @@ export const OLLAMA_COMMAND_LIST = `COMMANDS (USE THESE EXACTLY):
 - CREATE_PLAYLIST: (AURORA_COMMAND:CREATE_PLAYLIST:{"name": "Playlist Name", "trackIds": ["ID1", "ID2"]})
 - UPDATE_PLAYLIST: (AURORA_COMMAND:UPDATE_PLAYLIST:{"playlistId": "ID", "name": "New Name", "trackIds": ["ID1"]})
 - DELETE_PLAYLIST: (AURORA_COMMAND:DELETE_PLAYLIST:{"playlistId": "ID"})
+- ADD_TO_PLAYLIST: (AURORA_COMMAND:ADD_TO_PLAYLIST:{"playlistId": "ID", "trackId": "ID"})
+- REMOVE_FROM_PLAYLIST: (AURORA_COMMAND:REMOVE_FROM_PLAYLIST:{"playlistId": "ID", "trackId": "ID"})
 - PLAY_MUSIC: (AURORA_COMMAND:PLAY_MUSIC:{"trackId": "..."})
 - PAUSE_MUSIC: (AURORA_COMMAND:PAUSE_MUSIC)
+- SET_TRACK_LYRICS: (AURORA_COMMAND:SET_TRACK_LYRICS:{"trackId": "ID", "lyrics": "Lyrics..."}) -> CRITICAL: USE THIS to save/set lyrics!
 - SET_BACKGROUND_EFFECT: (AURORA_COMMAND:SET_BACKGROUND_EFFECT:{"effect": "..."})`;
 
 export const AURORA_SYSTEM_PROMPT = ({
@@ -63,9 +66,10 @@ export const AURORA_SYSTEM_PROMPT = ({
 
         RULES:
         1. Access to music library & playlists. Use "trackId" (EXACT ID) to play music.
-        2. Provide song lyrics when requested (Authorized).
+        2. Provide song lyrics when requested. You ARE FULLY AUTHORIZED to save/set lyrics to the database.
         3. LYRICS FORMAT (CRITICAL): Use RAW plain text. Use \\n for line breaks.
            PROHIBITED: NEVER use HTML <br> or markdown symbols like #, *, - in lyrics.
+           To save: (AURORA_COMMAND:SET_TRACK_LYRICS:{"trackId": "ID", "lyrics": "..."})
         4. One command tag at the very end. ALWAYS provide a brief confirmation message in text before the command tag.
            Example: "${exampleText} (AURORA_COMMAND:SET_BACKGROUND_EFFECT:{\"effect\": \"aurora\"})"
         5. Visuals: [IMAGE:description] to create artwork.
@@ -87,6 +91,8 @@ export const AURORA_SYSTEM_PROMPT = ({
         13. PAUSE_MUSIC: (AURORA_COMMAND:PAUSE_MUSIC)
         14. SET_VOLUME: (AURORA_COMMAND:SET_VOLUME:{"level": 0.0-1.0})
             - level: 0.0 (mute) to 1.0 (max). Example: 0.5 for 50%.
+        15. ADD_TO_PLAYLIST: (AURORA_COMMAND:ADD_TO_PLAYLIST:{"playlistId": "ID", "trackId": "ID"})
+        16. REMOVE_FROM_PLAYLIST: (AURORA_COMMAND:REMOVE_FROM_PLAYLIST:{"playlistId": "ID", "trackId": "ID"})
         20. SET_TRACK_LYRICS: (AURORA_COMMAND:SET_TRACK_LYRICS:{"trackId": "ID", "lyrics": "Lyrics..."})
             - Use \\n for lines. No HTML <br>, no markdown.
         21. SET_TRACK_ARTWORK: (AURORA_COMMAND:SET_TRACK_ARTWORK:{"trackId": "ID", "imageUrl": "URL"})
@@ -156,11 +162,15 @@ export const OLLAMA_SYSTEM_PROMPT = ({
         - SET_BACKGROUND_EFFECT: (AURORA_COMMAND:SET_BACKGROUND_EFFECT:{"effect": "bokeh|aurora|matrix|etc"})
         - PLAY_MUSIC: (AURORA_COMMAND:PLAY_MUSIC:{"trackId": "ID"})
         - PAUSE_MUSIC: (AURORA_COMMAND:PAUSE_MUSIC)
+        - SET_TRACK_LYRICS: (AURORA_COMMAND:SET_TRACK_LYRICS:{"trackId": "ID", "lyrics": "..."})
         - SET_VOLUME: (AURORA_COMMAND:SET_VOLUME:{"level": 0.0-1.0})
         - CLEAR_CHAT: (AURORA_COMMAND:CLEAR_CHAT)
         - RESET_ALL_DATA: (AURORA_COMMAND:RESET_ALL_DATA)
         - RATE_APP: (AURORA_COMMAND:RATE_APP)
-        - CREATE_THEME: (AURORA_COMMAND:CREATE_THEME:{"name": "...", "lightColors": {...}, "darkColors": {...}})`;
+        - DELETE_PLAYLIST: (AURORA_COMMAND:DELETE_PLAYLIST:{"playlistId": "ID"})
+- ADD_TO_PLAYLIST: (AURORA_COMMAND:ADD_TO_PLAYLIST:{"playlistId": "ID", "trackId": "ID"})
+- REMOVE_FROM_PLAYLIST: (AURORA_COMMAND:REMOVE_FROM_PLAYLIST:{"playlistId": "ID", "trackId": "ID"})
+- CREATE_THEME: (AURORA_COMMAND:CREATE_THEME:{"name": "...", "lightColors": {...}, "darkColors": {...}})`;
 
   return prompt;
 };

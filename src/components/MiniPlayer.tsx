@@ -36,10 +36,16 @@ export const MiniPlayer: React.FC = () => {
   const [deleteAlertVisible, setDeleteAlertVisible] = useState(false);
   const [playlistModalVisible, setPlaylistModalVisible] = useState(false);
 
-  // Sadece ana sayfa (Kitaplık) ekranında göster
   const isSelectionMode = selectedTrackIds.length > 0;
   const areAllSelectedFavorite = isSelectionMode && selectedTrackIds.every(id => isFavorite(id));
-  const isHidden = pathname !== '/' || (!currentTrack && !isSelectionMode);
+  
+  // Player'ın görünür olacağı sayfalar: Kitaplık, Keşfet, Liste Detay
+  const allowedPaths = ['/', '/playlists', '/playlist-detail'];
+  const isPathAllowed = allowedPaths.includes(pathname);
+  
+  // Eğer izin verilen yollarda değilsek veya çalacak bir şey yoksa gizle
+  // (Selection mode sadece '/' sayfasında çalışıyor, sayfa değişirse onu da gizle)
+  const isHidden = !isPathAllowed || (!currentTrack && !isSelectionMode) || (isSelectionMode && pathname !== '/');
 
   if (isHidden) return null;
 

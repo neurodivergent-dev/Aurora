@@ -77,6 +77,7 @@ interface MusicState {
   setTrackLyrics: (id: string, lyrics: string) => void;
   setTrackArtwork: (id: string, imageUrl: string) => void;
   clearAllLyrics: () => void;
+  toggleTrackInPlaylist: (playlistId: string, trackId: string, action: 'add' | 'remove') => void;
 
   // Selection Actions
   selectedTrackIds: string[];
@@ -159,6 +160,15 @@ export const useMusicStore = create<MusicState>()(
 
       deletePlaylist: (id) => set((state) => ({
         myPlaylists: state.myPlaylists.filter((p) => p.id !== id),
+      })),
+      toggleTrackInPlaylist: (playlistId, trackId, action) => set((state) => ({
+        myPlaylists: state.myPlaylists.map(p => {
+          if (p.id !== playlistId) return p;
+          const newTrackIds = action === 'add' 
+            ? [...new Set([...p.trackIds, trackId])]
+            : p.trackIds.filter(tid => tid !== trackId);
+          return { ...p, trackIds: newTrackIds };
+        })
       })),
       toggleFavorite: (id) => set((state) => ({
         favoriteTrackIds: state.favoriteTrackIds.includes(id)
