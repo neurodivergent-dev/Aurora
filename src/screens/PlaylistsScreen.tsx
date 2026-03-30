@@ -22,24 +22,19 @@ import { soundService } from "../services/SoundService";
 import { KeyboardAvoidingView, Platform, Modal } from "react-native";
 
 import * as Haptics from "expo-haptics";
+import { EmptyState } from "../components/EmptyState";
 
 const { width, height: screenHeight } = Dimensions.get("window");
 
-const CATEGORY_KEYS = [
-  { key: "all", label: "playlist_screen.categories.all" },
-  { key: "recommended", label: "playlist_screen.categories.recommended" },
-  { key: "focus", label: "playlist_screen.categories.focus" },
-  { key: "relax", label: "playlist_screen.categories.relax" },
-  { key: "energetic", label: "playlist_screen.categories.energetic" },
-];
+// Removed CATEGORY_KEYS as requested
 
 export const PlaylistsScreen: React.FC = () => {
-  const { colors } = useTheme();
+  const { colors, isDarkMode } = useTheme();
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const scrollRef = useRef<ScrollView>(null);
 
-  const [activeCategory, setActiveCategory] = useState("all");
+  // Removed activeCategory state
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [editingPlaylistId, setEditingPlaylistId] = useState<string | null>(null);
   const [newPlaylistName, setNewPlaylistName] = useState("");
@@ -65,28 +60,12 @@ export const PlaylistsScreen: React.FC = () => {
 
     const finalPool = [...favorites, ...nonFavorites];
 
-    if (activeCategory === "all") return finalPool.slice(0, 8); // Hepsi seçiliyse karışık sexy bir havuz sun
-
-    // Kategoriye göre filtrele ama yine içinden rastgele/favori seç
-    return finalPool.filter(track => {
-      const genre = (track.genre || "").toLowerCase();
-      if (activeCategory === "focus") return genre === "lofi";
-      if (activeCategory === "relax") return genre === "ambient" || genre === "nature";
-      if (activeCategory === "energetic") return genre === "local" || genre === "electronic";
-      return true;
-    }).slice(0, 8);
-  }, [activeCategory, playlist, favoriteTrackIds]);
+    return finalPool.slice(0, 10); // Karışık sexy bir havuz sun
+  }, [playlist, favoriteTrackIds]);
 
   const filteredTracks = useMemo(() => {
-    if (activeCategory === "all") return playlist;
-    return playlist.filter(track => {
-      const genre = (track.genre || "").toLowerCase();
-      if (activeCategory === "focus") return genre === "lofi";
-      if (activeCategory === "relax") return genre === "ambient" || genre === "nature";
-      if (activeCategory === "energetic") return genre === "local" || genre === "electronic";
-      return true;
-    });
-  }, [activeCategory, playlist]);
+    return playlist;
+  }, [playlist]);
 
   const handlePlayTrack = (track: Track) => {
     playFeedback();
@@ -100,7 +79,6 @@ export const PlaylistsScreen: React.FC = () => {
 
   const scrollToSection = () => {
     playFeedback();
-    setActiveCategory("all");
     scrollRef.current?.scrollTo({ y: 400, animated: true });
   };
 
@@ -207,39 +185,12 @@ export const PlaylistsScreen: React.FC = () => {
           showsVerticalScrollIndicator={false}
           contentContainerStyle={{ paddingBottom: 120 }}
         >
-          {/* Kategoriler */}
-          <Animated.View entering={FadeInRight.delay(200)} style={styles.categoriesWrapper}>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.categoriesList} accessibilityRole="radiogroup">
-              {CATEGORY_KEYS.map((cat, index) => {
-                const isActive = activeCategory === cat.key;
-                return (
-                  <TouchableOpacity
-                    key={index}
-                    onPress={() => { playFeedback(); setActiveCategory(cat.key); }}
-                    style={[
-                      styles.categoryPill,
-                      {
-                        backgroundColor: isActive ? colors.primary : colors.card,
-                        borderColor: isActive ? colors.primary : colors.border
-                      }
-                    ]}
-                    accessibilityRole="radio"
-                    accessibilityState={{ checked: isActive }}
-                    accessibilityLabel={t(cat.label)}
-                  >
-                    <Text style={[styles.categoryText, { color: isActive ? "#FFFFFF" : colors.subText }]}>
-                      {t(cat.label)}
-                    </Text>
-                  </TouchableOpacity>
-                );
-              })}
-            </ScrollView>
-          </Animated.View>
+          {/* Kategoriler kaldırıldı */}
 
           {/* Carousel Bölümü */}
           <Animated.View entering={FadeInDown.delay(300)}>
             <Text style={[styles.sectionTitle, { color: colors.text }]}>
-              {activeCategory === "all" ? t("playlist_screen.sections.featured") : t(`playlist_screen.categories.${activeCategory}`)}
+              {t("playlist_screen.sections.featured")}
             </Text>
 
             <ScrollView
@@ -268,7 +219,7 @@ export const PlaylistsScreen: React.FC = () => {
                     style={styles.featuredCard}
                   >
                     <View style={styles.cardGenreWrapper}>
-                      <Text style={styles.cardGenre}>{favoriteTrackIds.includes(track.id) ? t("playlist_screen.favorite") : (track.genre || "Music")}</Text>
+                      <Text style={styles.cardGenre}>{favoriteTrackIds.includes(track.id) ? t("playlist_screen.favorite") : t("playlist_screen.sections.featured")}</Text>
                     </View>
 
                     <View style={styles.cardInfo}>
@@ -284,10 +235,7 @@ export const PlaylistsScreen: React.FC = () => {
               ))}
 
               {featuredTracks.length === 0 && (
-                <View style={[styles.emptyCard, { backgroundColor: colors.card, borderColor: colors.border, borderWidth: 1 }]}>
-                  <Music size={40} color={colors.subText} strokeWidth={1} style={{ marginBottom: 12 }} />
-                  <Text style={{ color: colors.subText, textAlign: 'center' }}>{t("home.noMusic")}</Text>
-                </View>
+                <EmptyState />
               )}
             </ScrollView>
           </Animated.View>
@@ -581,13 +529,55 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.3,
     shadowRadius: 5,
   },
-  emptyCard: {
-    width: width * 0.6,
-    height: width * 0.6,
-    borderRadius: 24,
+  sexyEmptyCard: {
+    width: width - 40,
+    height: 280,
+    borderRadius: 32,
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 20,
+    padding: 30,
+    borderWidth: 1,
+    borderStyle: 'dashed',
+    overflow: 'hidden',
+  },
+  emptyIconCircle: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  emptyTitle: {
+    fontSize: 20,
+    fontWeight: '800',
+    textAlign: 'center',
+    marginBottom: 8,
+  },
+  emptySubtitle: {
+    fontSize: 14,
+    textAlign: 'center',
+    opacity: 0.7,
+    marginBottom: 24,
+    lineHeight: 20,
+  },
+  emptyAddBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 24,
+    paddingVertical: 12,
+    borderRadius: 20,
+    gap: 8,
+    elevation: 4,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+  },
+  emptyAddBtnText: {
+    color: '#FFFFFF',
+    fontSize: 15,
+    fontWeight: '700',
   },
   cardGenreWrapper: {
     alignSelf: "flex-start",
@@ -597,7 +587,10 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
   cardGenre: { color: "#FFFFFF", fontSize: 11, fontWeight: "700", textTransform: "uppercase" },
-  cardInfo: { marginTop: "auto" },
+  cardInfo: { 
+    marginTop: "auto",
+    marginRight: 40,
+  },
   cardTitle: { color: "#FFFFFF", fontSize: 20, fontWeight: "800", marginBottom: 4 },
   cardAuthor: { color: "rgba(255, 255, 255, 0.8)", fontSize: 13, fontWeight: "500" },
   playOverlay: { position: 'absolute', bottom: 20, right: 20 },

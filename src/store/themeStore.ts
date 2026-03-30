@@ -40,7 +40,7 @@ interface ThemeState {
   themeId: string;
   colors: ThemeOption['colors'];
   soundsEnabled: boolean;
-  ambientSound: 'none' | 'river' | 'forest' | 'lofi' | 'rain';
+  ambientSound: 'none';
   backgroundEffect: BackgroundEffectType;
   customThemes: ThemeOption[];
   soundTrigger: { type: 'complete' | 'delete' | 'undo' | 'click' | 'fanfare' | 'timer', timestamp: number } | null;
@@ -52,7 +52,7 @@ interface ThemeState {
   addCustomTheme: (theme: ThemeOption) => void;
   removeCustomTheme: (id: string) => void;
   setSoundsEnabled: (enabled: boolean) => void;
-  setAmbientSound: (sound: 'none' | 'river' | 'forest' | 'lofi' | 'rain') => void;
+  setAmbientSound: (sound: 'none') => void;
   setBackgroundEffect: (effect: BackgroundEffectType) => void;
   triggerSound: (type: 'complete' | 'delete' | 'undo' | 'click' | 'fanfare' | 'timer') => void;
   getActiveTheme: () => ThemeOption;
@@ -199,7 +199,7 @@ export const useThemeStore = create<ThemeState>()(
         soundsEnabled: enabled
       }),
 
-      setAmbientSound: (sound: 'none' | 'river' | 'forest' | 'lofi' | 'rain') => set({
+      setAmbientSound: (sound: 'none') => set({
         ambientSound: sound
       }),
 

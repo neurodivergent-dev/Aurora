@@ -11,7 +11,6 @@ export default {
     edit: 'Düzenle',
     close: 'Kapat',
     ok: 'Tamam',
-    focus: 'Oynatılıyor',
     selected: 'Seçildi',
     success: 'Başarılı',
     update: 'Güncelle',
@@ -67,7 +66,6 @@ export default {
     deleteTrackConfirm: 'Bu şarkıyı kütüphanenden kalıcı olarak silmek istediğine emin misin?',
     deleteSuccess: 'Şarkı silindi',
     cannotDeleteDefault: 'Varsayılan şarkılar silinemez',
-    addGoalDescription: 'Aşağıdaki butonu kullanarak hedefinizi ekleyin',
   },
   settings: {
     title: 'Ayarlar',
@@ -199,10 +197,6 @@ export default {
       localSdPort: 'SD API Port',
       groqDesc: 'Groq veya OpenAI uyumlu bir API anahtarı girin.',
       apiKeySecure: 'API anahtarınız sadece cihazınızda güvenli bir kasada saklanır.',
-      featureSmartRefine: 'Smart Refine',
-      featureSmartRefineDesc: 'Hedeflerinizi daha profesyonel hale getirir.',
-      featureMotivation: 'AI Motivation',
-      featureMotivationDesc: 'Size özel günlük motivasyon sağlar.',
       removeTrackConfirm: 'şarkısını kitaplıktan kaldırmak istediğine emin misin?',
     },
   },
@@ -322,7 +316,6 @@ export default {
     categories: {
       all: 'Tümü',
       recommended: 'Önerilenler',
-      focus: 'Ritim',
       relax: 'Rahatlama',
       energetic: 'Enerjik'
     },

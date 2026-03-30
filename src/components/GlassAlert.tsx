@@ -65,10 +65,13 @@ export const GlassAlert: React.FC = () => {
 
       <Animated.View 
         layout={Layout.springify()}
-        entering={ZoomIn.springify().damping(15)} 
-        exiting={ZoomOut.duration(200)}
         style={styles.alertContainer}
       >
+        <Animated.View 
+          entering={ZoomIn.springify().damping(15)} 
+          exiting={ZoomOut.duration(200)}
+          style={StyleSheet.absoluteFill}
+        >
         <BlurView
           intensity={Platform.OS === 'ios' ? 40 : 100}
           tint={isDarkMode ? 'dark' : 'light'}
@@ -105,6 +108,7 @@ export const GlassAlert: React.FC = () => {
             </TouchableOpacity>
           </View>
         </BlurView>
+        </Animated.View>
       </Animated.View>
     </View>
   );

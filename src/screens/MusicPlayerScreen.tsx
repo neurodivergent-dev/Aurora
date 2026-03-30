@@ -234,10 +234,7 @@ export const MusicPlayerScreen: React.FC = () => {
 
             <View style={styles.glassInfo}>
               <View style={styles.titleRow}>
-                {/* Sol tarafta hizayı mükemmel ortalamak için görünmez boşluk (Sağdaki 44px'lik butonu dengeler) */}
-                <View style={{ width: 44 }} />
-                
-                <View style={{ flex: 1, paddingHorizontal: 10, overflow: 'hidden' }}>
+                <View style={{ flex: 1, overflow: 'hidden' }}>
                   <TextTicker
                     style={[styles.trackTitle, { color: colors.text }]}
                     duration={8000}
@@ -608,14 +605,14 @@ const styles = StyleSheet.create({
     color: "#FFFFFF",
     fontSize: 28,
     fontWeight: "800",
-    textAlign: "center",
-    marginBottom: 8,
+    textAlign: "left",
+    marginBottom: 4,
   },
   trackArtist: {
     color: "rgba(255, 255, 255, 0.6)",
     fontSize: 18,
     fontWeight: "500",
-    textAlign: "center",
+    textAlign: "left",
   },
   playerSection: {
     paddingHorizontal: 30,

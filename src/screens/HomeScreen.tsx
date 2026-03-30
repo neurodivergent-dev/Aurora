@@ -18,6 +18,7 @@ import { useTranslation } from "react-i18next";
 import * as Haptics from "expo-haptics";
 
 import { TrackItem } from "../components/TrackItem";
+import { EmptyState } from "../components/EmptyState";
 
 export const HomeScreen: React.FC = () => {
   const insets = useSafeAreaInsets();
@@ -179,9 +180,7 @@ export const HomeScreen: React.FC = () => {
             })}
 
             {filteredPlaylist.length === 0 && (
-              <View style={styles.emptyState}>
-                <Text style={[styles.emptyText, { color: colors.subText }]}>{t("home.noMusic")}</Text>
-              </View>
+              <EmptyState />
             )}
 
             {/* Standard padding for MiniPlayer / Action Bar */}
@@ -279,6 +278,7 @@ const styles = StyleSheet.create({
   },
   heroInfo: {
     flex: 1,
+    marginRight: 16,
   },
   heroLabel: {
     fontSize: 12,

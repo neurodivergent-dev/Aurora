@@ -1,136 +1,147 @@
 import React from "react";
-import { StyleSheet, View, Text } from "react-native";
-import { Target, Sparkles } from "lucide-react-native";
+import { StyleSheet, View, Text, TouchableOpacity, Dimensions } from "react-native";
+import { Headphones, Plus, Sparkles } from "lucide-react-native";
 import { useTheme } from "./ThemeProvider";
 import { useTranslation } from "react-i18next";
 import { LinearGradient } from "expo-linear-gradient";
+import Animated, { FadeInDown, FadeIn, ZoomIn } from "react-native-reanimated";
+import { useMusicStore } from "../store/musicStore";
+import * as Haptics from "expo-haptics";
+import { soundService } from "../services/SoundService";
+
+const { width } = Dimensions.get("window");
 
 export const EmptyState: React.FC = () => {
-  // Tema renklerine erişim
   const { colors, isDarkMode } = useTheme();
-
-  // Translation hook
   const { t } = useTranslation();
+  const { loadLocalMusic } = useMusicStore();
+
+  const handleAddMusic = () => {
+    soundService.playClick();
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    loadLocalMusic();
+  };
 
   return (
-    <View 
-      style={styles.container}
-      accessible={true}
-      accessibilityRole="text"
-      accessibilityLabel={`${t("home.emptyState.title")} - ${t("home.emptyState.description")}. ${t("home.addGoalDescription")}`}
-    >
-      <View style={styles.illustrationContainer} importantForAccessibility="no-hide-descendants">
-        {/* Decorative background circles */}
-        <View style={[styles.bgCircle, { backgroundColor: colors.primary, opacity: 0.05, width: 200, height: 200, top: -20 }]} />
-        <View style={[styles.bgCircle, { backgroundColor: colors.secondary || colors.primary, opacity: 0.05, width: 160, height: 160, bottom: -10 }]} />
-
-        {/* Main Icon with Gradient */}
+    <View style={styles.container}>
+      <Animated.View 
+        entering={FadeIn.duration(1000)}
+        style={[
+          styles.sexyCard, 
+          { 
+            backgroundColor: isDarkMode ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.02)',
+            borderColor: colors.primary + '30'
+          }
+        ]}
+      >
         <LinearGradient
-          colors={[
-            colors.primary,
-            colors.secondary || colors.primary,
-          ]}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          style={styles.iconGradient}
-        >
-          <Target size={48} color="#FFFFFF" strokeWidth={1.5} />
-          
-          <View style={styles.sparkleContainer}>
-            <Sparkles size={20} color="#FFFFFF" opacity={0.8} />
+          colors={[colors.primary + '10', 'transparent']}
+          style={StyleSheet.absoluteFill}
+        />
+        
+        <Animated.View entering={ZoomIn.delay(300).duration(600)} style={styles.illustration}>
+          <View style={[styles.iconCircle, { backgroundColor: colors.primary + '15' }]}>
+            <Headphones size={48} color={colors.primary} strokeWidth={1.5} />
+            <Animated.View 
+              entering={FadeIn.delay(800)}
+              style={styles.sparklePos}
+            >
+              <Sparkles size={20} color={colors.primary} fill={colors.primary + '40'} />
+            </Animated.View>
           </View>
-        </LinearGradient>
-      </View>
+        </Animated.View>
 
-      <View style={styles.textContainer} importantForAccessibility="no-hide-descendants">
-        <Text style={[styles.title, { color: colors.text }]}>
-          {t("home.emptyState.title")}
-        </Text>
-        <Text style={[styles.description, { color: colors.subText }]}>
-          {t("home.emptyState.description")}
-        </Text>
-      </View>
-
-      <View style={[styles.hintContainer, { backgroundColor: isDarkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.03)' }]} importantForAccessibility="no-hide-descendants">
-        <Text 
-          style={[styles.hintText, { color: colors.primary, opacity: 0.7 }]}
-          numberOfLines={1}
-          adjustsFontSizeToFit
-          minimumFontScale={0.5}
-        >
-          {t("home.addGoalDescription")}
-        </Text>
-      </View>
+        <Animated.View entering={FadeInDown.delay(500).duration(600)} style={styles.textContainer}>
+          <Text style={[styles.title, { color: colors.text }]}>
+            {t("playlist_screen.noSongsInLibrary")}
+          </Text>
+          <Text style={[styles.subtitle, { color: colors.subText }]}>
+            {t("playlist_screen.localFilesDesc")}
+          </Text>
+        </Animated.View>
+        
+        <Animated.View entering={FadeInDown.delay(700).duration(600)}>
+          <TouchableOpacity 
+            style={[styles.addBtn, { backgroundColor: colors.primary }]}
+            onPress={handleAddMusic}
+            activeOpacity={0.8}
+          >
+            <Plus size={20} color="#FFF" strokeWidth={2.5} />
+            <Text style={styles.addBtnText}>{t("home.addLocalMusic")}</Text>
+          </TouchableOpacity>
+        </Animated.View>
+      </Animated.View>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    flexGrow: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    padding: 24,
-    minHeight: 450,
+    width: '100%',
+    paddingHorizontal: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginVertical: 40,
   },
-  illustrationContainer: {
-    width: 200,
-    height: 200,
-    justifyContent: "center",
-    alignItems: "center",
-    marginBottom: 32,
+  sexyCard: {
+    width: '100%',
+    padding: 40,
+    borderRadius: 40,
+    borderWidth: 1,
+    borderStyle: 'dashed',
+    alignItems: 'center',
+    overflow: 'hidden',
   },
-  bgCircle: {
-    position: 'absolute',
-    borderRadius: 100,
+  illustration: {
+    marginBottom: 24,
   },
-  iconGradient: {
+  iconCircle: {
     width: 100,
     height: 100,
-    borderRadius: 32,
-    justifyContent: "center",
-    alignItems: "center",
+    borderRadius: 50,
+    justifyContent: 'center',
+    alignItems: 'center',
+    position: 'relative',
+  },
+  sparklePos: {
+    position: 'absolute',
+    top: 5,
+    right: 5,
+  },
+  textContainer: {
+    alignItems: 'center',
+    marginBottom: 32,
+  },
+  title: {
+    fontSize: 22,
+    fontWeight: '800',
+    textAlign: 'center',
+    marginBottom: 10,
+    letterSpacing: -0.5,
+  },
+  subtitle: {
+    fontSize: 15,
+    textAlign: 'center',
+    opacity: 0.7,
+    lineHeight: 22,
+    paddingHorizontal: 10,
+  },
+  addBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 28,
+    paddingVertical: 14,
+    borderRadius: 22,
+    gap: 10,
     elevation: 8,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 8,
+    shadowOpacity: 0.3,
+    shadowRadius: 10,
   },
-  sparkleContainer: {
-    position: 'absolute',
-    top: 10,
-    right: 10,
-  },
-  textContainer: {
-    alignItems: "center",
-    marginBottom: 40,
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: "700",
-    marginBottom: 12,
-    textAlign: "center",
-  },
-  description: {
+  addBtnText: {
+    color: '#FFFFFF',
     fontSize: 16,
-    textAlign: "center",
-    maxWidth: 260,
-    lineHeight: 24,
-    opacity: 0.8,
-  },
-  hintContainer: {
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-    borderRadius: 24,
-    marginTop: 20,
-    alignSelf: 'center',
-    maxWidth: '90%',
-  },
-  hintText: {
-    fontSize: 13,
-    fontWeight: "600",
-    fontStyle: "italic",
-    textAlign: "center",
-    flexShrink: 1,
+    fontWeight: '700',
   },
 });

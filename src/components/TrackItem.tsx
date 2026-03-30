@@ -47,15 +47,16 @@ export const TrackItem: React.FC<TrackItemProps> = ({
   return (
     <Animated.View 
       entering={FadeInDown.delay(200 + index * 50)}
-      style={[styles.container, animatedStyle]}
+      style={styles.container}
     >
-      <TouchableOpacity
-        style={styles.content}
-        onPress={onPress}
-        onLongPress={onLongPress}
-        delayLongPress={300}
-        activeOpacity={0.7}
-      >
+      <Animated.View style={[styles.innerContainer, animatedStyle]}>
+        <TouchableOpacity
+          style={styles.content}
+          onPress={onPress}
+          onLongPress={onLongPress}
+          delayLongPress={300}
+          activeOpacity={0.7}
+        >
         <View style={[
           styles.trackIcon, 
           { 
@@ -90,14 +91,17 @@ export const TrackItem: React.FC<TrackItemProps> = ({
           <View style={[styles.selectionDot, { backgroundColor: colors.primary }]} />
         )}
       </TouchableOpacity>
+      </Animated.View>
     </Animated.View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    borderRadius: 16,
     marginBottom: 8,
+  },
+  innerContainer: {
+    borderRadius: 16,
     overflow: 'hidden',
   },
   content: {

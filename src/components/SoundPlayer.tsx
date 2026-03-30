@@ -25,13 +25,7 @@ const SOUND_ASSETS: Record<string, number> = {
   timer: require('../../assets/sounds/timer.mp3'),
 };
 
-const AMBIENT_ASSETS: Record<string, number> = {
-  river: require('../../assets/sounds/river.mp3'),
-  forest: require('../../assets/sounds/forest.mp3'),
-  lofi: require('../../assets/sounds/lofi.mp3'),
-  rain: require('../../assets/sounds/rain.mp3'),
-  zen: require('../../assets/sounds/zen.mp3'),
-};
+const AMBIENT_ASSETS: Record<string, number> = {};
 
 /**
  * High-performance Sound & Music Player.

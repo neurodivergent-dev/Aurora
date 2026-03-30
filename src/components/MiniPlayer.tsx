@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, Image, Modal, ScrollView } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Play, Pause, SkipForward, Music, Trash2, ListMusic, X, Plus, Check } from 'lucide-react-native';
+import { Play, Pause, SkipForward, SkipBack, Music, Trash2, ListMusic, X, Plus, Check, Heart } from 'lucide-react-native';
 import Animated, { FadeIn, FadeOut, SlideInDown, SlideOutDown } from 'react-native-reanimated';
 import { useMusicStore } from '../store/musicStore';
 import { useTheme } from './ThemeProvider';
@@ -12,29 +12,33 @@ import * as Haptics from 'expo-haptics';
 import { BlurView } from 'expo-blur';
 
 export const MiniPlayer: React.FC = () => {
-  const { 
-    currentTrack, 
-    isPlaying, 
-    play, 
-    pause, 
-    next, 
-    selectedTrackIds, 
+  const {
+    currentTrack,
+    isPlaying,
+    play,
+    pause,
+    next,
+    prev,
+    selectedTrackIds,
     clearSelection,
     removeLocalTracks,
     myPlaylists,
-    updatePlaylist
+    updatePlaylist,
+    toggleFavorite,
+    isFavorite
   } = useMusicStore();
-  
+
   const { colors, isDarkMode } = useTheme();
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const pathname = usePathname();
-  
+
   const [deleteAlertVisible, setDeleteAlertVisible] = useState(false);
   const [playlistModalVisible, setPlaylistModalVisible] = useState(false);
 
   // Sadece ana sayfa (Kitaplık) ekranında göster
   const isSelectionMode = selectedTrackIds.length > 0;
+  const areAllSelectedFavorite = isSelectionMode && selectedTrackIds.every(id => isFavorite(id));
   const isHidden = pathname !== '/' || (!currentTrack && !isSelectionMode);
 
   if (isHidden) return null;
@@ -52,7 +56,7 @@ export const MiniPlayer: React.FC = () => {
       // Mevcut şarkıları koru, seçilenleri ekle (duplikasyon engelleme ile)
       const newTrackIds = [...new Set([...playlist.trackIds, ...selectedTrackIds])];
       updatePlaylist(playlistId, playlist.name, newTrackIds);
-      
+
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       setPlaylistModalVisible(false);
       clearSelection();
@@ -60,23 +64,23 @@ export const MiniPlayer: React.FC = () => {
   };
 
   return (
-    <View 
-      style={{ 
-        position: 'absolute', 
-        left: 12, 
-        right: 12, 
-        bottom: (insets.bottom || 15) + 65, 
-        zIndex: 100 
+    <View
+      style={{
+        position: 'absolute',
+        left: 12,
+        right: 12,
+        bottom: (insets.bottom || 15) + 65,
+        zIndex: 100
       }}
       pointerEvents="box-none"
     >
-      <Animated.View 
-        entering={FadeIn.duration(400)} 
+      <Animated.View
+        entering={FadeIn.duration(400)}
         exiting={FadeOut.duration(300)}
         style={[
-          styles.container, 
-          { 
-            backgroundColor: colors.card, 
+          styles.container,
+          {
+            backgroundColor: colors.card,
             borderColor: colors.border,
           }
         ]}
@@ -84,8 +88,8 @@ export const MiniPlayer: React.FC = () => {
         {!isSelectionMode ? (
           /* NORMAL MINI PLAYER MODE */
           <View style={styles.contentRow}>
-            <TouchableOpacity 
-              style={styles.infoSection} 
+            <TouchableOpacity
+              style={styles.infoSection}
               activeOpacity={0.8}
               onPress={() => router.push('/music-player')}
             >
@@ -96,7 +100,7 @@ export const MiniPlayer: React.FC = () => {
                   <Music size={20} color={colors.primary} />
                 )}
               </View>
-              
+
               <View style={styles.info}>
                 <Text style={[styles.title, { color: colors.text }]} numberOfLines={1}>
                   {currentTrack?.title}
@@ -107,7 +111,30 @@ export const MiniPlayer: React.FC = () => {
               </View>
             </TouchableOpacity>
 
+            <TouchableOpacity
+              onPress={() => {
+                if (currentTrack) {
+                  toggleFavorite(currentTrack.id);
+                  Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                }
+              }}
+              style={styles.controlBtn}
+              accessibilityRole="button"
+              accessibilityLabel={currentTrack && isFavorite(currentTrack.id) ? t('a11y.favoriteActive') : t('a11y.favorite')}
+            >
+              <Heart
+                size={22}
+                color={currentTrack && isFavorite(currentTrack.id) ? "#FF4444" : colors.text}
+                fill={currentTrack && isFavorite(currentTrack.id) ? "#FF4444" : "transparent"}
+                opacity={currentTrack && isFavorite(currentTrack.id) ? 1 : 0.6}
+              />
+            </TouchableOpacity>
+
             <View style={styles.controls}>
+              <TouchableOpacity onPress={prev} style={styles.controlBtn}>
+                <SkipBack size={24} color={colors.text} fill={colors.text} />
+              </TouchableOpacity>
+
               <TouchableOpacity onPress={isPlaying ? pause : play} style={styles.controlBtn}>
                 {isPlaying ? (
                   <Pause size={24} color={colors.primary} fill={colors.primary} />
@@ -115,7 +142,7 @@ export const MiniPlayer: React.FC = () => {
                   <Play size={24} color={colors.primary} fill={colors.primary} />
                 )}
               </TouchableOpacity>
-              
+
               <TouchableOpacity onPress={next} style={styles.controlBtn}>
                 <SkipForward size={24} color={colors.text} fill={colors.text} />
               </TouchableOpacity>
@@ -132,17 +159,17 @@ export const MiniPlayer: React.FC = () => {
             </View>
 
             <View style={styles.selectionRight}>
-              <TouchableOpacity 
+              <TouchableOpacity
                 onPress={() => {
                   useMusicStore.getState().playSelectedTracks();
                   Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-                }} 
+                }}
                 style={styles.actionBtn}
               >
                 <Play size={22} color={colors.primary} fill={colors.primary + '20'} />
               </TouchableOpacity>
-              
-              <TouchableOpacity 
+
+              <TouchableOpacity
                 onPress={() => {
                   if (myPlaylists.length > 0) {
                     setPlaylistModalVisible(true);
@@ -150,21 +177,47 @@ export const MiniPlayer: React.FC = () => {
                     clearSelection();
                     router.push('/(tabs)/playlists');
                   }
-                }} 
+                }}
                 style={styles.actionBtn}
               >
                 <ListMusic size={22} color={colors.primary} />
               </TouchableOpacity>
 
-              <TouchableOpacity 
-                onPress={() => setDeleteAlertVisible(true)} 
+              <TouchableOpacity
+                onPress={() => {
+                  if (areAllSelectedFavorite) {
+                    // Hepsi favoriyse, hepsini favoriden çıkar
+                    selectedTrackIds.forEach(id => {
+                      if (isFavorite(id)) toggleFavorite(id);
+                    });
+                  } else {
+                    // En az biri favori değilse, eksik kalanları favori yap
+                    selectedTrackIds.forEach(id => {
+                      if (!isFavorite(id)) toggleFavorite(id);
+                    });
+                  }
+                  Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+                  clearSelection();
+                }}
+                style={styles.actionBtn}
+              >
+                <Heart 
+                  size={22} 
+                  color={areAllSelectedFavorite ? "#FF4444" : colors.text} 
+                  fill={areAllSelectedFavorite ? "#FF4444" : "transparent"}
+                  opacity={areAllSelectedFavorite ? 1 : 0.6}
+                />
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                onPress={() => setDeleteAlertVisible(true)}
                 style={styles.actionBtn}
               >
                 <Trash2 size={22} color="#EF4444" />
               </TouchableOpacity>
 
               <View style={[styles.separator, { backgroundColor: colors.border }]} />
-              
+
               <TouchableOpacity onPress={clearSelection} style={styles.closeBtn}>
                 <X size={22} color={colors.subText} />
               </TouchableOpacity>
@@ -180,12 +233,12 @@ export const MiniPlayer: React.FC = () => {
         animationType="fade"
         onRequestClose={() => setPlaylistModalVisible(false)}
       >
-        <TouchableOpacity 
-          style={styles.modalOverlay} 
-          activeOpacity={1} 
+        <TouchableOpacity
+          style={styles.modalOverlay}
+          activeOpacity={1}
           onPress={() => setPlaylistModalVisible(false)}
         >
-          <Animated.View 
+          <Animated.View
             entering={SlideInDown}
             exiting={SlideOutDown}
             style={styles.modalContentWrapper}
@@ -221,7 +274,7 @@ export const MiniPlayer: React.FC = () => {
                 ))}
               </ScrollView>
 
-              <TouchableOpacity 
+              <TouchableOpacity
                 style={[styles.createListBtn, { backgroundColor: colors.primary }]}
                 onPress={() => {
                   setPlaylistModalVisible(false);
@@ -237,7 +290,7 @@ export const MiniPlayer: React.FC = () => {
         </TouchableOpacity>
       </Modal>
 
-      <CustomAlert 
+      <CustomAlert
         visible={deleteAlertVisible}
         title={t('home.deleteTrackTitle')}
         message={t('home.deleteTrackConfirm')}

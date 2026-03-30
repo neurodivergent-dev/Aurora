@@ -32,30 +32,8 @@ export interface UserPlaylist {
   trackIds: string[];
 }
 
-// Default tracks with require() — NEVER persist these, asset IDs change on every build
-const DEFAULT_TRACKS: Track[] = [
-  {
-    id: 'lofi-1',
-    title: 'Ambient Beats',
-    artist: 'AI Producer',
-    url: require('../../assets/sounds/lofi.mp3'),
-    genre: 'Lofi',
-  },
-  {
-    id: 'zen-1',
-    title: 'Deep Zen',
-    artist: 'Mindfulness AI',
-    url: require('../../assets/sounds/zen.mp3'),
-    genre: 'Ambient',
-  },
-  {
-    id: 'rain-1',
-    title: 'Stormy Night',
-    artist: 'Nature Synth',
-    url: require('../../assets/sounds/rain.mp3'),
-    genre: 'Nature',
-  },
-];
+// Default tracks - Empty by default, user adds their own
+const DEFAULT_TRACKS: Track[] = [];
 
 interface MusicState {
   isPlaying: boolean;
@@ -257,17 +235,41 @@ export const useMusicStore = create<MusicState>()(
 
       removeLocalTrack: (id) => set((state) => {
         const newLocalTracks = state.localTracks.filter(t => t.id !== id);
+        const newMyPlaylists = state.myPlaylists.map(p => ({
+          ...p,
+          trackIds: p.trackIds.filter(tid => tid !== id)
+        }));
+        const newFavorites = state.favoriteTrackIds.filter(fid => fid !== id);
+        
+        const isCurrentDeleted = state.currentTrack?.id === id;
+        
         return {
           localTracks: newLocalTracks,
           playlist: [...DEFAULT_TRACKS, ...newLocalTracks],
+          myPlaylists: newMyPlaylists,
+          favoriteTrackIds: newFavorites,
+          currentTrack: isCurrentDeleted ? null : state.currentTrack,
+          isPlaying: isCurrentDeleted ? false : state.isPlaying,
         };
       }),
 
       removeLocalTracks: (ids) => set((state) => {
         const newLocalTracks = state.localTracks.filter(t => !ids.includes(t.id));
+        const newMyPlaylists = state.myPlaylists.map(p => ({
+          ...p,
+          trackIds: p.trackIds.filter(tid => !ids.includes(tid))
+        }));
+        const newFavorites = state.favoriteTrackIds.filter(fid => !ids.includes(fid));
+
+        const isCurrentDeleted = state.currentTrack && ids.includes(state.currentTrack.id);
+
         return {
           localTracks: newLocalTracks,
           playlist: [...DEFAULT_TRACKS, ...newLocalTracks],
+          myPlaylists: newMyPlaylists,
+          favoriteTrackIds: newFavorites,
+          currentTrack: isCurrentDeleted ? null : state.currentTrack,
+          isPlaying: isCurrentDeleted ? false : state.isPlaying,
         };
       }),
 

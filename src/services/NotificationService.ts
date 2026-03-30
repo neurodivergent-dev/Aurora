@@ -6,15 +6,6 @@ import logger from '../utils/logger';
 // Bildirimlerin nasıl gösterileceğini ayarlama
 Notifications.setNotificationHandler({
   handleNotification: async (notification) => {
-    // Odaklanma sayacı ise saniyede bir banner/ses çıkarmasın ama panelde gözüksün
-    if (notification.request.identifier === 'focus-timer') {
-      return {
-        shouldShowBanner: false, // Banner olarak tepeden fırlamasın (sessiz sayaç)
-        shouldShowList: true,   // Bildirim listesinde gözüksün
-        shouldPlaySound: false,
-        shouldSetBadge: false,
-      };
-    }
     return {
       shouldShowBanner: true, // Bildirim anında tepeden fırlasın
       shouldShowList: true,   // Listede (kilit ekranı vb.) kalsın
@@ -124,49 +115,6 @@ class NotificationService {
     }
   }
 
-  // Odaklanma modu bildirimi (Android'de sticky/ongoing)
-  async sendFocusNotification(title: string, body: string, isOngoing: boolean = true): Promise<string | null> {
-    const hasPermission = await this.requestPermissions();
-    if (!hasPermission) return null;
-
-    try {
-      const channelId = 'focus-mode';
-      if (Platform.OS === 'android') {
-        await Notifications.setNotificationChannelAsync(channelId, {
-          name: 'Focus Mode',
-          importance: Notifications.AndroidImportance.DEFAULT, // Önem düzeyini biraz artırdık (kaydırılmayı önlemek için)
-          vibrationPattern: null,
-          showBadge: false,
-          lockscreenVisibility: Notifications.AndroidNotificationVisibility.PUBLIC,
-        });
-      }
-
-      const notificationId = await Notifications.scheduleNotificationAsync({
-        identifier: 'focus-timer',
-        content: {
-          title,
-          body,
-          sticky: isOngoing, // Kaydırılmayı engeller
-          autoDismiss: false, // Tıklanınca kapanmaz
-          color: '#6366F1',
-          categoryIdentifier: 'focus',
-          sound: undefined,
-          vibrationPattern: undefined,
-          priority: Notifications.AndroidNotificationPriority.MAX, // En yüksek öncelik
-          // @ts-ignore
-          channelId: channelId,
-        } as any,
-        trigger: null,
-
-      });
-
-      return notificationId;
-    } catch (error) {
-      logger.error(`Odaklanma bildirimi hatası: ${error}`, 'Notification');
-      return null;
-    }
-  }
-
   // Tüm bildirimleri iptal etme
   async cancelAllNotifications(): Promise<void> {
     await Notifications.cancelAllScheduledNotificationsAsync();
@@ -183,4 +131,4 @@ class NotificationService {
   }
 }
 
-export default new NotificationService(); 
+export default new NotificationService();

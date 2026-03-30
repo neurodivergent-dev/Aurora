@@ -11,7 +11,6 @@ export default {
     edit: 'Edit',
     close: 'Close',
     ok: 'OK',
-    focus: 'Playing',
     selected: 'Selected',
     success: 'Success',
     update: 'Update',
@@ -67,7 +66,6 @@ export default {
     deleteTrackConfirm: 'Are you sure you want to delete this track from your library?',
     deleteSuccess: 'Track deleted',
     cannotDeleteDefault: 'Default tracks cannot be deleted',
-    addGoalDescription: 'Add your goal using the button below',
   },
   settings: {
     title: 'Settings',
@@ -199,10 +197,6 @@ export default {
       localSdPort: 'SD API Port',
       groqDesc: 'Enter a Groq or OpenAI compatible API key.',
       apiKeySecure: 'Your API key is stored only in a secure vault on your device.',
-      featureSmartRefine: 'Smart Refine',
-      featureSmartRefineDesc: 'Makes your goals more professional.',
-      featureMotivation: 'AI Motivation',
-      featureMotivationDesc: 'Provides personalized daily motivation.',
       removeTrackConfirm: 'are you sure you want to remove this track from the library?',
     },
   },
@@ -322,7 +316,6 @@ export default {
     categories: {
       all: 'All',
       recommended: 'Recommended',
-      focus: 'Rhythm',
       relax: 'Relax',
       energetic: 'Energetic'
     },

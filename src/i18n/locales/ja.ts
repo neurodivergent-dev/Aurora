@@ -11,7 +11,6 @@ export default {
     edit: '編集',
     close: '閉じる',
     ok: 'OK',
-    focus: '再生中',
     selected: '選択済み',
     success: '成功',
     update: '更新',
@@ -63,7 +62,6 @@ export default {
       default: 'こんにちは',
     },
     shuffle: 'シャッフル',
-    addGoalDescription: '下のボタンを使用して目標を追加してください',
   },
   settings: {
     title: '設定',
@@ -124,9 +122,7 @@ export default {
       galleryPermissionRequired: 'ギャラリーへのアクセス許可が必要です。',
       whatYouGet: '利用できる機能',
       smartRefineTitle: 'エージェンティック制御',
-      smartRefineDesc: 'AI DJとのチャットだけで、アプリ設定、テーマ、音楽を管理できます。',
       aiMotivationTitle: 'パーソナライズされたフロー',
-      aiMotivationDesc: 'あなたの気分に合わせて、最適な音楽とビジュアル空間を瞬時に構築。',
       chat: {
         title: 'AI DJ',
         placeholder: 'AI DJに話しかける...',
@@ -195,10 +191,6 @@ export default {
       localSdPort: 'SD API ポート',
       groqDesc: 'GroqまたはOpenAI互換のAPIキーを入力してください。',
       apiKeySecure: 'APIキーはデバイス上の安全な保管庫にのみ保存されます。',
-      featureSmartRefine: 'スマートリファイン',
-      featureSmartRefineDesc: 'あなたの目標をよりプロフェッショナルにします。',
-      featureMotivation: 'AIモチベーション',
-      featureMotivationDesc: 'パーソナライズされた毎日のモチベーションを提供します。',
       removeTrackConfirm: 'この曲をライブラリから削除してもよろしいですか？',
     },
   },
@@ -318,7 +310,6 @@ export default {
     categories: {
       all: 'すべて',
       recommended: 'おすすめ',
-      focus: 'リズム',
       relax: 'リラックス',
       energetic: 'エネルギッシュ'
     },
